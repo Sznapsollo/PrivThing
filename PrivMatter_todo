@@ -1,0 +1,47 @@
+todo:
+- measure inactivity on encrypted file and auto close
+- measure inactivity indicator
+- add new + refresh list
+- translation
+- layout
+- search criteria from cookies (sort)
+- icon
+- go to folder feature
+- settings
+- settings how long remember password
+- odswiezanie striony po dodaniu
+- better files browsing
+
+
+done:
+- if password present clear it after some time
+- if you happen to view some page at the time close it
+- ask for password only when there is no password
+- zmiana hasła
+- search clearowanie
+- items list fine looking list, hover, 
+- item padlock for encrypted, size, folder path
+- items encrypted
+- item selected
+- items not encrypted
+- going with master password instead of single passwords
+- opening encrypted item asks for password
+- saving save(existing only for techable), saveAs(), saveAs(encrypted) will ask for password
+- files encrypted will have nj extension and also start with something
+- if file text starts with something it is also treated as encrypted and will ask for password
+- no login on page load
+- left pane foldable for mobile
+- kasowanie (chyba nie na razie)
+- items scrollable
+- acceptable files extensions read
+- many folders and from which folder
+- better confirm with save & do
+- kategorie info w jakim folderze z setupu
+- 4 spaces
+- search
+- add new
+- save (service) 
+- save outside
+- react proxy to vertx server for dev
+- vertx initial server listing files from folder
+
