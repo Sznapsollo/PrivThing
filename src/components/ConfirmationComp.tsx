@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import {useState, useEffect} from 'react'
 import {Modal, Button} from 'react-bootstrap'
 
 interface Props {
@@ -81,18 +81,18 @@ const Confirmation = ({
         aria-labelledby="contained-modal-title-vcenter"
         centered
         >
-        <Modal.Header closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">
-            {modalHeading}
-            </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            {modalContent}
-        </Modal.Body>
-        <Modal.Footer>
-            {showSaveButton && <Button variant={saveButtonVariant} onClick={handleSave}>{saveLabel}</Button>}
-            {showCloseButton && <Button variant={closeButtonVariant} onClick={handleClose}>{closeLabel}</Button>}
-        </Modal.Footer>
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                {modalHeading}
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                {modalContent}
+            </Modal.Body>
+            <Modal.Footer>
+                {showSaveButton && <Button variant={saveButtonVariant} onClick={handleSave}>{saveLabel}</Button>}
+                {showCloseButton && <Button variant={closeButtonVariant} onClick={handleClose}>{closeLabel}</Button>}
+            </Modal.Footer>
         </Modal>
       </>
     );

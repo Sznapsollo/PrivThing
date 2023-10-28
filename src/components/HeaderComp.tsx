@@ -1,14 +1,19 @@
-import { Navbar, Container, Nav, FormControl, Button } from 'react-bootstrap';
+import { Navbar, Container, Nav, Dropdown, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom'
 import { FiPlusCircle } from 'react-icons/fi';
 import { LiaFilterSolid } from 'react-icons/lia';
+import { FiMenu } from 'react-icons/fi';
 import { AppState } from '../context/Context'
 import { Item } from '../model';
 import '../styles.css';
 
-const HeaderComp = () => {
+interface Props {
+    centerLabel?: string
+}
 
-    const { mainDispatch, searchDispatch } = AppState();
+const HeaderComp = ({centerLabel} : Props) => {
+
+    const { mainDispatch } = AppState();
 
     return (
         <Navbar bg="dark" variant="dark" style={{height: 40}}>
@@ -17,13 +22,14 @@ const HeaderComp = () => {
                     <Link to="/">PrivMatter</Link>
                 </Navbar.Brand>
             </Container>
-            <Container>
+            <Container fluid={true}>
                 <Button className='btn-sm showItemsButton' variant="light" onClick={() => {
                     mainDispatch({type: "TOGGLE_ITEMS_BAR"});
                 }}><LiaFilterSolid style={{marginBottom: -1}} className='h2'/></Button>
                 <Navbar.Text className='search'>
                     
                 </Navbar.Text>
+                <span style={{color: 'white'}}>{centerLabel}</span>
                 <Nav>
                     <Button className='btn-sm' variant="light" onClick={() => {
                         const payLoadItem: Item = {
@@ -37,52 +43,17 @@ const HeaderComp = () => {
                     }}>
                         <FiPlusCircle style={{marginBottom: -1}} className='h2'/>
                     </Button>
-                    {/* <Dropdown>
-                        <Dropdown.Toggle variant="success">
-                            <FaShoppingCart color="white" fontSize="25px" />
-                            <Badge className="bg-transparent">{cartState.cart.length}</Badge>
+                    &nbsp;
+                    <Dropdown>
+                        <Dropdown.Toggle variant="light">
+                            <FiMenu fontSize="25px" />
                         </Dropdown.Toggle>
-                        <Dropdown.Menu style={{minWidth: 370}}>
-                            {
-                                cartState.cart.length > 0 ? (
-                                    <>
-                                    {
-                                        cartState.cart.map((prod) => (
-                                            <span className="cartitem" key={prod.id}>
-                                            <img
-                                                src={prod.image}
-                                                className="cartItemImg"
-                                                alt={prod.name}
-                                            />
-                                            <div className="cartItemDetail">
-                                                <span>{prod.name}</span>
-                                                <span>₹ {prod.price.split(".")[0]}</span>
-                                            </div>
-                                            <AiFillDelete
-                                                fontSize="20px"
-                                                style={{ cursor: "pointer" }}
-                                                onClick={() =>
-                                                cartDispatch({
-                                                    type: "REMOVE_FROM_CART",
-                                                    payload: prod,
-                                                })
-                                                }
-                                            />
-                                            </span>
-                                        ))
-                                    }
-                                    <Link to="/cart">
-                                        <Button style={{ width: "95%", margin: "0 10px" }}>
-                                        Go To Cart
-                                        </Button>
-                                    </Link>
-                                    </>
-                                ) : (
-                                    <span style={{padding: 10}}>Cart is empty!</span>
-                                )
-                            }
+                        <Dropdown.Menu className='dropdown-menu-end'>
+                            <Dropdown.Item onClick={() => {
+                                mainDispatch({type: "SHOW_SETTINGS"});
+                            }}>Settings</Dropdown.Item>
                         </Dropdown.Menu>
-                    </Dropdown> */}
+                    </Dropdown>
                 </Nav>
             </Container>
         </Navbar>

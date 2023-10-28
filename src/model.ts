@@ -1,11 +1,12 @@
 export interface MainContextType {
     secret: string,
-    items: Item[],
     editedItem: Item,
     editedItemCandidate: Item,
+    homeCss: string,
+    items: Item[],
     itemsListRefreshTrigger: number,
     itemsCss: string,
-    homeCss: string
+    showSettings: boolean
 }
 
 export interface Item {
@@ -21,6 +22,11 @@ export interface Item {
 export interface SearchContextType {
     sort: string,
     searchQuery: string
+}
+
+export interface SettingsContextType {
+    forgetSecretTime: number,
+    forgetSecretMode: string // IMMEDIATE, AFTER_TIME, NEVER
 }
 
 export interface Alert {

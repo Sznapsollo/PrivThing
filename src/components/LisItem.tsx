@@ -14,6 +14,14 @@ const LisItem = ({item, keyProp}: Props) => {
     const [ itemCss, setItemCss ] = useState('');
 
     useEffect(() => {
+        updateItemCss();
+    }, [mainState.editedItem]);
+
+    useEffect(() => {
+        updateItemCss();
+    }, [item]);
+
+    const updateItemCss = () => {
         let itemsCsses: string[] = []
         if(keyProp % 2 === 0) {
             itemsCsses.push('evenRow')
@@ -24,7 +32,7 @@ const LisItem = ({item, keyProp}: Props) => {
         if(itemsCsses) {
             setItemCss(itemsCsses.join(' '))
         }
-    }, [mainState.editedItem]);
+    }
 
     return (
         <div className={"listItem " + itemCss} onClick={() => {

@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import {Form, Button, Modal} from 'react-bootstrap'
+import {Form, Button} from 'react-bootstrap'
 import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
@@ -15,7 +15,7 @@ const NoteComp = () => {
         warning?: string
     }
 
-    const { mainState, mainDispatch } = AppState();
+    const { mainState, mainDispatch, settingsState } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
     const [rawNote, setRawNote] = useState<string>('');
@@ -39,7 +39,7 @@ const NoteComp = () => {
     const initializeEditedItem = () => {
         setInitialState();
         let defaultFileName = (new Date().toJSON().slice(0,10).replace(/-/g,'_') + '_privmatter.txt');
-        setFilePath(mainState.editedItem.path);
+        setFilePath(mainState.editedItem.path || '');
         setFileName(mainState.editedItem.name || defaultFileName);
         if(mainState.editedItem.fetchData === true) {
             // NJ load and setEncrypted data
@@ -88,6 +88,9 @@ const NoteComp = () => {
         if(isDirty) {
             setShowUnsaved(true);
         } else {
+            if(mainState.secret && settingsState.forgetSecretMode === "IMMEDIATE") {
+                mainDispatch({type: 'CLEAR_SECRET'})     
+            }
             mainDispatch({type: 'SET_EDITED_ITEM', payload: mainState.editedItemCandidate}) 
         }
     }, [mainState.editedItemCandidate]);
@@ -236,11 +239,11 @@ const NoteComp = () => {
         <div className='noteContainer'>
             {
                 isSavingAsEncrypted && 
-                <SecretComp info="Provide password to encrypt file" handleSubmit={handleSaveAsSecretSubmit} />
+                <SecretComp confirm={true} info="Provide password to encrypt file" handleSubmit={handleSaveAsSecretSubmit} />
             }
             {
                 needSecret && 
-                <SecretComp warning={needSecretMeta.warning} info={needSecretMeta.info || "Provide password to open decrypted file"} handleSubmit={handleSecretSubmit} />
+                <SecretComp confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || "Provide password to open decrypted file"} handleSubmit={handleSecretSubmit} />
             }
             {
                 !needSecret && !isSavingAsEncrypted && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
@@ -313,6 +316,9 @@ const NoteComp = () => {
                     handleExternalSave={() => {
                         setShowUnsaved(false);
                         if(mainState.editedItemCandidate) {
+                            if(mainState.secret && settingsState.forgetSecretMode === "IMMEDIATE") {
+                                mainDispatch({type: 'CLEAR_SECRET'})     
+                            }
                             mainDispatch({type: 'SET_EDITED_ITEM', payload: mainState.editedItemCandidate});
                         }
                     }}

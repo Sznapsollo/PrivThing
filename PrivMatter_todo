@@ -1,19 +1,20 @@
 todo:
-- measure inactivity on encrypted file and auto close
-- measure inactivity indicator
 - add new + refresh list
 - translation
 - layout
-- search criteria from cookies (sort)
 - icon
 - go to folder feature
-- settings
-- settings how long remember password
-- odswiezanie striony po dodaniu
-- better files browsing
+- refresh page after saving file via browser
+- something wrong with marking selected edited file when filtering is on
 
 
 done:
+- search criteria from cookies (sort)
+- settings
+- settings how long remember password (time or for just viewing given file, never, immediate)
+- measure inactivity indicator
+- measure inactivity on encrypted file and auto close
+- better files browsing (auto stretch)
 - if password present clear it after some time
 - if you happen to view some page at the time close it
 - ask for password only when there is no password

@@ -1,17 +1,15 @@
 import React, {useState, useEffect} from 'react'
 import {Form, Button} from 'react-bootstrap'
-import { AppState } from '../context/Context'
 import CryptoJS from 'crypto-js';
-import { warn } from 'console';
 
 interface Props {
     warning?: string, 
     info?: string,
-    handleSubmit: (secret: string) => any
+    handleSubmit: (secret: string) => any,
+    confirm: boolean
 }
 
-const SecretComp = ({info, handleSubmit, warning} : Props) => {
-    const { mainDispatch } = AppState();
+const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
     const [ secret, setSecret ] = useState('');
     const [ secretConfirm, setSecretConfirm ] = useState('');
     const [ isValid, setIsValid ] = useState<boolean>(true);
@@ -70,11 +68,14 @@ const SecretComp = ({info, handleSubmit, warning} : Props) => {
                                 value={secret}
                                 onChange={(e) => {
                                     setSecret(e.target.value);
+                                    if(!confirm) {
+                                        setSecretConfirm(e.target.value);
+                                    }
                                 }}
                             ></Form.Control>
                         </Form.Group>
-                        <div>&nbsp;</div>
-                        <Form.Group className='formGroup'>
+                        {confirm && <div>&nbsp;</div>}
+                        {confirm && <Form.Group className='formGroup'>
                             <label className='upperLabel'>{translateCode("repeatPassword")}</label>
                             <Form.Control
                                 type="password"
@@ -86,7 +87,7 @@ const SecretComp = ({info, handleSubmit, warning} : Props) => {
                                     setSecretConfirm(e.target.value);
                                 }}
                             ></Form.Control>
-                        </Form.Group>
+                        </Form.Group>}
                         <div>&nbsp;</div>
                         <Button type='submit' disabled={!isValid} style={{width: "100%"}} variant='success' onClick={ () => {
                             submitSecret(undefined)

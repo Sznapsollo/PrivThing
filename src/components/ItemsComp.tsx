@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react'
-import { Button, Form, InputGroup } from "react-bootstrap";
+import { Form, InputGroup } from "react-bootstrap";
 import { AppState } from '../context/Context'
 import LisItem from './LisItem';
 import { CiUndo } from 'react-icons/ci';
@@ -121,8 +121,8 @@ const ItemsComp = () => {
                     <InputGroup>
                         <Form.Control 
                             placeholder='Start typing to filter files' 
-                            className='m-auto'
                             value={searchState.searchQuery}
+                            className={'m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
                             onChange={(e) =>
                                 {
                                     searchDispatch({type: 'FILTER_BY_SEARCH', payload: e.target.value});

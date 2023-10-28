@@ -21,6 +21,11 @@ body, html, #root, .App {
     display: flex;
     flex-direction: column;
     width: 20%;
+    transition: all .2s ease-in-out;
+}
+
+.items:hover {
+    width: 50%;
 }
 
 .itemsContainer {
@@ -139,11 +144,19 @@ label.upperLabel {
     cursor: pointer;
 }
 
+.filledInput {
+    border:2px solid #83c127 !important;
+}
+
  /* Media Queries */
  @media (max-width: 771px) {
     .items {
       width: 40%;
       padding: 10px;
+    }
+
+    .items:hover {
+        width: 60%;
     }
   
     .items > span {
@@ -163,6 +176,10 @@ label.upperLabel {
 @media (max-width: 500px) {
     .items {
         display: none;
+    }
+
+    .items:hover {
+        width: unset;
     }
 
     .showItemsSmall {
