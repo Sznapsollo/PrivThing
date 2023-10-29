@@ -53,7 +53,7 @@ const NoteComp = () => {
             .then(result => {return result.json()})
             .then(data => {
                 // debugger
-                if(data.status !== "OK") {
+                if(data.status !== 0) {
                     console.warn("Actions response", data);
                     return
                 }
@@ -175,7 +175,7 @@ const NoteComp = () => {
         fetch('actions', requestOptions)
         .then(result => {return result.json()})
         .then(data => {
-            if(data.status !== "OK") {
+            if(data.status !== 0) {
             console.warn("Actions response", data);
             setAlertData({header: "Error!", content: "Something went wrong ..."})
             setShowAlert(true);

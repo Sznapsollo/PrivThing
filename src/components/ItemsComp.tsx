@@ -56,7 +56,7 @@ const ItemsComp = () => {
         fetch('actions', requestOptions)
         .then(result => {return result.json()})
         .then(data => {
-            if(data.status !== "OK") {
+            if(data.status !== 0) {
                 console.warn("Actions response", data);
                 return
             }
