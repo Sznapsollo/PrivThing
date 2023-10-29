@@ -2,7 +2,8 @@
   "name": "privmatter",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:8081",
+  "proxy": "http://localhost:8190/listingFilesServer",
+  "homepage": "/listingFilesServer",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",

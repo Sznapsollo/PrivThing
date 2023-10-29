@@ -53,7 +53,7 @@ const ItemsComp = () => {
             body: JSON.stringify({type: 'getListOfFiles'}) 
         };
       
-        fetch('listingServer/actions', requestOptions)
+        fetch('actions', requestOptions)
         .then(result => {return result.json()})
         .then(data => {
             if(data.status !== "OK") {

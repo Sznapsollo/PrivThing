@@ -92,7 +92,7 @@ function App() {
 
     return (
         <div className="App">
-            <BrowserRouter>
+            <BrowserRouter basename='/listingFilesServer'>
                 <Header centerLabel={headerCenterLabel}/>
                 <Routes>
                 <Route path='/' element={<HomeComp/>} />

@@ -49,7 +49,7 @@ const NoteComp = () => {
                 body: JSON.stringify({type: 'retrieveFileFromPath', data: mainState.editedItem.path}) 
             };
 
-            fetch('listingServer/actions', requestOptions)
+            fetch('actions', requestOptions)
             .then(result => {return result.json()})
             .then(data => {
                 // debugger
@@ -172,7 +172,7 @@ const NoteComp = () => {
             body: JSON.stringify({type: 'updateFileFromPath', data: fileData, path: mainState.editedItem.path}) 
         };
         
-        fetch('listingServer/actions', requestOptions)
+        fetch('actions', requestOptions)
         .then(result => {return result.json()})
         .then(data => {
             if(data.status !== "OK") {
