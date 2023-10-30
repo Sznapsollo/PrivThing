@@ -15,7 +15,7 @@ body, html, #root, .App {
 }
 
 .items {
-    background-color: #343a40;
+    background-color: #002f5f;
     color: white;
     padding: 20px;
     display: flex;
@@ -204,3 +204,19 @@ label.upperLabel {
         display: block !important;
     }
 }
+
+
+.loading-icon {
+    color: teal;
+    font-size: 2rem;
+    animation: animate 2s infinite;
+  }
+  
+  @keyframes animate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(720deg);
+    }
+  }

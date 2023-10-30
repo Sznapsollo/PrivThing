@@ -1,14 +1,18 @@
 todo:
 - add new + refresh list
 - translation
-- layout
 - icon
 - go to folder feature
 - refresh page after saving file via browser
-- something wrong with marking selected edited file when filtering is on
-
+- counters
+- tabs
+- recent (localStorage)
 
 done:
+- go up when scrolled down
+- in progress indicator
+- layout
+- button hints
 - search criteria from cookies (sort)
 - settings
 - settings how long remember password (time or for just viewing given file, never, immediate)

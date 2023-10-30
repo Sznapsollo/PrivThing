@@ -6,6 +6,7 @@ import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
 import AlertComp from './AlertComp';
 import { Alert } from '../model';
+import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
 
 const NoteComp = () => {
@@ -22,6 +23,7 @@ const NoteComp = () => {
     const [note, setNote] = useState<string>('');
     const [orgNote, setOrgNote] = useState<string>('');
     const [isDirty, setIsDirty] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
     const [showAlert, setShowAlert] = useState<boolean>(false);
@@ -43,6 +45,7 @@ const NoteComp = () => {
         setFileName(mainState.editedItem.name || defaultFileName);
         if(mainState.editedItem.fetchData === true) {
             // NJ load and setEncrypted data
+            setIsLoading(true);
             const requestOptions = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -52,7 +55,7 @@ const NoteComp = () => {
             fetch('actions', requestOptions)
             .then(result => {return result.json()})
             .then(data => {
-                // debugger
+                setIsLoading(false);
                 if(data.status !== 0) {
                     console.warn("Actions response", data);
                     return
@@ -62,7 +65,9 @@ const NoteComp = () => {
                 }
             })
         } else if(mainState.editedItem.rawNote) {
+            setIsLoading(true);
             setRawNote(mainState.editedItem.rawNote);
+            setIsLoading(false);
         }
     }
 
@@ -238,6 +243,14 @@ const NoteComp = () => {
     return (
         <div className='noteContainer'>
             {
+                isLoading &&
+                <div style={{width: "100%", height: "100%", display: "table"}}>
+                    <div style={{display: "table-cell", verticalAlign: "middle", textAlign: 'center'}}>
+                        <AiOutlineLoading className='h2 loading-icon'/> &nbsp;In progress ...
+                    </div>
+                </div>
+            }
+            {
                 isSavingAsEncrypted && 
                 <SecretComp confirm={true} info="Provide password to encrypt file" handleSubmit={handleSaveAsSecretSubmit} />
             }
@@ -246,7 +259,7 @@ const NoteComp = () => {
                 <SecretComp confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || "Provide password to open decrypted file"} handleSubmit={handleSecretSubmit} />
             }
             {
-                !needSecret && !isSavingAsEncrypted && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
+                !isLoading && !needSecret && !isSavingAsEncrypted && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
                     <div className='formGroupContainer'>
                         <Form.Group className='formGroup'>
                         <label className='upperLabel'>{translateCode("filePath")}</label>
@@ -288,21 +301,25 @@ const NoteComp = () => {
                         {
                             mainState.editedItem.fetchData && <Button disabled={!isDirty} variant='success' onClick={ () => {
                                 updateFile();
-                            }}>Save</Button>
+                            }}
+                            title={'Save to location ' + mainState.editedItem.path}>Save</Button>
                         }
                         <div style={{flex: 1}}>&nbsp;</div>
                         &nbsp;
                         <Button disabled={!isDirty} variant='primary' onClick={ () => {
                             setIsSavingAsEncryted(true);
-                        }}>Save As (encrypted)</Button>
+                        }}
+                        title='Encrypt with password and save to selected location'>Save As (encrypted)</Button>
                         &nbsp;
                         <Button disabled={!isDirty} variant='success' onClick={ () => {
                             saveToFile(fileName, note);
-                        }}>Save As</Button>
+                        }}
+                        title='Save to selected location'>Save As</Button>
                         &nbsp;
                         <Button disabled={!isDirty} variant='danger' onClick={() => {
                             setNote(orgNote);
-                        }}>Cancel</Button>
+                        }}
+                        title='Rollback any changes to this item'>Cancel</Button>
                     </div>
                 </div>
             }
@@ -311,7 +328,7 @@ const NoteComp = () => {
                 <ConfirmationComp 
                     externalHeading='Warning'
                     externalContent='There are unsaved changes. Do you want to continue?'
-                    externalSaveLabel="Yes. I don't care abou these changes. Skip them."
+                    externalSaveLabel="Yes. I don't care about these changes. Skip them."
                     externalCloseLabel='NO! Let me save them first!'
                     handleExternalSave={() => {
                         setShowUnsaved(false);

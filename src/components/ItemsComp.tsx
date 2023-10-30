@@ -1,13 +1,18 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useRef} from 'react'
 import { Form, InputGroup } from "react-bootstrap";
 import { AppState } from '../context/Context'
 import LisItem from './LisItem';
 import { CiUndo } from 'react-icons/ci';
+import { AiOutlineLoading } from 'react-icons/ai';
+import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { Item } from '../model';
 
 const ItemsComp = () => {
     const { mainState, mainDispatch, searchState, searchDispatch } = AppState();
     const [ foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [scrollTop, setScrollTop] = useState(0);
+    const itemsContainerRef = useRef(null);
 
     const translateCode = (msgCode: string) => {
         var msgCodes:any = {
@@ -47,6 +52,7 @@ const ItemsComp = () => {
     }
 
     useEffect(() => {
+        setIsLoading(true);
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -56,6 +62,7 @@ const ItemsComp = () => {
         fetch('actions', requestOptions)
         .then(result => {return result.json()})
         .then(data => {
+            setIsLoading(false);
             if(data.status !== 0) {
                 console.warn("Actions response", data);
                 return
@@ -69,6 +76,10 @@ const ItemsComp = () => {
             }
         })
     }, [mainState.itemsListRefreshTrigger]);
+
+    useEffect(() => {
+        console.log(scrollTop)
+    }, [scrollTop]);
 
     const { searchState: {sort, searchQuery} } = AppState()
 
@@ -99,6 +110,17 @@ const ItemsComp = () => {
         return sortedItems
     }
 
+    const handleScroll = (e: React.UIEvent<HTMLElement>) => {
+        setScrollTop(e.currentTarget.scrollTop);
+    };
+
+    const handleScrollTop = () => {
+        if(!itemsContainerRef?.current) {
+            return
+        }
+        (itemsContainerRef.current as any).scrollTo({ top: 0});
+    }
+
     return (
         <div className={"items " + mainState.itemsCss}>
             <div className='formGroupContainer'>
@@ -115,7 +137,15 @@ const ItemsComp = () => {
                     ></Form.Control>
                 </Form.Group>
             </div>
-            {foldersLoaded === true && <div className='formGroupContainer'>
+            {
+                isLoading &&
+                <div style={{width: "100%", height: "100%", display: "table"}}>
+                    <div style={{display: "table-cell", verticalAlign: "middle", textAlign: 'center'}}>
+                        <AiOutlineLoading className='h2 loading-icon'/> &nbsp;In progress ...
+                    </div>
+                </div>
+            } 
+            {!isLoading && foldersLoaded === true && <div className='formGroupContainer'>
                 <label className='upperLabel'>{translateCode("search")}</label>
                 <Form.Group className='formGroup'>
                     <InputGroup>
@@ -137,7 +167,7 @@ const ItemsComp = () => {
                     
                 </Form.Group>
             </div>}
-            {foldersLoaded === true && <div className='formGroupContainer'>
+            {!isLoading && foldersLoaded === true && <div className='formGroupContainer'>
                 <label className='upperLabel'>{translateCode("sortBy")}</label>
                 <Form.Group className='formGroup'>
                     <Form.Control 
@@ -156,16 +186,24 @@ const ItemsComp = () => {
                 </Form.Group>
             </div>}
             {
-                !foldersLoaded && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>Files storage folder and service not configured. You can only work in manual pick and save files mode</div>
+                !isLoading && !foldersLoaded && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>Files storage folder and service not configured. You can only work in manual pick and save files mode</div>
             }
             {
-                foldersLoaded === true && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>Files loaded</div>
+                !isLoading && foldersLoaded === true && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>Files loaded</div>
             }
-            <div className='itemsContainer'>
+            <div className='itemsContainer' ref={itemsContainerRef} onScroll={handleScroll}>
             {
-                foldersLoaded === true && transformItems().map((item, i) => {
+                !isLoading && foldersLoaded === true && transformItems().map((item, i) => {
                     return <LisItem key={i} keyProp={i} item={item}/>
                 })
+            }
+            {
+                (scrollTop > 0) &&
+                <div style={{position: "absolute", bottom: 10, cursor: 'pointer'}} onClick={() => {
+                    handleScrollTop();
+                }}>
+                    <BsFillArrowUpSquareFill className='h1' style={{height: 45, width: 45}}/>
+                </div>
             }
             </div>
         </div>
