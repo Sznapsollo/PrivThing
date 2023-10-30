@@ -17,6 +17,8 @@ This repository includes only front end with limited functionality - more info b
 
 - under **<a href="https://cultrides.com/test/Github/PrivMatter/" target="_blank">UI Demo address</a>** you can have a peek at user interface of PrivMatter. It is deployed on shared host so functionalities regarding saving updates to existing notes will return error as it is disabled.
 
+There are also examples of encrypted files. Password to these files is in their name (last part).
+
 ### What it does
 
 #### Without server
