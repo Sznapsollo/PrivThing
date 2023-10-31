@@ -1,4 +1,5 @@
 import { Navbar, Container, Nav, Dropdown, Button } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { FiPlusCircle } from 'react-icons/fi';
 import { LiaFilterSolid } from 'react-icons/lia';
@@ -13,13 +14,14 @@ interface Props {
 
 const HeaderComp = ({centerLabel} : Props) => {
 
+    const { t } = useTranslation();
     const { mainDispatch } = AppState();
 
     return (
         <Navbar bg="dark" variant="dark" style={{height: 40}}>
             <Container className='brandContainer'>
                 <Navbar.Brand>
-                    <Link to="/">PrivMatter</Link>
+                    <Link to="/">{t("privMatter")}</Link>
                 </Navbar.Brand>
             </Container>
             <Container fluid={true}>
@@ -51,7 +53,7 @@ const HeaderComp = ({centerLabel} : Props) => {
                         <Dropdown.Menu className='dropdown-menu-end'>
                             <Dropdown.Item onClick={() => {
                                 mainDispatch({type: "SHOW_SETTINGS"});
-                            }}>Settings</Dropdown.Item>
+                            }}>{t("settings")}</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
                 </Nav>

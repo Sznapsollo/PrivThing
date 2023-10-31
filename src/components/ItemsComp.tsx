@@ -1,5 +1,6 @@
-import {useEffect, useState, useRef} from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Form, InputGroup } from "react-bootstrap";
+import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context'
 import LisItem from './LisItem';
 import { CiUndo } from 'react-icons/ci';
@@ -8,20 +9,14 @@ import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { Item } from '../model';
 
 const ItemsComp = () => {
+
+    const { t } = useTranslation();
+
     const { mainState, mainDispatch, searchState, searchDispatch } = AppState();
     const [ foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [scrollTop, setScrollTop] = useState(0);
     const itemsContainerRef = useRef(null);
-
-    const translateCode = (msgCode: string) => {
-        var msgCodes:any = {
-            manualPickFile: 'Manual pick file',
-            sortBy: 'Sort by',
-            search: 'Search'
-        }
-        return msgCodes[msgCode] || msgCode;
-    }
 
     const loadFromFile = (eventData: any) => {
         try {
@@ -47,7 +42,7 @@ const ItemsComp = () => {
         
             reader.readAsText(file);
         } catch(e) {
-            alert("Cant load this file!")
+            alert("Can't load this file!")
         }
     }
 
@@ -64,14 +59,14 @@ const ItemsComp = () => {
         .then(data => {
             setIsLoading(false);
             if(data.status !== 0) {
-                console.warn("Actions response", data);
+                // console.warn("Actions response", data);
                 return
             }
             if(data?.data?.files) {
                 setFoldersLoaded(true);
             }
             if(Array.isArray(data?.data?.files)) {
-                console.log(data.data)
+                // console.log(data.data)
                 mainDispatch({type: "SET_ITEMS", payload: data.data.files});
             }
         })
@@ -124,7 +119,7 @@ const ItemsComp = () => {
     return (
         <div className={"items " + mainState.itemsCss}>
             <div className='formGroupContainer'>
-                <label className='upperLabel'>{translateCode("manualPickFile")}</label>
+                <label className='upperLabel'>{t("manualPickFile")}</label>
                 <Form.Group className='formGroup'>
                     <Form.Control
                         type="file"
@@ -146,11 +141,11 @@ const ItemsComp = () => {
                 </div>
             } 
             {!isLoading && foldersLoaded === true && <div className='formGroupContainer'>
-                <label className='upperLabel'>{translateCode("search")}</label>
+                <label className='upperLabel'>{t("search")}</label>
                 <Form.Group className='formGroup'>
                     <InputGroup>
                         <Form.Control 
-                            placeholder='Start typing to filter files' 
+                            placeholder={t("startTypingToFilterFiles")} 
                             value={searchState.searchQuery}
                             className={'m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
                             onChange={(e) =>
@@ -168,7 +163,7 @@ const ItemsComp = () => {
                 </Form.Group>
             </div>}
             {!isLoading && foldersLoaded === true && <div className='formGroupContainer'>
-                <label className='upperLabel'>{translateCode("sortBy")}</label>
+                <label className='upperLabel'>{t("sortBy")}</label>
                 <Form.Group className='formGroup'>
                     <Form.Control 
                         as="select" 
@@ -178,18 +173,18 @@ const ItemsComp = () => {
                         searchDispatch({type: 'SORT_BY', payload: e.target.value});
                         }}
                     >
-                        <option value="nameLowToHigh">by name asc</option>
-                        <option value="nameHighToLow">by name desc</option>
-                        <option value="lastModifiedHighToLow">by last modified desc</option>
-                        <option value="lastModifiedLowToHigh">by last modified desc</option>
+                        <option value="nameLowToHigh">{t("nameLowToHigh")}</option>
+                        <option value="nameHighToLow">{t("nameHighToLow")}</option>
+                        <option value="lastModifiedHighToLow">{t("lastModifiedHighToLow")}</option>
+                        <option value="lastModifiedLowToHigh">{t("lastModifiedLowToHigh")}</option>
                     </Form.Control>
                 </Form.Group>
             </div>}
             {
-                !isLoading && !foldersLoaded && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>Files storage folder and service not configured. You can only work in manual pick and save files mode</div>
+                !isLoading && !foldersLoaded && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("storageNotConfigured")}</div>
             }
             {
-                !isLoading && foldersLoaded === true && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>Files loaded</div>
+                !isLoading && foldersLoaded === true && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("filesLoaded")} ({mainState.items?.length || 0})</div>
             }
             <div className='itemsContainer' ref={itemsContainerRef} onScroll={handleScroll}>
             {

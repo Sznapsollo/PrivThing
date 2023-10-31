@@ -1,5 +1,6 @@
-import {useState, useEffect} from 'react'
-import {Modal, Button} from 'react-bootstrap'
+import { useState, useEffect } from 'react'
+import { Modal, Button } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
     externalCloseButtonVariant?: string,
@@ -34,11 +35,14 @@ const Confirmation = ({
     handleExternalSave,
     initialShow
 }: Props) => {
+
+    const { t } = useTranslation();
+
     const [show, setShow] = useState(initialShow != null ? initialShow : true);
     const [showSaveButton, setShowSaveButton] = useState(externalShowSaveButton != null ? externalShowSaveButton : true);
     const [showCloseButton, setShowCloseButton] = useState(externalShowCloseButton != null ? externalShowCloseButton : true);
-    const [saveLabel, setSaveLabel] = useState(externalSaveLabel || "Save");
-    const [closeLabel, setCloseLabel] = useState(externalCloseLabel || "Close");
+    const [saveLabel, setSaveLabel] = useState(externalSaveLabel || t("save"));
+    const [closeLabel, setCloseLabel] = useState(externalCloseLabel || t("close"));
     const [modalContent, setModalContent] = useState(externalContent || '');
     const [modalHeading, setModalHeading] = useState(externalHeading || '');
     const [saveButtonVariant, setSaveButtonVariant] = useState(externalSaveButtonVariant || 'primary');

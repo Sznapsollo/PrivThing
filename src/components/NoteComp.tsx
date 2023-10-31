@@ -1,5 +1,6 @@
-import {useState, useEffect} from 'react'
-import {Form, Button} from 'react-bootstrap'
+import { useState, useEffect } from 'react'
+import { Form, Button } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
@@ -11,6 +12,7 @@ import '../styles.css'
 
 const NoteComp = () => {
 
+    const { t } = useTranslation();
     interface SecretMeta {
         info?: string,
         warning?: string
@@ -29,6 +31,7 @@ const NoteComp = () => {
     const [showAlert, setShowAlert] = useState<boolean>(false);
     const [alertData, setAlertData] = useState<Alert>({});
     const [needSecret, setNeedSecret] = useState<boolean>(false);
+    const [askRefresh, setAskRefresh] = useState<boolean>(false);
     const [needSecretMeta, setNeedSecretMeta] = useState<SecretMeta>({});
     const [isSavingAsEncrypted, setIsSavingAsEncryted] = useState<boolean>(false);
     
@@ -57,7 +60,7 @@ const NoteComp = () => {
             .then(data => {
                 setIsLoading(false);
                 if(data.status !== 0) {
-                    console.warn("Actions response", data);
+                    // console.warn("Actions response", data);
                     return
                 }
                 if(typeof data.data === "string") {
@@ -83,13 +86,13 @@ const NoteComp = () => {
     }, [mainState.secret]);
 
     useEffect(() => {
-        console.log('changed edited item', mainState.editedItem)
+        // console.log('changed edited item', mainState.editedItem)
         initializeEditedItem();
     }, [mainState.editedItem]);
 
     useEffect(() => {
         // NJ to check if there is something open to ask if we should save first
-        console.log('changed editedItemCandidate item candidate', mainState.editedItemCandidate)
+        // console.log('changed editedItemCandidate item candidate', mainState.editedItemCandidate)
         if(isDirty) {
             setShowUnsaved(true);
         } else {
@@ -116,16 +119,6 @@ const NoteComp = () => {
 
     const validateButtonsState = () => {
         setIsDirty((note !== orgNote));
-    }
-
-    const translateCode = (msgCode: string) => {
-        var msgCodes:any = {
-            fileName: "File Name",
-            filePath: "File Path",
-            note: "Note",
-            password: 'Password',
-        }
-        return msgCodes[msgCode] || msgCode;
     }
 
     const setInitialState = () => {
@@ -162,6 +155,9 @@ const NoteComp = () => {
         const link = document.createElement("a");
         link.download = fileNameLoc;
         link.href = url;
+
+        setAskRefresh(true);
+        
         link.click();
     }
 
@@ -181,8 +177,8 @@ const NoteComp = () => {
         .then(result => {return result.json()})
         .then(data => {
             if(data.status !== 0) {
-            console.warn("Actions response", data);
-            setAlertData({header: "Error!", content: "Something went wrong ..."})
+            // console.warn("Actions response", data);
+            setAlertData({header: "Error!", content: t("somethingWentWrong")})
             setShowAlert(true);
             return
             }
@@ -231,7 +227,7 @@ const NoteComp = () => {
             // setAlertData({header: "Error!", content: "Can not open this file!!!!"})
             // setShowAlert(true);
             if(encrypted) {
-                giveMeSecret("","Incorrect Password. Try again.");
+                giveMeSecret("", t("incorrectPassword"));
             }
         }
         if(data && data.length) {
@@ -252,17 +248,17 @@ const NoteComp = () => {
             }
             {
                 isSavingAsEncrypted && 
-                <SecretComp confirm={true} info="Provide password to encrypt file" handleSubmit={handleSaveAsSecretSubmit} />
+                <SecretComp confirm={true} info={t("providePasswordToEncryptFile")} handleSubmit={handleSaveAsSecretSubmit} />
             }
             {
                 needSecret && 
-                <SecretComp confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || "Provide password to open decrypted file"} handleSubmit={handleSecretSubmit} />
+                <SecretComp confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
             }
             {
                 !isLoading && !needSecret && !isSavingAsEncrypted && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
                     <div className='formGroupContainer'>
                         <Form.Group className='formGroup'>
-                        <label className='upperLabel'>{translateCode("filePath")}</label>
+                        <label className='upperLabel'>{t("filePath")}</label>
                         <Form.Control
                             type="text"
                             name="filePath"
@@ -274,7 +270,7 @@ const NoteComp = () => {
                     </div>
                     <div className='formGroupContainer'>
                         <Form.Group className='formGroup'>
-                        <label className='upperLabel'>{translateCode("fileName")}</label>
+                        <label className='upperLabel'>{t("fileName")}</label>
                         <Form.Control
                             type="text"
                             name="fileName"
@@ -286,7 +282,7 @@ const NoteComp = () => {
                     </div>
                     <div className='formGroupContainer flexStretch'>
                         <Form.Group className='formGroup'>
-                            <label className='upperLabel'>{translateCode("note")}</label>
+                            <label className='upperLabel'>{t("note")}</label>
                             <Form.Control
                                 as="textarea"
                                 name="comments"
@@ -302,34 +298,34 @@ const NoteComp = () => {
                             mainState.editedItem.fetchData && <Button disabled={!isDirty} variant='success' onClick={ () => {
                                 updateFile();
                             }}
-                            title={'Save to location ' + mainState.editedItem.path}>Save</Button>
+                            title={t("saveToLocation") + ' ' + mainState.editedItem.path}>{t("save")}</Button>
                         }
                         <div style={{flex: 1}}>&nbsp;</div>
                         &nbsp;
                         <Button disabled={!isDirty} variant='primary' onClick={ () => {
                             setIsSavingAsEncryted(true);
                         }}
-                        title='Encrypt with password and save to selected location'>Save As (encrypted)</Button>
+                        title={t("encryptAndSaveToLocation")}>{t("saveAsEncrypted")}</Button>
                         &nbsp;
                         <Button disabled={!isDirty} variant='success' onClick={ () => {
                             saveToFile(fileName, note);
                         }}
-                        title='Save to selected location'>Save As</Button>
+                        title={t("saveToSelectedLocation")}>{t("saveAs")}</Button>
                         &nbsp;
                         <Button disabled={!isDirty} variant='danger' onClick={() => {
                             setNote(orgNote);
                         }}
-                        title='Rollback any changes to this item'>Cancel</Button>
+                        title={t("rollbackItemChanges")}>{t("cancel")}</Button>
                     </div>
                 </div>
             }
             {   
                 showUnsaved && 
                 <ConfirmationComp 
-                    externalHeading='Warning'
-                    externalContent='There are unsaved changes. Do you want to continue?'
-                    externalSaveLabel="Yes. I don't care about these changes. Skip them."
-                    externalCloseLabel='NO! Let me save them first!'
+                    externalHeading={t("warning")}
+                    externalContent={t("unsavedChanges")}
+                    externalSaveLabel={t("ignoreUnsaved")}
+                    externalCloseLabel={t("correctUnsaved")}
                     handleExternalSave={() => {
                         setShowUnsaved(false);
                         if(mainState.editedItemCandidate) {
@@ -347,13 +343,28 @@ const NoteComp = () => {
                 <AlertComp 
                     externalHeading={alertData.header}
                     externalContent={alertData.content}
-                    externalCloseLabel="OK :-("
+                    externalCloseLabel={t("okSad")}
                     externalShowSaveButton={false}
                     handleExternalSave={() => {
                         setShowAlert(false);
                         
                     }}
                     handleExternalClose={() => {setShowAlert(false)}}
+                />
+            }
+            {   
+                askRefresh && 
+                <ConfirmationComp 
+                    externalHeading={t("question")}
+                    externalContent={t("confirmRefresh")}
+                    externalSaveLabel={t("Yes")}
+                    externalCloseLabel={t("No")}
+                    handleExternalSave={() => {
+                        setAskRefresh(false);
+                        mainDispatch({type: "UPDATE_ITEMS_LIST"});
+                        initializeEditedItem();
+                    }}
+                    handleExternalClose={() => {setAskRefresh(false)}}
                 />
             }
         </div>

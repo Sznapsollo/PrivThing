@@ -1,5 +1,6 @@
-import React, {useState, useEffect} from 'react'
-import {Form, Button} from 'react-bootstrap'
+import React, { useState, useEffect } from 'react'
+import { Form, Button } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
 
 interface Props {
@@ -10,6 +11,9 @@ interface Props {
 }
 
 const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
+
+    const { t } = useTranslation();
+
     const [ secret, setSecret ] = useState('');
     const [ secretConfirm, setSecretConfirm ] = useState('');
     const [ isValid, setIsValid ] = useState<boolean>(true);
@@ -17,14 +21,6 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
     useEffect(() => {
         checkValidity();
     }, [secret, secretConfirm]);
-
-    const translateCode = (msgCode: string) => {
-        var msgCodes:any = {
-            password: 'Password',
-            repeatPassword: 'Repeat Password',
-        }
-        return msgCodes[msgCode] || msgCode;
-    }
 
     const submitSecret = (event: React.FormEvent<HTMLFormElement> | undefined) => {
         if(event) {
@@ -59,7 +55,7 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
                         submitSecret(e);
                     }}>
                         <Form.Group className='formGroup'>
-                            <label className='upperLabel'>{translateCode("password")}</label>
+                            <label className='upperLabel'>{t("password")}</label>
                             <Form.Control
                                 type="password"
                                 name="secretValue"
@@ -76,7 +72,7 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
                         </Form.Group>
                         {confirm && <div>&nbsp;</div>}
                         {confirm && <Form.Group className='formGroup'>
-                            <label className='upperLabel'>{translateCode("repeatPassword")}</label>
+                            <label className='upperLabel'>{t("repeatPassword")}</label>
                             <Form.Control
                                 type="password"
                                 name="secretValueConfirm"
@@ -91,7 +87,7 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
                         <div>&nbsp;</div>
                         <Button type='submit' disabled={!isValid} style={{width: "100%"}} variant='success' onClick={ () => {
                             submitSecret(undefined)
-                        }}>Go</Button>
+                        }}>{t("go")}</Button>
                     </Form>
                 </div>
             </div>

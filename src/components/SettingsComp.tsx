@@ -1,6 +1,7 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react'
 import { AppState } from '../context/Context'
-import {Modal, Button, Form} from 'react-bootstrap'
+import { Modal, Button, Form } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 import { saveCookie } from '../helpers/helpers'
 import moment from 'moment';
 
@@ -9,20 +10,15 @@ interface Props {
 }
 
 const SettingsComp = ({show}:Props) => {
+
+    const { t } = useTranslation();
+
     const { mainDispatch, settingsState, settingsDispatch } = AppState();
     const [ settings, setSettings ] = useState<any>(settingsState)
 
     useEffect(() => {
         setSettings(settingsState);
     }, [settingsState]);
-
-    const translateCode = (msgCode: string) => {
-        var msgCodes:any = {
-            forgetSecretMode: "Ask for password again",
-            forgetSecretTime: "How long remember login",
-        }
-        return msgCodes[msgCode] || msgCode;
-    }
 
     const handleClose = () => {
         mainDispatch({type: "HIDE_SETTINGS"});
@@ -59,12 +55,12 @@ const SettingsComp = ({show}:Props) => {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                Settings
+                {t("settings")}
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form.Group className='formGroup'>
-                    <label className='upperLabel'>{translateCode("forgetSecretMode")}</label>
+                    <label className='upperLabel'>{t("forgetSecretMode")}</label>
                     <Form.Control 
                         as="select" 
                         name="forgetSecretMode"
@@ -75,14 +71,14 @@ const SettingsComp = ({show}:Props) => {
                             setSettings(newSettings);
                         }}
                     >
-                        <option value="AFTER_TIME">After specified time</option>
-                        <option value="NEVER">Never</option>
-                        <option value="IMMEDIATE">Each time it is required</option>
+                        <option value="AFTER_TIME">{t("afterSpecTime")}</option>
+                        <option value="NEVER">{t("never")}</option>
+                        <option value="IMMEDIATE">{t("eachTimeRequired")}</option>
                     </Form.Control>
                 </Form.Group>
                 &nbsp;
                 {settings.forgetSecretMode === "AFTER_TIME" && <Form.Group className='formGroup'>
-                    <label className='upperLabel'>{translateCode("forgetSecretTime")}</label>
+                    <label className='upperLabel'>{t("forgetSecretTime")}</label>
                     <Form.Control
                         type="range"
                         name="forgetSecretTime"
@@ -102,8 +98,8 @@ const SettingsComp = ({show}:Props) => {
                 </Form.Group>}
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="primary" onClick={handleSave}>Save</Button>
-                <Button variant="danger" onClick={handleClose}>Cancel</Button>
+                <Button variant="primary" onClick={handleSave}>{t("save")}</Button>
+                <Button variant="danger" onClick={handleClose}>{t("cancel")}</Button>
             </Modal.Footer>
     </Modal>
         </>

@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import i18n from './i18n';
 import { AppState } from './context/Context'
 import Header from './components/HeaderComp'
 import HomeComp from './components/HomeComp';
@@ -22,6 +23,10 @@ function App() {
         "scroll",
         "keypress",
     ];
+
+    useEffect(() => {
+        i18n.changeLanguage('en');
+    }, []);
 
     useEffect(() => {
         if(mainState.secret) {
