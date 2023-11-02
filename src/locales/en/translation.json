@@ -1,5 +1,6 @@
 {
     "afterSpecTime": "After specified time",
+    "allFolders": "All folders",
     "cancel": "Cancel",
     "close": "Close",
     "confirmRefresh": "Do you want to refresh?",
@@ -9,6 +10,7 @@
     "fileName": "File Name",
     "filesLoaded": "Files loaded",
     "filePath": "File Path",
+    "folders": "Folders",
     "forgetSecretMode": "Ask for password again",
     "forgetSecretTime": "How long remember login",
     "go": "Go",

@@ -56,7 +56,12 @@ const NoteComp = () => {
             };
 
             fetch('actions', requestOptions)
-            .then(result => {return result.json()})
+            .then(result => {
+                if(!result.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                return result.json()
+            })
             .then(data => {
                 setIsLoading(false);
                 if(data.status !== 0) {
@@ -67,6 +72,10 @@ const NoteComp = () => {
                     setRawNote(data.data);
                 }
             })
+            .catch(function(error) {
+                setIsLoading(false);
+                console.warn('Fetch operation error: ', error.message);
+            });
         } else if(mainState.editedItem.rawNote) {
             setIsLoading(true);
             setRawNote(mainState.editedItem.rawNote);
@@ -177,10 +186,10 @@ const NoteComp = () => {
         .then(result => {return result.json()})
         .then(data => {
             if(data.status !== 0) {
-            // console.warn("Actions response", data);
-            setAlertData({header: "Error!", content: t("somethingWentWrong")})
-            setShowAlert(true);
-            return
+                // console.warn("Actions response", data);
+                setAlertData({header: "Error!", content: t("somethingWentWrong")})
+                setShowAlert(true);
+                return
             }
             mainDispatch({type: "UPDATE_ITEMS_LIST"});
             initializeEditedItem();

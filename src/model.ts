@@ -4,6 +4,7 @@ export interface MainContextType {
     editedItemCandidate: Item,
     homeCss: string,
     items: Item[],
+    folders: string[],
     itemsListRefreshTrigger: number,
     itemsCss: string,
     showSettings: boolean
@@ -12,6 +13,7 @@ export interface MainContextType {
 export interface Item {
     name: string,
     path: string,
+    folder?: string,
     size: number,
     rawNote?: string,
     fetchData?: boolean,
@@ -21,7 +23,8 @@ export interface Item {
 
 export interface SearchContextType {
     sort: string,
-    searchQuery: string
+    searchQuery: string,
+    currentFolder: string
 }
 
 export interface SettingsContextType {

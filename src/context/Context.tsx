@@ -9,13 +9,15 @@ const appInitialState = {
   editedItem: {} as Item,
   homeCss: '',
   items: [],
+  folders: [],
   itemsListRefreshTrigger: 0,
   itemsCss: '',
   showSettings: false
 }
 const searchInitialState = {
   sort: 'lastModifiedHighToLow', 
-  searchQuery: ""
+  searchQuery: "",
+  currentFolder: ""
 }
 
 const settingsInitialState = {

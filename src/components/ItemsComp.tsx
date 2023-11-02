@@ -12,10 +12,12 @@ const ItemsComp = () => {
 
     const { t } = useTranslation();
 
-    const { mainState, mainDispatch, searchState, searchDispatch } = AppState();
-    const [ foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
+    const {mainState, mainDispatch, searchState, searchDispatch} = AppState();
+    const { searchState: {currentFolder, sort, searchQuery} } = AppState()
+    const [foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [scrollTop, setScrollTop] = useState(0);
+    const [scrollTop, setScrollTop] = useState<number>(0);
+    const [transformedItems, setTransformedItems] = useState<Item[]>([]);
     const itemsContainerRef = useRef(null);
 
     const loadFromFile = (eventData: any) => {
@@ -55,7 +57,12 @@ const ItemsComp = () => {
         };
       
         fetch('actions', requestOptions)
-        .then(result => {return result.json()})
+        .then(result => {
+            if(!result.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            return result.json()
+        })
         .then(data => {
             setIsLoading(false);
             if(data.status !== 0) {
@@ -63,6 +70,7 @@ const ItemsComp = () => {
                 return
             }
             if(data?.data?.files) {
+                // NJ will fire is service is configured and works
                 setFoldersLoaded(true);
             }
             if(Array.isArray(data?.data?.files)) {
@@ -70,40 +78,44 @@ const ItemsComp = () => {
                 mainDispatch({type: "SET_ITEMS", payload: data.data.files});
             }
         })
+        .catch(function(error) {
+            setIsLoading(false);
+            console.warn('Fetch operation error: ', error.message);
+        });
     }, [mainState.itemsListRefreshTrigger]);
 
-    useEffect(() => {
-        console.log(scrollTop)
-    }, [scrollTop]);
-
-    const { searchState: {sort, searchQuery} } = AppState()
-
-    // console.log(cartState)
-
     const transformItems = () => {
-        let sortedItems = mainState.items
+        let transformedItemsLocal = mainState.items
+
+        if(currentFolder) {
+            transformedItemsLocal = transformedItemsLocal.filter((item) => item.folder?.toLowerCase() === currentFolder.toLowerCase());
+        }
 
         if(sort) {
-        sortedItems = sortedItems.sort((a, b) => {
-            if(sort === 'nameLowToHigh') {
-            return (a.name.localeCompare(b.name))
-            } else if(sort === 'nameHighToLow') {
-            return (b.name.localeCompare(a.name))
-            } else if(sort === 'lastModifiedHighToLow') {
-            return ((b.lastModified || 0) - (a.lastModified || 0))
-            } else if(sort === 'lastModifiedLowToHigh') {
-            return ((a.lastModified || 0) - (b.lastModified || 0))
-            }
-            return (a.name.localeCompare(b.name))
-        })
+            transformedItemsLocal = transformedItemsLocal.sort((a, b) => {
+                if(sort === 'nameLowToHigh') {
+                return (a.name.localeCompare(b.name))
+                } else if(sort === 'nameHighToLow') {
+                return (b.name.localeCompare(a.name))
+                } else if(sort === 'lastModifiedHighToLow') {
+                return ((b.lastModified || 0) - (a.lastModified || 0))
+                } else if(sort === 'lastModifiedLowToHigh') {
+                return ((a.lastModified || 0) - (b.lastModified || 0))
+                }
+                return (a.name.localeCompare(b.name))
+            })
         }
 
         if(searchQuery) {
-            sortedItems = sortedItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+            transformedItemsLocal = transformedItemsLocal.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
 
-        return sortedItems
+        return setTransformedItems(transformedItemsLocal);
     }
+
+    useEffect(() => {
+        transformItems();
+    }, [mainState.items, searchState])
 
     const handleScroll = (e: React.UIEvent<HTMLElement>) => {
         setScrollTop(e.currentTarget.scrollTop);
@@ -180,16 +192,36 @@ const ItemsComp = () => {
                     </Form.Control>
                 </Form.Group>
             </div>}
+            {!isLoading && foldersLoaded === true && mainState.folders.length >= 1 && <div className='formGroupContainer'>
+                <label className='upperLabel'>{t("folders")}</label>
+                <Form.Group className='formGroup'>
+                    <Form.Control 
+                        as="select" 
+                        name="officialIdType"
+                        value={searchState.currentFolder}
+                        onChange={(e) => {
+                        searchDispatch({type: 'SET_CURRENT_FOLDER', payload: e.target.value});
+                        }}
+                    >
+                        <option value="">{t("allFolders")}</option>
+                        {
+                            mainState.folders.map((folder, folderIndex) => {
+                                return <option key={folderIndex} value={folder}>{folder}</option>
+                            })
+                        }
+                    </Form.Control>
+                </Form.Group>
+            </div>}
             {
                 !isLoading && !foldersLoaded && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("storageNotConfigured")}</div>
             }
             {
-                !isLoading && foldersLoaded === true && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("filesLoaded")} ({mainState.items?.length || 0})</div>
+                !isLoading && foldersLoaded === true && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}} >{t("filesLoaded")} ({transformedItems.length})</div>
             }
             <div className='itemsContainer' ref={itemsContainerRef} onScroll={handleScroll}>
             {
-                !isLoading && foldersLoaded === true && transformItems().map((item, i) => {
-                    return <LisItem key={i} keyProp={i} item={item}/>
+                !isLoading && foldersLoaded === true && transformedItems.map((item, itemIndex) => {
+                    return <LisItem key={itemIndex} keyProp={itemIndex} item={item}/>
                 })
             }
             {

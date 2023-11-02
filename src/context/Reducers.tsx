@@ -52,7 +52,13 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
         case "CLEAR_SECRET":
             return { ...state, secret: '' };
         case "SET_ITEMS":
-            return { ...state, items: action.payload };
+            let folders:string[] = [];
+            action.payload.forEach((item) => {
+                if(item.folder && folders.indexOf(item.folder) < 0) {
+                    folders.push(item.folder);
+                }
+            })
+            return { ...state, items: action.payload, folders: (folders || []) };
         case "SHOW_SETTINGS":
             return { ...state, showSettings: true };
         case "TOGGLE_ITEMS_BAR":
@@ -69,22 +75,25 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
     }
 };
 
-type SortByPrice = {type: 'SORT_BY', payload: string};
-type FilterBySearch = {type: 'FILTER_BY_SEARCH', payload: string};
 type ClearFilters = {type: 'CLEAR_FILTERS', payload: boolean};
+type FilterBySearch = {type: 'FILTER_BY_SEARCH', payload: string};
+type SetCurrentFolder = {type: 'SET_CURRENT_FOLDER', payload: string};
+type SortByPrice = {type: 'SORT_BY', payload: string};
 
-export type SearchActions = SortByPrice | FilterBySearch | ClearFilters;
+export type SearchActions = ClearFilters | FilterBySearch | SetCurrentFolder | SortByPrice;
 
 export const searchReducer = (state: SearchContextType, action: SearchActions) => {
     switch (action.type) {
+        case "CLEAR_FILTERS":
+            return { ...state };
+        case "FILTER_BY_SEARCH":
+            return { ...state, searchQuery: action.payload };
+        case "SET_CURRENT_FOLDER":
+            return { ...state, currentFolder: action.payload };
         case "SORT_BY":
             let pmSearchSettings = {sort: action.payload}
             saveCookie("pmSearchSettings", pmSearchSettings);
             return { ...state, sort: action.payload };
-        case "FILTER_BY_SEARCH":
-            return { ...state, searchQuery: action.payload };
-        case "CLEAR_FILTERS":
-            return { ...state };
         default:
             return state;
     }

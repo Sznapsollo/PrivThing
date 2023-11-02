@@ -1,9 +1,11 @@
 todo:
 - go to folder feature
-- tabs
 - recent (localStorage)
+- clear filters
+- folders picker precount
 
 done:
+- tabs of folders (basing on folder path) (folders as select item)
 - translation
 - refresh page after saving file via browser (so so could be better maybe some time ...)
 - add new + refresh list
