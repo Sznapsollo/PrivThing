@@ -5,8 +5,7 @@ import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
-import AlertComp from './AlertComp';
-import { Alert } from '../model';
+import { AlertData } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
 
@@ -28,8 +27,6 @@ const NoteComp = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
-    const [showAlert, setShowAlert] = useState<boolean>(false);
-    const [alertData, setAlertData] = useState<Alert>({});
     const [needSecret, setNeedSecret] = useState<boolean>(false);
     const [askRefresh, setAskRefresh] = useState<boolean>(false);
     const [needSecretMeta, setNeedSecretMeta] = useState<SecretMeta>({});
@@ -187,12 +184,12 @@ const NoteComp = () => {
         .then(data => {
             if(data.status !== 0) {
                 // console.warn("Actions response", data);
-                setAlertData({header: "Error!", content: t("somethingWentWrong")})
-                setShowAlert(true);
+                mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
                 return
             }
             mainDispatch({type: "UPDATE_ITEMS_LIST"});
             initializeEditedItem();
+            mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 5000, message: t('dataSaved')} as AlertData})
         })
     }
 
@@ -233,8 +230,6 @@ const NoteComp = () => {
                 data = rawData;
             }
         } catch(e) {
-            // setAlertData({header: "Error!", content: "Can not open this file!!!!"})
-            // setShowAlert(true);
             if(encrypted) {
                 giveMeSecret("", t("incorrectPassword"));
             }
@@ -345,20 +340,6 @@ const NoteComp = () => {
                         }
                     }}
                     handleExternalClose={() => {setShowUnsaved(false)}}
-                />
-            }
-            {   
-                showAlert && 
-                <AlertComp 
-                    externalHeading={alertData.header}
-                    externalContent={alertData.content}
-                    externalCloseLabel={t("okSad")}
-                    externalShowSaveButton={false}
-                    handleExternalSave={() => {
-                        setShowAlert(false);
-                        
-                    }}
-                    handleExternalClose={() => {setShowAlert(false)}}
                 />
             }
             {   

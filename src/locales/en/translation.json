@@ -5,6 +5,7 @@
     "close": "Close",
     "confirmRefresh": "Do you want to refresh?",
     "correctUnsaved": "NO! Let me save them first!",
+    "dataSaved": "Data saved correctly",
     "eachTimeRequired": "Each time it is required",
     "encryptAndSaveToLocation": "Encrypt with password and save to selected location",
     "fileName": "File Name",

@@ -1,38 +1,50 @@
-export interface MainContextType {
-    secret: string,
-    editedItem: Item,
-    editedItemCandidate: Item,
-    homeCss: string,
-    items: Item[],
-    folders: string[],
-    itemsListRefreshTrigger: number,
-    itemsCss: string,
-    showSettings: boolean
+import {AlertColor} from '@mui/material'
+
+export interface AlertData {
+    buttonLabel?: string,
+    header?: string,
+    message?: string,
+    show: boolean
 }
 
 export interface Item {
-    name: string,
-    path: string,
-    folder?: string,
-    size: number,
-    rawNote?: string,
     fetchData?: boolean,
+    folder?: string,
+    lastModified?: number,
+    name: string,
     new?: boolean,
-    lastModified?: number
+    path: string,
+    rawNote?: string,
+    size: number
+}
+export interface MainContextType {
+    alertData?: AlertData
+    editedItem: Item,
+    editedItemCandidate: Item,
+    folders: string[],
+    homeCss: string,
+    items: Item[],
+    itemsCss: string,
+    itemsListRefreshTrigger: number,
+    notificationData?: NotificationData,
+    secret: string,
+    showSettings: boolean
+}
+
+export interface NotificationData {
+    message?: string,
+    show: boolean,
+    type: AlertColor,
+    closeAfter?: number
 }
 
 export interface SearchContextType {
-    sort: string,
-    searchQuery: string,
     currentFolder: string
+    searchQuery: string,
+    sort: string,
 }
 
 export interface SettingsContextType {
-    forgetSecretTime: number,
-    forgetSecretMode: string // IMMEDIATE, AFTER_TIME, NEVER
-}
-
-export interface Alert {
-    header?: string,
-    content?: string 
+    forgetSecretMode: string, // IMMEDIATE, AFTER_TIME, NEVER
+    forgetSecretTime: number
 }

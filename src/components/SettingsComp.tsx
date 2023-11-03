@@ -5,15 +5,12 @@ import { useTranslation } from 'react-i18next'
 import { saveCookie } from '../helpers/helpers'
 import moment from 'moment';
 
-interface Props {
-    show: boolean
-}
 
-const SettingsComp = ({show}:Props) => {
+const SettingsComp = () => {
 
     const { t } = useTranslation();
 
-    const { mainDispatch, settingsState, settingsDispatch } = AppState();
+    const { mainState, mainDispatch, settingsState, settingsDispatch } = AppState();
     const [ settings, setSettings ] = useState<any>(settingsState)
 
     useEffect(() => {
@@ -45,7 +42,7 @@ const SettingsComp = ({show}:Props) => {
     return (
         <>
         <Modal
-        show={show}
+        show={mainState.showSettings}
         onHide={handleClose}
         backdrop="static"
         keyboard={false}

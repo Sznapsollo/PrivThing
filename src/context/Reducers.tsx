@@ -1,5 +1,5 @@
 
-import { MainContextType, Item, SearchContextType, SettingsContextType } from '../model'
+import { AlertData, Item, MainContextType, NotificationData, SearchContextType, SettingsContextType } from '../model'
 import { saveCookie } from '../helpers/helpers'
 
 type HideItemsBar = {type: 'HIDE_ITEMS_BAR'};
@@ -10,6 +10,8 @@ type SetEditedItem = {type: 'SET_EDITED_ITEM', payload: Item};
 type ClearEditedItem = {type: 'CLEAR_EDITED_ITEM'};
 type ClearSecret = {type: 'CLEAR_SECRET'};
 type SetItems = {type: 'SET_ITEMS', payload: Item[]};
+type ShowAlertModal = {type: 'SHOW_ALERT_MODAL', payload: AlertData};
+type ShowNotification = {type: 'SHOW_NOTIFICATION', payload: NotificationData};
 type ShowSettings = {type: 'SHOW_SETTINGS'};
 type ToggleItemsBar = {type: 'TOGGLE_ITEMS_BAR'};
 type UpdateItemsList = {type: 'UPDATE_ITEMS_LIST'};
@@ -23,6 +25,8 @@ export type MainActions = ClearEditedItem |
     SetEditedItemCandidatel | 
     SetEditedItem | 
     SetItems | 
+    ShowAlertModal | 
+    ShowNotification |
     ShowSettings |
     ToggleItemsBar | 
     UpdateItemsList | 
@@ -61,6 +65,10 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             return { ...state, items: action.payload, folders: (folders || []) };
         case "SHOW_SETTINGS":
             return { ...state, showSettings: true };
+        case "SHOW_ALERT_MODAL":
+            return { ...state, alertData: action.payload };
+        case "SHOW_NOTIFICATION":
+            return { ...state, notificationData: action.payload };
         case "TOGGLE_ITEMS_BAR":
             let currItemsCss = state.itemsCss
             currItemsCss = currItemsCss && currItemsCss.length ? '' : 'showItemsSmall';
