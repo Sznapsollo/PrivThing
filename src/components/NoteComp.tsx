@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
@@ -31,6 +31,8 @@ const NoteComp = () => {
     const [askRefresh, setAskRefresh] = useState<boolean>(false);
     const [needSecretMeta, setNeedSecretMeta] = useState<SecretMeta>({});
     const [isSavingAsEncrypted, setIsSavingAsEncryted] = useState<boolean>(false);
+
+    const updateFileButtonRef = useRef<HTMLButtonElement>(null);
     
     useEffect(() => {
         if(rawNote?.length) {
@@ -113,6 +115,22 @@ const NoteComp = () => {
         validateButtonsState();
     }, [note]);
 
+    const onKeyDown = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.key.toLowerCase() === "s" && updateFileButtonRef.current && updateFileButtonRef.current?.disabled === false){
+            e.preventDefault();
+            if(updateFileButtonRef.current) {
+                updateFileButtonRef.current.click();
+            }
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener("keydown", onKeyDown);
+        return () => {
+            window.removeEventListener("keydown", onKeyDown);
+        }
+    }, []);
+
     const giveMeSecret = (info?:string, warning?: string):void => {
         setNeedSecretMeta({info: info, warning: warning});
         setNeedSecret(true);
@@ -167,7 +185,7 @@ const NoteComp = () => {
         link.click();
     }
 
-    const updateFile = () => {
+    const updateFile = (callback?: () => void) => {
         if(!mainState.editedItem.path || !mainState.editedItem.fetchData) {
             return
         }
@@ -188,8 +206,13 @@ const NoteComp = () => {
                 return
             }
             mainDispatch({type: "UPDATE_ITEMS_LIST"});
-            initializeEditedItem();
             mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 5000, message: t('dataSaved')} as AlertData})
+
+            if(callback) {
+                callback();
+            } else {
+                initializeEditedItem();
+            }
         })
     }
 
@@ -299,24 +322,24 @@ const NoteComp = () => {
                     </div>
                     <div style={{display: "flex"}} className='formGroupContainer'>
                         {
-                            mainState.editedItem.fetchData && <Button disabled={!isDirty} variant='success' onClick={ () => {
+                            mainState.editedItem.fetchData && <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' onClick={ () => {
                                 updateFile();
                             }}
                             title={t("saveToLocation") + ' ' + mainState.editedItem.path}>{t("save")}</Button>
                         }
                         <div style={{flex: 1}}>&nbsp;</div>
                         &nbsp;
-                        <Button disabled={!isDirty} variant='primary' onClick={ () => {
+                        <Button className="btn-lg" disabled={!isDirty} variant='primary' onClick={ () => {
                             setIsSavingAsEncryted(true);
                         }}
                         title={t("encryptAndSaveToLocation")}>{t("saveAsEncrypted")}</Button>
                         &nbsp;
-                        <Button disabled={!isDirty} variant='success' onClick={ () => {
+                        <Button className="btn-lg" disabled={!isDirty} variant='success' onClick={ () => {
                             saveToFile(fileName, note);
                         }}
                         title={t("saveToSelectedLocation")}>{t("saveAs")}</Button>
                         &nbsp;
-                        <Button disabled={!isDirty} variant='danger' onClick={() => {
+                        <Button className="btn-lg" disabled={!isDirty} variant='danger' onClick={() => {
                             setNote(orgNote);
                         }}
                         title={t("rollbackItemChanges")}>{t("cancel")}</Button>
@@ -328,9 +351,11 @@ const NoteComp = () => {
                 <ConfirmationComp 
                     externalHeading={t("warning")}
                     externalContent={t("unsavedChanges")}
-                    externalSaveLabel={t("ignoreUnsaved")}
-                    externalCloseLabel={t("correctUnsaved")}
-                    handleExternalSave={() => {
+                    externalSaveLabel={t("save")}
+                    externalMiddleLabel={t("ignoreUnsaved")}
+                    externalCloseLabel={t("cancel")}
+                    externalShowMiddleButton={true}
+                    handleExternalMiddle={() => {
                         setShowUnsaved(false);
                         if(mainState.editedItemCandidate) {
                             if(mainState.secret && settingsState.forgetSecretMode === "IMMEDIATE") {
@@ -338,6 +363,12 @@ const NoteComp = () => {
                             }
                             mainDispatch({type: 'SET_EDITED_ITEM', payload: mainState.editedItemCandidate});
                         }
+                    }}
+                    handleExternalSave={() => {
+                        setShowUnsaved(false);
+                        updateFile(function() {
+                            mainDispatch({type: 'SET_EDITED_ITEM', payload: mainState.editedItemCandidate});
+                        });
                     }}
                     handleExternalClose={() => {setShowUnsaved(false)}}
                 />

@@ -7,13 +7,17 @@ interface Props {
     externalCloseLabel?: string
     externalContent?: string,
     externalHeading?: string,
+    externalMiddleLabel?: string,
+    externalMiddleButtonVariant?: string
     externalSaveLabel?: string,
     externalSaveButtonVariant?: string
     externalSetContent?: () => string,
     externalSetHeading?: () => string,
-    externalShowSaveButton?: boolean,
     externalShowCloseButton?: boolean,
+    externalShowMiddleButton?: boolean,
+    externalShowSaveButton?: boolean,
     handleExternalClose?: () => any,
+    handleExternalMiddle?: () => any,
     handleExternalShow?: () => any,
     handleExternalSave?: () => any,
     initialShow?: boolean,
@@ -24,13 +28,17 @@ const Confirmation = ({
     externalCloseLabel, 
     externalContent, 
     externalHeading,
+    externalMiddleButtonVariant,
+    externalMiddleLabel,
     externalSaveButtonVariant,
     externalSaveLabel,
     externalSetContent,
     externalSetHeading,
-    externalShowSaveButton,
     externalShowCloseButton,
+    externalShowMiddleButton,
+    externalShowSaveButton,
     handleExternalClose, 
+    handleExternalMiddle, 
     handleExternalShow, 
     handleExternalSave,
     initialShow
@@ -39,18 +47,28 @@ const Confirmation = ({
     const { t } = useTranslation();
 
     const [show, setShow] = useState(initialShow != null ? initialShow : true);
-    const [showSaveButton, setShowSaveButton] = useState(externalShowSaveButton != null ? externalShowSaveButton : true);
     const [showCloseButton, setShowCloseButton] = useState(externalShowCloseButton != null ? externalShowCloseButton : true);
-    const [saveLabel, setSaveLabel] = useState(externalSaveLabel || t("save"));
+    const [showMiddleButton, setShowMiddleButton] = useState(externalShowMiddleButton != null ? externalShowMiddleButton : false);
+    const [showSaveButton, setShowSaveButton] = useState(externalShowSaveButton != null ? externalShowSaveButton : true);
     const [closeLabel, setCloseLabel] = useState(externalCloseLabel || t("close"));
+    const [middleLabel, setMiddleLabel] = useState(externalMiddleLabel || 'xxx');
+    const [saveLabel, setSaveLabel] = useState(externalSaveLabel || t("save"));
     const [modalContent, setModalContent] = useState(externalContent || '');
     const [modalHeading, setModalHeading] = useState(externalHeading || '');
-    const [saveButtonVariant, setSaveButtonVariant] = useState(externalSaveButtonVariant || 'primary');
     const [closeButtonVariant, setCloseButtonVariant] = useState(externalCloseButtonVariant || 'danger');
+    const [middleButtonVariant, setMiddleButtonVariant] = useState(externalMiddleButtonVariant || 'primary');
+    const [saveButtonVariant, setSaveButtonVariant] = useState(externalSaveButtonVariant || 'success');
 
     const handleClose = () => {
         if(handleExternalClose) {
             handleExternalClose();
+        }
+        setShow(false)
+    };
+
+    const handleMiddle = () => {
+        if(handleExternalMiddle) {
+            handleExternalMiddle();
         }
         setShow(false)
     };
@@ -95,6 +113,7 @@ const Confirmation = ({
             </Modal.Body>
             <Modal.Footer>
                 {showSaveButton && <Button variant={saveButtonVariant} onClick={handleSave}>{saveLabel}</Button>}
+                {showMiddleButton && <Button variant={middleButtonVariant} onClick={handleMiddle}>{middleLabel}</Button>}
                 {showCloseButton && <Button variant={closeButtonVariant} onClick={handleClose}>{closeLabel}</Button>}
             </Modal.Footer>
         </Modal>
