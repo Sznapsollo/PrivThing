@@ -3,8 +3,12 @@ todo:
 - recent (localStorage)
 - clear filters
 - folders picker precount
+- item details modified time
 
 done:
+- manual slider
+- ctr + save
+- save on confirmation
 - tabs of folders (basing on folder path) (folders as select item)
 - translation
 - refresh page after saving file via browser (so so could be better maybe some time ...)

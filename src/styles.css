@@ -14,20 +14,24 @@ body, html, #root, .App {
     display: block !important;
 }
 
+.itemsResizeWrapper {
+    display: flex;
+}
+
 .items {
     background-color: #002f5f;
     color: white;
     padding: 20px;
     display: flex;
+    flex: 1;
     flex-direction: column;
-    width: 20%;
     transition: all .2s ease-in-out;
 }
-
+/* 
 .items:hover {
     width: 50%;
     transition-delay:1s;
-}
+} */
 
 .itemsContainer {
     height: 200px;
@@ -149,16 +153,28 @@ label.upperLabel {
     border:2px solid #83c127 !important;
 }
 
+.resizer {
+    display: flex; 
+    background: rgb(100 97 201); 
+    padding: 2px;
+    color: white;
+    cursor: pointer;
+}
+
  /* Media Queries */
  @media (max-width: 771px) {
+    /* .resizer {
+        display: none;
+    }
+
     .items {
       width: 40%;
       padding: 10px;
-    }
+    } */
 
-    .items:hover {
+    /* .items:hover {
         width: 60%;
-    }
+    } */
   
     .items > span {
       font-size: 10px;
@@ -175,17 +191,20 @@ label.upperLabel {
 }
 
 @media (max-width: 500px) {
-    .items {
+    .resizer {
+        display: none;
+    }
+    
+    .itemsWrapper {
         display: none;
     }
 
-    .items:hover {
+    /* .items:hover {
         width: unset;
-    }
+    } */
 
     .showItemsSmall {
-        display: block !important;
-        width: 100%;
+        display: flex !important;
     }
     
     .homeContainer {

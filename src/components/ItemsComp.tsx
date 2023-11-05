@@ -129,7 +129,7 @@ const ItemsComp = () => {
     }
 
     return (
-        <div className={"items " + mainState.itemsCss}>
+        <div className={"items"}>
             <div className='formGroupContainer'>
                 <label className='upperLabel'>{t("manualPickFile")}</label>
                 <Form.Group className='formGroup'>
