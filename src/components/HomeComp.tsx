@@ -9,7 +9,7 @@ const HomeComp = () => {
 
     const { mainState } = AppState();
     const [isResizing, setIsResizing] = useState<boolean>(false);
-    const [itemsWidth, setItemsWidth] = useState(Math.round(0.25 * window.innerWidth));
+    const [itemsWidth, setItemsWidth] = useState(25);
     
     const mouseUpListener = () => {
         cleanListeners();
@@ -23,10 +23,10 @@ const HomeComp = () => {
         
         let percWidth = Math.round(e.clientX * 100 / window.innerWidth);
         if(percWidth > 20 && percWidth < 100) {
-            setItemsWidth(e.clientX)
+            setItemsWidth(percWidth)
         }
 
-        console.log('isResizing', e.clientX, percWidth)
+        // console.log('isResizing', e.clientX, percWidth)
     }
 
     const cleanListeners = () => {
@@ -36,7 +36,7 @@ const HomeComp = () => {
 
     return (
         <div className='home'>
-            <div className={"itemsResizeWrapper " + mainState.itemsCss} style={{width: itemsWidth}}>
+            <div className={"itemsResizeWrapper " + mainState.itemsCss} style={{width: itemsWidth + '%'}}>
                 <ItemsComp />    
             </div>
             
