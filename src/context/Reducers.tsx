@@ -35,13 +35,13 @@ export type MainActions = ClearEditedItem |
 export const mainReducer = (state: MainContextType, action: MainActions) => {
     switch (action.type) {
         case "HIDE_ITEMS_BAR":
-            return { ...state, itemsCss: '' };
+            return { ...state, fullItems: false};
         case "HIDE_SETTINGS":
             return { ...state, showSettings: false };
         case "LOAD_FROM_PICKED_FILE":
             return { ...state, pickedFileEvent: action.payload };
         case "SET_EDITED_ITEM_CANDIDATE":
-            return { ...state, editedItemCandidate: action.payload, itemsCss: '', homeCss: '' };
+            return { ...state, editedItemCandidate: action.payload, fullItems: false };
         case "SET_EDITED_ITEM":
             return { ...state, editedItem: action.payload };
         case "CLEAR_EDITED_ITEM":
@@ -70,10 +70,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
         case "SHOW_NOTIFICATION":
             return { ...state, notificationData: action.payload };
         case "TOGGLE_ITEMS_BAR":
-            let currItemsCss = state.itemsCss
-            currItemsCss = currItemsCss && currItemsCss.length ? '' : 'showItemsSmall';
-            let currentHomeCss = currItemsCss && currItemsCss.length ? 'homeContainerHidden' : '';
-            return { ...state, itemsCss: currItemsCss, homeCss: currentHomeCss };
+            return { ...state, fullItems: !state.fullItems };
         case "UPDATE_ITEMS_LIST":
             return { ...state, itemsListRefreshTrigger: new Date().getTime() };
         case "UPDATE_SECRET":

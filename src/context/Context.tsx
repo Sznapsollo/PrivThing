@@ -7,11 +7,10 @@ const appInitialState = {
   secret: '',
   editedItemCandidate: {} as Item,
   editedItem: {} as Item,
-  homeCss: '',
   items: [],
   folders: [],
   itemsListRefreshTrigger: 0,
-  itemsCss: '',
+  fullItems: false,
   showSettings: false
 }
 const searchInitialState = {

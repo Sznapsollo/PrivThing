@@ -1,28 +1,69 @@
-import {useState, useRef} from 'react'
+import {useState, useEffect, useRef} from 'react'
 import ItemsComp from './ItemsComp';
 import NoteComp from './NoteComp';
 import { AppState } from '../context/Context'
+import { retrieveCookie, saveCookie } from '../helpers/helpers'
 import { BsArrowLeftRight } from 'react-icons/bs';
 import '../styles.css'
 
+
+let isItemsResizing: boolean = false;
+let resizeHideItemsHandle: any = null
+let defaultItemsWidth: string = retrieveCookie("pmItemsWidth");
+
 const HomeComp = () => {
 
-    const { mainState } = AppState();
-    const [isResizing, setIsResizing] = useState<boolean>(false);
-    const [itemsWidth, setItemsWidth] = useState(25);
-    
+    const { mainState, mainDispatch } = AppState();
+    const [itemsWidth, setItemsWidth] = useState(typeof defaultItemsWidth === 'number' ? defaultItemsWidth : 25);
+    const itewsWrapperRef = useRef(null);
+
     const mouseUpListener = () => {
         cleanListeners();
+
+        let currentItemsWidth = (itewsWrapperRef?.current as any).style?.width;
+        if(typeof currentItemsWidth === 'string' && currentItemsWidth.includes('%')) {
+            currentItemsWidth = parseInt(currentItemsWidth.replace('%',''));
+
+            // NJ save width
+            if(currentItemsWidth > 5 && currentItemsWidth < 100) {
+                // console.log('pmItemsWidth', currentItemsWidth)
+
+                saveCookie("pmItemsWidth", currentItemsWidth);
+            }
+        }
     }
 
+    const handleWindowResize = () => {
+        // NJ in case its full items and we entlarge screen
+        // console.log('handleWindowResize')
+        
+        if(itewsWrapperRef?.current && (itewsWrapperRef.current as any).classList.contains('fullItemsDisplay') && window.innerWidth > 500) {
+            if(resizeHideItemsHandle) {
+                clearTimeout(resizeHideItemsHandle);
+            }
+            resizeHideItemsHandle = setTimeout(function() {
+                mainDispatch({type: 'HIDE_ITEMS_BAR'});
+            }, 200);
+        }
+    }
+
+    useEffect(() => {
+        window.removeEventListener('resize', handleWindowResize);
+        window.addEventListener('resize', handleWindowResize);
+
+        return () => {
+            window.removeEventListener('resize', handleWindowResize);
+        }
+    }, [])
+
     const resizingOfColumns = (e:MouseEvent) => {
-        if(!isResizing) {
+        if(!isItemsResizing) {
             cleanListeners();
             return
         }
         
         let percWidth = Math.round(e.clientX * 100 / window.innerWidth);
-        if(percWidth > 20 && percWidth < 100) {
+        if(percWidth > 10 && percWidth < 100) {
             setItemsWidth(percWidth)
         }
 
@@ -32,26 +73,28 @@ const HomeComp = () => {
     const cleanListeners = () => {
         window.removeEventListener("mousemove", resizingOfColumns);
         window.removeEventListener("mouseup", mouseUpListener);
+        isItemsResizing = false;
     }
 
+    // console.log(new Date().getTime(), isItemsResizing)
+    
     return (
-        <div className='home'>
-            <div className={"itemsResizeWrapper " + mainState.itemsCss} style={{width: itemsWidth + '%'}}>
+        <div className={'home nonTextSelectable'}>
+            <div ref={itewsWrapperRef} className={"itemsResizeWrapper " + (mainState.fullItems === true ? 'fullItemsDisplay' : '')} style={{width: mainState.fullItems === true ? 'auto' : itemsWidth + '%'}}>
                 <ItemsComp />    
             </div>
-            
             <div className='resizer'
             onMouseDown={() => {
-                setIsResizing(true);
                 window.removeEventListener("mousemove", resizingOfColumns);
                 window.addEventListener("mousemove", resizingOfColumns);
                 window.removeEventListener("mouseup", mouseUpListener);
                 window.addEventListener("mouseup", mouseUpListener);
+                isItemsResizing = true;
             }}
             >
                 <BsArrowLeftRight style={{margin: "auto"}}/>
             </div>
-            <div className={'homeContainer ' + mainState.homeCss}>
+            <div className={'homeContainer ' + (mainState.fullItems === true ? 'dontDisplay' : '')}>
                 <NoteComp />
             </div>
         </div>

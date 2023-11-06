@@ -102,9 +102,9 @@ function App() {
             <NotificationComp />
             <BrowserRouter basename='/listingFilesServer'>
                 <Header centerLabel={headerCenterLabel}/>
-                <Routes>
-                <Route path='/' element={<HomeComp/>} />
-                </Routes>
+                    <Routes>
+                        <Route path='/' element={<HomeComp/>} />
+                    </Routes>
             </BrowserRouter>
             <SettingsComp />
             <AlertModalComp />

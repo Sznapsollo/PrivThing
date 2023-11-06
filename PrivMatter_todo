@@ -3,10 +3,11 @@ todo:
 - recent (localStorage)
 - clear filters
 - folders picker precount
-- item details modified time
-- remember resize + resize fix
-
 done:
+- big search on top
+- remember resize + resize fix
+- item details modified time on hover (more details)
+
 - manual slider
 - ctr + save
 - save on confirmation

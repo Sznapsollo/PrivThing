@@ -3,8 +3,8 @@ import { Form, InputGroup } from "react-bootstrap";
 import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context'
 import LisItem from './LisItem';
-import { CiUndo } from 'react-icons/ci';
 import { AiOutlineLoading } from 'react-icons/ai';
+import { CiUndo } from 'react-icons/ci';
 import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { Item } from '../model';
 
@@ -152,7 +152,7 @@ const ItemsComp = () => {
                     </div>
                 </div>
             } 
-            {!isLoading && foldersLoaded === true && <div className='formGroupContainer'>
+            {!isLoading && foldersLoaded === true && <div className='formGroupContainer smallScreenItem'>
                 <label className='upperLabel'>{t("search")}</label>
                 <Form.Group className='formGroup'>
                     <InputGroup>

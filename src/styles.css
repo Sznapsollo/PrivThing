@@ -18,6 +18,10 @@ body, html, #root, .App {
     display: flex;
 }
 
+.nonTextSelectable {
+    user-select: none;
+}
+
 .items {
     background-color: #002f5f;
     color: white;
@@ -27,6 +31,7 @@ body, html, #root, .App {
     flex-direction: column;
     transition: all .2s ease-in-out;
 }
+
 /* 
 .items:hover {
     width: 50%;
@@ -159,6 +164,12 @@ label.upperLabel {
     padding: 2px;
     color: white;
     cursor: pointer;
+    border-left: 2px solid #000000;
+    border-right: 2px solid #000000;
+}
+
+.smallScreenItem {
+    display: none;
 }
 
  /* Media Queries */
@@ -191,19 +202,24 @@ label.upperLabel {
 }
 
 @media (max-width: 500px) {
+    .bigScreenItem,
     .resizer {
         display: none;
     }
     
-    .itemsWrapper {
+    .itemsResizeWrapper {
         display: none;
+    }
+
+    .smallScreenItem {
+        display: block;
     }
 
     /* .items:hover {
         width: unset;
     } */
 
-    .showItemsSmall {
+    .fullItemsDisplay {
         display: flex !important;
     }
     
@@ -212,7 +228,7 @@ label.upperLabel {
         padding: 2px;
     }
 
-    .homeContainerHidden {
+    .dontDisplay {
         display: none;
     }
 
