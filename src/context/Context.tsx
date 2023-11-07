@@ -1,13 +1,14 @@
 import React, {createContext, useContext, useReducer} from 'react'
-import { MainContextType, Item, SearchContextType, SettingsContextType } from '../model';
+import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType } from '../model';
 import { mainReducer, searchReducer, settingsReducer } from './Reducers'
 import { retrieveCookie, cloneProps } from '../helpers/helpers'
 
 const appInitialState = {
   secret: '',
-  editedItemCandidate: {} as Item,
+  editedItemCandidate: {} as NavigationItem,
   editedItem: {} as Item,
   items: [],
+  tabs: [],
   folders: [],
   itemsListRefreshTrigger: 0,
   fullItems: false,

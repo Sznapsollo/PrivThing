@@ -39,7 +39,7 @@ const ItemsComp = () => {
                     rawNote: event.target.result
                 };
 
-                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: payLoadItem});
+                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem}});
             };
         
             reader.readAsText(file);

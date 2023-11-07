@@ -58,10 +58,9 @@ const HeaderComp = ({centerLabel} : Props) => {
                             name: '',
                             path: '',
                             size: 0,
-                            new: true,
                             rawNote: undefined
                         };
-                        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: payLoadItem});
+                        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem}});
                     }}>
                         <FiPlusCircle style={{marginBottom: -1}} className='h2'/>
                     </Button>

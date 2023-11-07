@@ -5,6 +5,7 @@ import { AppState } from '../context/Context'
 import { retrieveCookie, saveCookie } from '../helpers/helpers'
 import { BsArrowLeftRight } from 'react-icons/bs';
 import '../styles.css'
+import TabsComp from './TabsComp';
 
 
 let isItemsResizing: boolean = false;
@@ -95,6 +96,7 @@ const HomeComp = () => {
                 <BsArrowLeftRight style={{margin: "auto"}}/>
             </div>
             <div className={'homeContainer ' + (mainState.fullItems === true ? 'dontDisplay' : '')}>
+                <TabsComp />
                 <NoteComp />
             </div>
         </div>

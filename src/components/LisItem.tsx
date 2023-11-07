@@ -48,7 +48,7 @@ const LisItem = ({item, keyProp}: Props) => {
                 fetchData: true,
                 rawNote: undefined
             };
-            mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: payLoadItem});
+            mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem}});
             }}>
             {item.name?.endsWith('.prvmttr') && <div className='listItemIcon'><GiPadlock style={{marginBottom: 0, marginLeft: -5, marginRight: 5}} className='h2'/></div>}
             <div className='listItemBody' title={item.name + ( item.path ? ('\n' + item.path) : '') + ( item.lastModified ? ('\n' + t('lastModified') + ': ' + moment.utc(item.lastModified).format("YYYY-MM-DD HH:mm:ss")) : '') + ( item.size ? ('\n' + t('size') + ': ' + item.size + ' kB') : '')}>

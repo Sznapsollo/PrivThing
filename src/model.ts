@@ -12,17 +12,31 @@ export interface Item {
     folder?: string,
     lastModified?: number,
     name: string,
-    new?: boolean,
     path: string,
     rawNote?: string,
-    size: number
+    size: number,
+    newTab?: boolean
 }
+
+export interface Tab extends Item {
+    active?: boolean,
+    isNew?: boolean,
+    remove?: boolean
+}
+
+export interface NavigationItem {
+    item: Item,
+    tab?: Tab,
+    action?: string
+}
+
 export interface MainContextType {
     alertData?: AlertData
     editedItem: Item,
-    editedItemCandidate: Item,
+    editedItemCandidate: NavigationItem,
     folders: string[],
     items: Item[],
+    tabs: Tab[],
     fullItems: boolean,
     itemsListRefreshTrigger: number,
     notificationData?: NotificationData,

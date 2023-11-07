@@ -67,6 +67,10 @@ const NoteComp = () => {
                     // console.warn("Actions response", data);
                     return
                 }
+                if(!data.data) {
+                    // mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 5000, message: t('fileNotFound')} as AlertData})
+                    mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("fileNotFound")} as AlertData})
+                }
                 if(typeof data.data === "string") {
                     setRawNote(data.data);
                 }
@@ -314,6 +318,7 @@ const NoteComp = () => {
                                 as="textarea"
                                 name="comments"
                                 value={note}
+                                spellCheck={false}
                                 onChange={(e) => {
                                     setNote(e.target.value);
                                 }}
@@ -378,8 +383,8 @@ const NoteComp = () => {
                 <ConfirmationComp 
                     externalHeading={t("question")}
                     externalContent={t("confirmRefresh")}
-                    externalSaveLabel={t("Yes")}
-                    externalCloseLabel={t("No")}
+                    externalSaveLabel={t("yes")}
+                    externalCloseLabel={t("no")}
                     handleExternalSave={() => {
                         setAskRefresh(false);
                         mainDispatch({type: "UPDATE_ITEMS_LIST"});

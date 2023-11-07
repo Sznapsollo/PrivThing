@@ -3,11 +3,16 @@ todo:
 - recent (localStorage)
 - clear filters
 - folders picker precount
+- remember tabs
+- do not scroll on save
+- 
+
 done:
+- tabs
+- spellcheck turn off textarea
 - big search on top
 - remember resize + resize fix
 - item details modified time on hover (more details)
-
 - manual slider
 - ctr + save
 - save on confirmation

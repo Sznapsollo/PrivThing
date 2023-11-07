@@ -32,6 +32,50 @@ body, html, #root, .App {
     transition: all .2s ease-in-out;
 }
 
+.itemTab {
+    padding: 5px;
+    text-align: center;
+    display: inline-block;
+    border: 1px solid #cecece;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .1s ease-in-out;
+    font-size: 8pt;
+    word-break: break-all;
+    padding-right: 25px;
+    margin: 2px 0 0 5px;
+}
+
+.itemTab:hover {
+    background-color: #999999;
+    color: white;
+}
+
+.itemTab.selected {
+    background: #427843;
+    color: white;
+}
+
+.itemTabIconAdd,
+.itemTabIconRemove {
+    margin: 0px 5px 0px 5px !important;
+    width: 20px;
+    cursor: pointer;
+    transition: all .3s ease-in-out;
+}
+
+.itemTabIconRemove {
+    margin: 0px 5px 0px -25px !important;
+}
+
+.itemTabIconAddhover:hover {
+    color: #427843;
+}
+
+.itemTabIconRemove:hover {
+    color: red;
+}
+
 /* 
 .items:hover {
     width: 50%;
@@ -56,6 +100,7 @@ body, html, #root, .App {
     padding: 5px;
     border-bottom: 1px solid #ffffff80;
     display: flex;
+    transition: all .1s ease-in-out;
 }
 
 .listItem.selected {
@@ -108,9 +153,11 @@ body, html, #root, .App {
 .homeContainer {
     /* display: flex; */
     flex: 1;
-    padding: 20px;
+    /* padding: 20px; */
     flex-wrap: wrap;
     justify-content: space-around;
+    display: flex;
+    flex-flow: column;
 } 
 
 .formGroupContainer {
@@ -130,6 +177,7 @@ body, html, #root, .App {
     display: flex;
     flex-flow: column;
     height: 100%;
+    padding: 20px 20px 0 20px;
 } 
 
 .showItemsButton {
