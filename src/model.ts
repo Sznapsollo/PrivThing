@@ -21,7 +21,8 @@ export interface Item {
 export interface Tab extends Item {
     active?: boolean,
     isNew?: boolean,
-    remove?: boolean
+    remove?: boolean,
+    scrollTop?: number
 }
 
 export interface NavigationItem {

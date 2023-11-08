@@ -3,7 +3,7 @@ import {Alert} from '@mui/material'
 import { AppState } from '../context/Context';
 import { NotificationData } from '../model';
 
-let notifictionCloseHandle: any = null;
+let notifictionCloseHandle: ReturnType<typeof setTimeout> | null = null;
 
 const NotificationComp = () => {
 

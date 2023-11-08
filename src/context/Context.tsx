@@ -1,9 +1,9 @@
 import React, {createContext, useContext, useReducer} from 'react'
-import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType } from '../model';
+import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType, Tab } from '../model';
 import { mainReducer, searchReducer, settingsReducer } from './Reducers'
-import { retrieveCookie, cloneProps } from '../helpers/helpers'
+import { retrieveCookie, retrieveLocalStorage, cloneProps } from '../helpers/helpers'
 
-const appInitialState = {
+const appInitialState: MainContextType = {
   secret: '',
   editedItemCandidate: {} as NavigationItem,
   editedItem: {} as Item,
@@ -52,9 +52,21 @@ const Context = ({children}: Props) => {
     // if(settingsInitialState.forgetSecretTime) {
     //     settingsInitialState.forgetSecretTime = 120000;
     // }
-    let pmSettings = retrieveCookie("pmSettings");
-    if(pmSettings) {
-        cloneProps(pmSettings, settingsInitialState);
+    try {
+        let pmSettings = retrieveCookie("pmSettings");
+        if(pmSettings) {
+            cloneProps(pmSettings, settingsInitialState);
+        }
+
+        let pmTabs = retrieveLocalStorage("pmTabs");
+        if(pmTabs && Array.isArray(pmTabs)) {
+            appInitialState.tabs = pmTabs.map((pmTab) => {
+                pmTab.active = false;
+                return pmTab
+            })
+        }
+    } catch(e) {
+        console.warn("Defaults restore error", e);
     }
 
     let pmSearchSettings = retrieveCookie("pmSearchSettings");

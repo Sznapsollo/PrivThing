@@ -41,3 +41,14 @@ Server is expected to enable APIs
 - updateFileFromPath - update file from path with specific data
 
 I will upload small server in separate git. I use vertx based server which can be easily run with java and configured as service.
+
+#### Features added
+
+- tabs
+- tabs reordable
+- tabs remember scroll
+- draggable vertical resizer (remembered)
+- search
+- different folders 
+- ctr + s hot keys
+- remember tabs content (localStorage)

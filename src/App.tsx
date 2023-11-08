@@ -16,7 +16,7 @@ function App() {
     const [headerCenterLabel, setHeaderCenterLabel] = useState<string>('')
     let forgetSecretTime: Date | undefined = undefined;
 
-    let forgetTimer: any, forgetDebounceTimer: any, countDownTimer: any;
+    let forgetTimer: ReturnType<typeof setTimeout> | null, forgetDebounceTimer: ReturnType<typeof setTimeout> | null, countDownTimer: ReturnType<typeof setTimeout> | null;
     const events = [
         "load",
         "mousemove",

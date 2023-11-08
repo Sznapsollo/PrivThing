@@ -5,10 +5,11 @@ import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
-import { AlertData } from '../model';
+import { AlertData, Tab } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
 
+var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 const NoteComp = () => {
 
     const { t } = useTranslation();
@@ -33,6 +34,8 @@ const NoteComp = () => {
     const [isSavingAsEncrypted, setIsSavingAsEncryted] = useState<boolean>(false);
 
     const updateFileButtonRef = useRef<HTMLButtonElement>(null);
+    const saveToFileButtonRef = useRef<HTMLButtonElement>(null);
+    const noteRef = useRef<HTMLTextAreaElement>(null);
     
     useEffect(() => {
         if(rawNote?.length) {
@@ -125,6 +128,11 @@ const NoteComp = () => {
             if(updateFileButtonRef.current) {
                 updateFileButtonRef.current.click();
             }
+        } else if (e.ctrlKey && e.key.toLowerCase() === "s" && !updateFileButtonRef.current && saveToFileButtonRef.current && saveToFileButtonRef.current?.disabled === false){
+            e.preventDefault();
+            if(saveToFileButtonRef.current) {
+                saveToFileButtonRef.current.click();
+            }
         }
     }
 
@@ -134,6 +142,22 @@ const NoteComp = () => {
             window.removeEventListener("keydown", onKeyDown);
         }
     }, []);
+
+
+    const rememberScrollPosition = () => {
+        if(scrollNoteHandle) {
+            clearTimeout(scrollNoteHandle);
+        }
+        scrollNoteHandle = setTimeout(function() {
+            let currentTabs = mainState.tabs.map((tab) => {
+                if(tab.active === true) {
+                    return {...tab, scrollTop: noteRef.current?.scrollTop}
+                }
+                return {...tab}
+            });
+            mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
+        }, 200)
+    }
 
     const giveMeSecret = (info?:string, warning?: string):void => {
         setNeedSecretMeta({info: info, warning: warning});
@@ -264,6 +288,10 @@ const NoteComp = () => {
         if(data && data.length) {
             setNote(data);
             setOrgNote(data);
+            let currentTab = mainState.tabs.find((tab) => tab.active === true);
+            if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
+                setTimeout(() => {noteRef.current?.scrollTo({top: currentTab?.scrollTop})});
+            }
         }
     };
 
@@ -319,9 +347,11 @@ const NoteComp = () => {
                                 name="comments"
                                 value={note}
                                 spellCheck={false}
+                                ref={noteRef}
                                 onChange={(e) => {
                                     setNote(e.target.value);
                                 }}
+                                onScroll={()=> {rememberScrollPosition()}}
                             ></Form.Control>
                         </Form.Group>
                     </div>
@@ -339,7 +369,7 @@ const NoteComp = () => {
                         }}
                         title={t("encryptAndSaveToLocation")}>{t("saveAsEncrypted")}</Button>
                         &nbsp;
-                        <Button className="btn-lg" disabled={!isDirty} variant='success' onClick={ () => {
+                        <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!isDirty} variant='success' onClick={ () => {
                             saveToFile(fileName, note);
                         }}
                         title={t("saveToSelectedLocation")}>{t("saveAs")}</Button>

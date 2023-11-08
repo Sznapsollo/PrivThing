@@ -9,7 +9,7 @@ import TabsComp from './TabsComp';
 
 
 let isItemsResizing: boolean = false;
-let resizeHideItemsHandle: any = null
+let resizeHideItemsHandle: ReturnType<typeof setTimeout> | null = null;
 let defaultItemsWidth: string = retrieveCookie("pmItemsWidth");
 
 const HomeComp = () => {

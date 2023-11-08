@@ -23,6 +23,32 @@ export function retrieveCookie(cookieName) {
     return null
 }
 
+export function retrieveLocalStorage(lsName) {
+    try {
+        if(!window.localStorage) {
+            return null
+        }
+        let lsData = window.localStorage.getItem(lsName)
+        return lsData ? JSON.parse(atob(lsData)) : null;
+    } catch(e) {
+        var errMsg = 'getLocalStorageData error for: ' + lsName
+        console.warn(errMsg)
+    }
+    return null
+}
+
+export function saveLocalStorage(lsName, data) {
+    try {
+        if(!window.localStorage) {
+            return null
+        }
+        window.localStorage.setItem(lsName, btoa(JSON.stringify(data)))
+    } catch(e) {
+        var errMsg = 'saveStorageData error for: ' + lsName
+        console.warn(errMsg)
+    }
+}
+
 export function cloneProps(obj1, obj2) {
     try {
         // NJ shallow copy

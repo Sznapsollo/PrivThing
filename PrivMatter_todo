@@ -1,13 +1,16 @@
 todo:
 - go to folder feature
-- recent (localStorage)
 - clear filters
 - folders picker precount
-- remember tabs
-- do not scroll on save
-- 
+- better demo files
+- reorder tabs (animation)
 
 done:
+- reorder tabs (no animation)
+- remember tabs
+- do not scroll on save (or scroll back)
+- remember scroll per tab
+- ctrl+s save as if no save
 - tabs
 - spellcheck turn off textarea
 - big search on top

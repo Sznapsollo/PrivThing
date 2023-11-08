@@ -15,6 +15,7 @@ type ShowNotification = {type: 'SHOW_NOTIFICATION', payload: NotificationData};
 type ShowSettings = {type: 'SHOW_SETTINGS'};
 type ToggleItemsBar = {type: 'TOGGLE_ITEMS_BAR'};
 type UpdateItemsList = {type: 'UPDATE_ITEMS_LIST'};
+type UpdateTabs = {type: 'UPDATE_TABS', payload: Tab[]};
 type UpdateSecret = {type: 'UPDATE_SECRET', payload: string};
 
 export type MainActions = ClearEditedItem |
@@ -30,6 +31,7 @@ export type MainActions = ClearEditedItem |
     ShowSettings |
     ToggleItemsBar | 
     UpdateItemsList | 
+    UpdateTabs |
     UpdateSecret;
 
 export const mainReducer = (state: MainContextType, action: MainActions) => {
@@ -128,6 +130,8 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             return { ...state, itemsListRefreshTrigger: new Date().getTime() };
         case "UPDATE_SECRET":
             return { ...state, secret: action.payload};
+        case "UPDATE_TABS":
+            return { ...state, tabs: action.payload};
         default:
             return state;
     }
