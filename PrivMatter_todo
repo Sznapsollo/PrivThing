@@ -3,9 +3,9 @@ todo:
 - clear filters
 - folders picker precount
 - better demo files
-- reorder tabs (animation)
 
 done:
+- reorder tabs (animation)
 - reorder tabs (no animation)
 - remember tabs
 - do not scroll on save (or scroll back)

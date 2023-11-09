@@ -56,12 +56,28 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
                     }}>
                         <Form.Group className='formGroup'>
                             <label className='upperLabel'>{t("password")}</label>
+                            {/* This is hack for chrome not allowing drag on tab elements when there is focused password input on screen */}
+                            {/* Unfocusing or focusing on something else does not help, it must be text input */}
+                            {/* Hope there will be better solution in the future */}
+                            {/* Hack start */}
                             <Form.Control
+                                id='secretPassDummy'
+                                type="text"
+                                name="secretPassDummy"
+                                placeholder=''
+                                disabled={true}
+                                draggable={false}
+                                style={{display: "none"}}
+                            ></Form.Control>
+                            {/* Hack end */}
+                            <Form.Control
+                                id='secretPass'
                                 type="password"
                                 name="secretValue"
                                 placeholder=''
                                 autoFocus={true}
                                 value={secret}
+                                draggable={false}
                                 onChange={(e) => {
                                     setSecret(e.target.value);
                                     if(!confirm) {

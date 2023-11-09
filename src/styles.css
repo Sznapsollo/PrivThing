@@ -56,6 +56,11 @@ body, html, #root, .App {
     color: white;
 }
 
+.itemTab.isDragged {
+    background-color: #0d6efd;
+    color: white;
+}
+
 .itemTabIconAdd,
 .itemTabIconRemove {
     margin: 0px 5px 0px 5px !important;

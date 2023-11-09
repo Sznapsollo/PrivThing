@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, ReactElement, JSXElementConstructor } from 'react';
 import { AppState } from '../context/Context'
 import { useTranslation } from 'react-i18next'
 import { Item } from '../model';
@@ -16,39 +16,94 @@ const TabsComp = () => {
 
     const dragItem = useRef<number | null>();
     const dragOverItem = useRef<number | null>();
+    const dragItemPrev = useRef<number | null>();
+    const dragOverItemPrev = useRef<number | null>();
    
-    const dragStart = <T,>(e: T, position:number) => {
-          dragItem.current = position;
+    const showPassFieldHack = (show: boolean) => {
+        let secretPassField = document.getElementById('secretPass');
+        let secretPassFieldDummy = document.getElementById('secretPassDummy');
+        if(!secretPassField || !secretPassFieldDummy) {
+            return
+        }
+        if(show) {
+            secretPassField.style.display = 'inherit';
+            secretPassFieldDummy.style.display = 'none';
+        } else {
+            secretPassField.style.display = 'none';
+            secretPassFieldDummy.style.display = 'inherit';
+        }
+        
+    }
+
+    const dragStart = (item: HTMLSpanElement, position:number) => {
+        showPassFieldHack(false);
+        dragItem.current = position;
+
+        const copyListItems = [...mainState.tabs];
+        copyListItems[position].isDragged = true;
+        mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
     };
    
-    const dragEnter = <T,>(e: T, position:number) => {
+    const dragEnter = (e: HTMLSpanElement, position:number) => {
         dragOverItem.current = position;
+
+        if(dragItem.current == null || dragOverItem.current == null) {
+            return
+        }
+
+        if((dragItemPrev.current === dragOverItem.current) && ((dragOverItemPrev.current === dragItem.current))) {
+            return
+        }
+
+        dragItemPrev.current = dragItem.current;
+        dragOverItemPrev.current = dragOverItem.current;
+
+        if(dragItem.current  === dragOverItem.current) {
+            return
+        }
+
+        const copyListItems = [...mainState.tabs];
+        const dragItemContent = copyListItems[dragItem.current];
+        copyListItems.splice(dragItem.current, 1);
+        copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+        dragItem.current = position;
+        dragOverItem.current = null;
+        
+        copyListItems[position].isDragged = true;
+
+        mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
     };
    
     const drop = <T,>(e: T) => {
-      const copyListItems = [...mainState.tabs];
-      if(dragItem.current == null || dragOverItem.current == null) {
-        return
-      }
-      const dragItemContent = copyListItems[dragItem.current];
-      copyListItems.splice(dragItem.current, 1);
-      copyListItems.splice(dragOverItem.current, 0, dragItemContent);
-      dragItem.current = null;
-      dragOverItem.current = null;
-      mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
+        showPassFieldHack(true);
+        const copyListItems = mainState.tabs.map((tabItem) => {
+            return {...tabItem, isDragged: false};
+        });
+        if(dragItem.current == null || dragOverItem.current == null) {
+            mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
+            return
+        }
+        const dragItemContent = copyListItems[dragItem.current];
+        copyListItems.splice(dragItem.current, 1);
+        copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+
+        dragItem.current = null;
+        dragOverItem.current = null;
+
+        mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
     };
 
     return (
         <div>
             {
-                mainState.tabs.map((tabItem, tabItemIndex) => {
-                    return <span key={tabItemIndex}
-                    onDragStart={(e) => dragStart(e, tabItemIndex)}
-                    onDragEnter={(e) => dragEnter(e, tabItemIndex)}
+                mainState.tabs.map((tabItem, tabItemIndex) => (
+                    <span key={tabItemIndex}
+                    onDragStart={(e) => dragStart(e.currentTarget, tabItemIndex)}
+                    onDragEnter={(e) => dragEnter(e.currentTarget, tabItemIndex)}
                     onDragEnd={drop}
-                    draggable
+                    draggable={true}
                     >
-                        <div className={'itemTab ' + ((tabItem.active === true) ? 'selected': '')} onClick={() => {
+                        <div className={'itemTab ' + ((tabItem.active === true) ? ' selected': '') + ((tabItem.isDragged === true) ? ' isDragged': '')} onClick={() => {
                         if(tabItem.active === true) {
                             return
                         }
@@ -61,7 +116,7 @@ const TabsComp = () => {
                         }}/>}
                     </span>
                         
-                })
+                ))
             }
             <FiPlusCircle className='h2 itemTabIconAdd' onClick={() => {
                 const payLoadItem: Item = {

@@ -1,6 +1,6 @@
 
 import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType } from '../model'
-import { saveCookie } from '../helpers/helpers'
+import { saveCookie, makeId } from '../helpers/helpers'
 
 type HideItemsBar = {type: 'HIDE_ITEMS_BAR'};
 type HideSettings = {type: 'HIDE_SETTINGS'};
@@ -79,11 +79,11 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             }
 
             if(!updatedTabs.length) {
-                updatedTabs.push({...itemPayload});
+                updatedTabs.push({...itemPayload, tabId: makeId(10)});
                 activeTabIndex = updatedTabs.length - 1;
             } else if(tabPayLoad) {
                 if(tabPayLoad.isNew) {
-                    updatedTabs.push({...itemPayload});
+                    updatedTabs.push({...itemPayload, tabId: makeId(10)});
                     activeTabIndex = updatedTabs.length - 1;
                 } else {
                     activeTabIndex = updatedTabs.findIndex((tab) => tab === tabPayLoad);
@@ -95,7 +95,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             if(activeTabIndex < 0) {activeTabIndex = 0;}
             updatedTabs = updatedTabs.map((tabItem, tabItemIndex) => {
                 if(tabItemIndex === activeTabIndex) {
-                    return {...itemPayload, active: true};
+                    return {...itemPayload, tabId: tabItem.tabId, active: true};
                 }
                 return {...tabItem, active: false};
             })

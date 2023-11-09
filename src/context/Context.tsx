@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useReducer} from 'react'
 import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType, Tab } from '../model';
 import { mainReducer, searchReducer, settingsReducer } from './Reducers'
-import { retrieveCookie, retrieveLocalStorage, cloneProps } from '../helpers/helpers'
+import { retrieveCookie, retrieveLocalStorage, cloneProps, makeId } from '../helpers/helpers'
 
 const appInitialState: MainContextType = {
   secret: '',
@@ -61,6 +61,9 @@ const Context = ({children}: Props) => {
         let pmTabs = retrieveLocalStorage("pmTabs");
         if(pmTabs && Array.isArray(pmTabs)) {
             appInitialState.tabs = pmTabs.map((pmTab) => {
+                if(!pmTab.tabId) {
+                    pmTab.tabId = makeId(10);
+                }
                 pmTab.active = false;
                 return pmTab
             })
