@@ -1,14 +1,22 @@
-import { useRef, ReactElement, JSXElementConstructor } from 'react';
+import { useRef, useState } from 'react';
 import { AppState } from '../context/Context'
 import { useTranslation } from 'react-i18next'
-import { Item } from '../model';
+import { Item, Tab, TabContextMenu } from '../model';
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { saveLocalStorage } from '../helpers/helpers'
+import TabContextMenuComp from './TabContextMenuComp';
+
+const initialTabContextMenu: TabContextMenu = {
+    show: false,
+    x: 0,
+    y: 0
+}
 
 const TabsComp = () => {
 
-    const { mainState, mainDispatch, settingsState } = AppState();
+    const { mainState, mainDispatch } = AppState();
     const { t } = useTranslation();
+    const [ tabContextMenu, setTabContextMenu ] = useState<TabContextMenu>(initialTabContextMenu)
 
     if(mainState.tabs) {
         saveLocalStorage("pmTabs", mainState.tabs);
@@ -32,8 +40,9 @@ const TabsComp = () => {
             secretPassField.style.display = 'none';
             secretPassFieldDummy.style.display = 'inherit';
         }
-        
     }
+
+    // dndn stuff start
 
     const dragStart = (item: HTMLSpanElement, position:number) => {
         showPassFieldHack(false);
@@ -93,6 +102,18 @@ const TabsComp = () => {
         mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
     };
 
+    // dndn stuff end
+
+    // context menu things start
+    const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>, tab: Tab): void => {
+        e.preventDefault();
+        const {pageX, pageY} = e;
+        setTabContextMenu({show: true, x: pageX, y:pageY, tab: tab});
+    }
+
+    const handleContextMenuClose = () => setTabContextMenu(initialTabContextMenu)
+    // context menu things end
+
     return (
         <div>
             {
@@ -103,12 +124,15 @@ const TabsComp = () => {
                     onDragEnd={drop}
                     draggable={true}
                     >
-                        <div className={'itemTab ' + ((tabItem.active === true) ? ' selected': '') + ((tabItem.isDragged === true) ? ' isDragged': '')} onClick={() => {
-                        if(tabItem.active === true) {
-                            return
-                        }
-                        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: tabItem, tab: tabItem}});
-                        }}>{tabItem.name || t("empty")} &nbsp; 
+                        <div className={'itemTab ' + ((tabItem.active === true) ? ' selected': '') + ((tabItem.isDragged === true) ? ' isDragged': '')} 
+                            onClick={() => {
+                                if(tabItem.active === true) {
+                                    return
+                                }
+                                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: tabItem, tab: tabItem}});
+                                }}
+                            onContextMenu={(e) => handleContextMenu(e, tabItem)}
+                        >{tabItem.name || t("empty")} &nbsp; 
                         </div>
                         {mainState.tabs.length > 1 && <FiMinusCircle className='h2 itemTabIconRemove' onClick={(e) => {
                             e.preventDefault();
@@ -127,6 +151,7 @@ const TabsComp = () => {
                 };
                 mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}/>
+            {tabContextMenu.show === true && <TabContextMenuComp x={tabContextMenu.x} y={tabContextMenu.y} closeContextMenu={handleContextMenuClose}/>}
         </div>
     )
 }

@@ -61,6 +61,22 @@ body, html, #root, .App {
     color: white;
 }
 
+.contextMenu {
+    padding: 10px;
+    background: white;
+    border: 1px solid #cecece;
+    border-radius: 5px;
+    position: absolute;
+}
+
+.contextMenuItem {
+    cursor: pointer;
+}
+
+.contextMenuItem:hover {
+    text-decoration: underline;
+}
+
 .itemTabIconAdd,
 .itemTabIconRemove {
     margin: 0px 5px 0px 5px !important;

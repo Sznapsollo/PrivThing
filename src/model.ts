@@ -14,8 +14,7 @@ export interface Item {
     name: string,
     path: string,
     rawNote?: string,
-    size: number,
-    newTab?: boolean
+    size: number
 }
 
 export interface Tab extends Item {
@@ -25,6 +24,16 @@ export interface Tab extends Item {
     remove?: boolean,
     scrollTop?: number,
     tabId: string
+}
+
+export interface ContextMenu {
+    show: boolean,
+    x: number,
+    y: number
+}
+
+export interface TabContextMenu extends ContextMenu {
+    tab?: Tab
 }
 
 export interface NavigationItem {

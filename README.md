@@ -44,11 +44,12 @@ I will upload small server in separate git. I use vertx based server which can b
 
 #### Features added
 
+- right click on item opens it in new tab, left click opens in currently active tab
 - tabs
 - tabs reordable
 - tabs remember scroll
-- draggable vertical resizer (remembered)
+- draggable vertical resizer between items list and note (remembered set by user position)
 - search
 - different folders 
-- ctr + s hot keys
+- ctr + s hot key
 - remember tabs content (localStorage)

@@ -3,8 +3,11 @@ todo:
 - clear filters
 - folders picker precount
 - better demo files
+- add tab bigger
 
 done:
+- close all tabs
+- righ click opens in new tab
 - reorder tabs (animation)
 - reorder tabs (no animation)
 - remember tabs
