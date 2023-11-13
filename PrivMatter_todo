@@ -3,9 +3,10 @@ todo:
 - clear filters
 - folders picker precount
 - better demo files
-- add tab bigger
+- copy paths to clipboard
 
 done:
+- add tab bigger
 - close all tabs
 - righ click opens in new tab
 - reorder tabs (animation)

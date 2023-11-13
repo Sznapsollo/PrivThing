@@ -319,6 +319,7 @@ const NoteComp = () => {
                         <Form.Group className='formGroup'>
                         <label className='upperLabel'>{t("filePath")}</label>
                         <Form.Control
+                            className='form-control-lg'
                             type="text"
                             name="filePath"
                             placeholder=''
@@ -331,6 +332,7 @@ const NoteComp = () => {
                         <Form.Group className='formGroup'>
                         <label className='upperLabel'>{t("fileName")}</label>
                         <Form.Control
+                            className='form-control-lg'
                             type="text"
                             name="fileName"
                             placeholder=''
@@ -343,6 +345,7 @@ const NoteComp = () => {
                         <Form.Group className='formGroup'>
                             <label className='upperLabel'>{t("note")}</label>
                             <Form.Control
+                                className='form-control-lg'
                                 as="textarea"
                                 name="comments"
                                 value={note}

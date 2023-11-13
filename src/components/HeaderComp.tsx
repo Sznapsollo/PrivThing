@@ -36,7 +36,7 @@ const HeaderComp = ({centerLabel} : Props) => {
                             <Form.Control 
                                 placeholder={t("startTypingToFilterFiles")} 
                                 value={searchState.searchQuery}
-                                className={'m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
+                                className={'form-control-lg m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
                                 onChange={(e) =>
                                     {
                                         searchDispatch({type: 'FILTER_BY_SEARCH', payload: e.target.value});

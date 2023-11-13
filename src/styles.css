@@ -40,7 +40,7 @@ body, html, #root, .App {
     border-radius: 5px;
     cursor: pointer;
     transition: all .1s ease-in-out;
-    font-size: 8pt;
+    font-size: 10pt;
     word-break: break-all;
     padding-right: 25px;
     margin: 2px 0 0 5px;
