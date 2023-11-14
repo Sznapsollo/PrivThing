@@ -8,6 +8,7 @@ import { FiMenu } from 'react-icons/fi';
 import { AppState } from '../context/Context'
 import { Item } from '../model';
 import '../styles.css';
+import SecretComp from './SecretComp';
 
 interface Props {
     centerLabel?: string
@@ -16,7 +17,18 @@ interface Props {
 const HeaderComp = ({centerLabel} : Props) => {
 
     const { t } = useTranslation();
-    const { searchState, mainDispatch, searchDispatch } = AppState();
+    const { searchState, mainState, mainDispatch, searchDispatch } = AppState();
+
+    const handleForgetSecret = () => {
+        if(!centerLabel?.length) {
+            return
+        }
+        mainDispatch({type: 'CLEAR_SECRET'});
+    }
+
+    if(!centerLabel?.length && mainState?.secret) {
+        centerLabel = t("forgetPassword");
+    }
 
     return (
         <Navbar bg="dark" variant="dark" style={{height: 40}}>
@@ -51,7 +63,7 @@ const HeaderComp = ({centerLabel} : Props) => {
                         
                     </Form.Group>
                 </Navbar.Text>
-                <span style={{textAlign: 'center', flex: 1, color: 'white'}}>{centerLabel}</span>
+                <div className='navLink' onClick={handleForgetSecret}>{centerLabel || ''}</div>
                 <Nav>
                     <Button className='btn-sm' variant="light" onClick={() => {
                         const payLoadItem: Item = {

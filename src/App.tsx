@@ -72,7 +72,6 @@ function App() {
     };
       
     const forgetSecret = () => {
-        localStorage.clear();
         mainDispatch({type: 'CLEAR_SECRET'});
     };
 

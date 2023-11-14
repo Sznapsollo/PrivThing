@@ -6,6 +6,17 @@ body, html, #root, .App {
     font-size: 12px;
 }
 
+.navLink {
+    text-align: center;
+    flex: 1;
+    color: white;
+    cursor: pointer;
+}
+
+.navLink:hover {
+    color: #83c127;
+}
+
 .brandContainer {
     width: 20% !important;
     padding: 0 20px 0 20px !important;
