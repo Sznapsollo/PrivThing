@@ -163,7 +163,6 @@ const ItemsComp = () => {
                             onChange={(e) =>
                                 {
                                     searchDispatch({type: 'FILTER_BY_SEARCH', payload: e.target.value});
-                            
                                 }
                             }
                         />

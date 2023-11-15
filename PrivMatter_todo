@@ -4,8 +4,15 @@ todo:
 - folders picker precount
 - better demo files
 - copy paths to clipboard
+- maybe debounce on search
+- use url to store chosen tab info
+- most viewed?
 
 done:
+- tab remove context menu option
+- clicking on item opens new tab, if such tab exists it becomes active
+- make items not participate in ctrl + f search by using :before & data-content
+- switch from textArea to CodeMirror
 - forget passsword
 - add tab bigger
 - close all tabs

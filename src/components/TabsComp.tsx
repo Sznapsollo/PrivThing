@@ -151,7 +151,7 @@ const TabsComp = () => {
                 };
                 mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}/>
-            {tabContextMenu.show === true && <TabContextMenuComp x={tabContextMenu.x} y={tabContextMenu.y} closeContextMenu={handleContextMenuClose}/>}
+            {tabContextMenu.show === true && <TabContextMenuComp x={tabContextMenu.x} y={tabContextMenu.y} tabItem={tabContextMenu.tab} closeContextMenu={handleContextMenuClose}/>}
         </div>
     )
 }

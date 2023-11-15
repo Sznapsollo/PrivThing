@@ -50,7 +50,7 @@ function App() {
             handleLogoutTimer();
         }, 200); 
     }
-
+    
     const handleLogoutTimer = () => {
         forgetSecretTime = new Date(new Date().getTime() + settingsState.forgetSecretTime);
         forgetTimer = setTimeout(() => {

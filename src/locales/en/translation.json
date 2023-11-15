@@ -3,6 +3,8 @@
     "allFolders": "All folders",
     "cancel": "Cancel",
     "close": "Close",
+    "closeTab": "Close Tab",
+    "closeAllTabs": "Close All Tabs",
     "confirmRefresh": "Do you want to refresh?",
     "dataSaved": "Data saved correctly",
     "eachTimeRequired": "Each time it is required",

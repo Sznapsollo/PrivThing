@@ -83,8 +83,13 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 activeTabIndex = updatedTabs.length - 1;
             } else if(tabPayLoad) {
                 if(tabPayLoad.isNew) {
-                    updatedTabs.push({...itemPayload, tabId: makeId(10)});
-                    activeTabIndex = updatedTabs.length - 1;
+                    if(tabPayLoad.path) {
+                        activeTabIndex = updatedTabs.findIndex((tab) => tab.path === tabPayLoad?.path);
+                    }
+                    if(activeTabIndex < 0) {
+                        updatedTabs.push({...itemPayload, tabId: makeId(10)});
+                        activeTabIndex = updatedTabs.length - 1;
+                    }
                 } else {
                     activeTabIndex = updatedTabs.findIndex((tab) => tab === tabPayLoad);
                 }

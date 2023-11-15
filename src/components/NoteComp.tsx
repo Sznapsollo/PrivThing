@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
@@ -8,6 +8,8 @@ import SecretComp from './SecretComp';
 import { AlertData, Tab } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
+import CodeMirror, {EditorView} from '@uiw/react-codemirror';
+import { javascript } from '@codemirror/lang-javascript';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 const NoteComp = () => {
@@ -35,8 +37,8 @@ const NoteComp = () => {
 
     const updateFileButtonRef = useRef<HTMLButtonElement>(null);
     const saveToFileButtonRef = useRef<HTMLButtonElement>(null);
-    const noteRef = useRef<HTMLTextAreaElement>(null);
-    
+    const scrollableRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         if(rawNote?.length) {
             decryptData();
@@ -151,7 +153,7 @@ const NoteComp = () => {
         scrollNoteHandle = setTimeout(function() {
             let currentTabs = mainState.tabs.map((tab) => {
                 if(tab.active === true) {
-                    return {...tab, scrollTop: noteRef.current?.scrollTop}
+                    return {...tab, scrollTop: scrollableRef.current?.scrollTop}
                 }
                 return {...tab}
             });
@@ -290,10 +292,16 @@ const NoteComp = () => {
             setOrgNote(data);
             let currentTab = mainState.tabs.find((tab) => tab.active === true);
             if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
-                setTimeout(() => {noteRef.current?.scrollTo({top: currentTab?.scrollTop})});
+                setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})});
             }
         }
     };
+
+
+    //https://codemirror.net/docs/ref/
+    const onCMChange = useCallback((val: any, viewUpdate: any) => {
+        setNote(val);
+    }, []);
 
     return (
         <div className='noteContainer'>
@@ -330,32 +338,31 @@ const NoteComp = () => {
                     </div>
                     <div className='formGroupContainer'>
                         <Form.Group className='formGroup'>
-                        <label className='upperLabel'>{t("fileName")}</label>
-                        <Form.Control
-                            className='form-control-lg'
-                            type="text"
-                            name="fileName"
-                            placeholder=''
-                            value={fileName}
-                            readOnly={true}
-                        ></Form.Control>
+                            <label className='upperLabel'>{t("fileName")}</label>
+                            <Form.Control
+                                className='form-control-lg'
+                                type="text"
+                                name="fileName"
+                                placeholder=''
+                                value={fileName}
+                                readOnly={true}
+                            ></Form.Control>
                         </Form.Group>
                     </div>
                     <div className='formGroupContainer flexStretch'>
-                        <Form.Group className='formGroup'>
+                        <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onScroll={()=> {rememberScrollPosition()}}>
                             <label className='upperLabel'>{t("note")}</label>
-                            <Form.Control
-                                className='form-control-lg'
-                                as="textarea"
-                                name="comments"
-                                value={note}
+                            <div style={{height: 100}}>
+                            <CodeMirror 
+                                value={note} 
                                 spellCheck={false}
-                                ref={noteRef}
-                                onChange={(e) => {
-                                    setNote(e.target.value);
-                                }}
-                                onScroll={()=> {rememberScrollPosition()}}
-                            ></Form.Control>
+                                extensions={[
+                                    javascript({ jsx: true }),
+                                    EditorView.lineWrapping
+                                ]} 
+                                onChange={onCMChange}
+                                />
+                                </div>
                         </Form.Group>
                     </div>
                     <div style={{display: "flex"}} className='formGroupContainer'>
