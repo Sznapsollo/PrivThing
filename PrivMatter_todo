@@ -9,6 +9,7 @@ todo:
 - most viewed?
 
 done:
+- ctr + f initiating CodeMirror search
 - tab remove context menu option
 - clicking on item opens new tab, if such tab exists it becomes active
 - make items not participate in ctrl + f search by using :before & data-content

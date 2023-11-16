@@ -8,8 +8,9 @@ import SecretComp from './SecretComp';
 import { AlertData, Tab } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
-import CodeMirror, {EditorView} from '@uiw/react-codemirror';
+import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
+import { openSearchPanel } from '@codemirror/search';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 const NoteComp = () => {
@@ -38,6 +39,7 @@ const NoteComp = () => {
     const updateFileButtonRef = useRef<HTMLButtonElement>(null);
     const saveToFileButtonRef = useRef<HTMLButtonElement>(null);
     const scrollableRef = useRef<HTMLDivElement>(null);
+    const noteRef = useRef<ReactCodeMirrorRef>(null);
 
     useEffect(() => {
         if(rawNote?.length) {
@@ -125,7 +127,12 @@ const NoteComp = () => {
     }, [note]);
 
     const onKeyDown = (e: KeyboardEvent) => {
-        if (e.ctrlKey && e.key.toLowerCase() === "s" && updateFileButtonRef.current && updateFileButtonRef.current?.disabled === false){
+        if (e.ctrlKey && e.key.toLowerCase() === "f") {
+            if(noteRef?.current?.view) {
+                openSearchPanel(noteRef.current.view);
+                e.preventDefault();
+            }
+        } else if (e.ctrlKey && e.key.toLowerCase() === "s" && updateFileButtonRef.current && updateFileButtonRef.current?.disabled === false){
             e.preventDefault();
             if(updateFileButtonRef.current) {
                 updateFileButtonRef.current.click();
@@ -356,6 +363,7 @@ const NoteComp = () => {
                             <CodeMirror 
                                 value={note} 
                                 spellCheck={false}
+                                ref={noteRef}
                                 extensions={[
                                     javascript({ jsx: true }),
                                     EditorView.lineWrapping
