@@ -64,7 +64,7 @@ const Context = ({children}: Props) => {
                 if(!pmTab.tabId) {
                     pmTab.tabId = makeId(10);
                 }
-                pmTab.active = false;
+                // pmTab.active = false;
                 return pmTab
             })
         }

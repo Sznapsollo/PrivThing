@@ -5,7 +5,7 @@ import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
-import { AlertData, Tab } from '../model';
+import { AlertData, Item } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
 import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
@@ -44,6 +44,11 @@ const NoteComp = () => {
     useEffect(() => {
         if(rawNote?.length) {
             decryptData();
+        } else {
+            let activeTab = mainState.tabs.find((tabItem) => tabItem.active);
+            if(activeTab) {
+                mainDispatch({type: "SET_EDITED_ITEM", payload: {item: activeTab as Item, tab: activeTab}});
+            }
         }
     }, [rawNote]);
 

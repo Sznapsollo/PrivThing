@@ -91,7 +91,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                         activeTabIndex = updatedTabs.length - 1;
                     }
                 } else {
-                    activeTabIndex = updatedTabs.findIndex((tab) => tab === tabPayLoad);
+                    activeTabIndex = updatedTabs.findIndex((tab) => tab.tabId === tabPayLoad?.tabId);
                 }
             } else {
                 activeTabIndex = updatedTabs.findIndex((tab) => tab.active === true);

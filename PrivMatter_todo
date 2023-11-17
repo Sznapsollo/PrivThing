@@ -7,8 +7,11 @@ todo:
 - maybe debounce on search
 - use url to store chosen tab info
 - most viewed?
+- local storage data 
+- possibility to save local storage data
 
 done:
+- remember which active and return to it
 - ctr + f initiating CodeMirror search
 - tab remove context menu option
 - clicking on item opens new tab, if such tab exists it becomes active
