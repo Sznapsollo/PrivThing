@@ -11,6 +11,7 @@ import '../styles.css'
 import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { openSearchPanel } from '@codemirror/search';
+import SaveAsComp from './SaveAsComp';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 const NoteComp = () => {
@@ -34,7 +35,7 @@ const NoteComp = () => {
     const [needSecret, setNeedSecret] = useState<boolean>(false);
     const [askRefresh, setAskRefresh] = useState<boolean>(false);
     const [needSecretMeta, setNeedSecretMeta] = useState<SecretMeta>({});
-    const [isSavingAsEncrypted, setIsSavingAsEncryted] = useState<boolean>(false);
+    const [isSavingAs, setIsSavingAs] = useState<boolean>(false);
 
     const updateFileButtonRef = useRef<HTMLButtonElement>(null);
     const saveToFileButtonRef = useRef<HTMLButtonElement>(null);
@@ -191,7 +192,7 @@ const NoteComp = () => {
         setFileName('');
         setFilePath('');
         setIsEncrypted(false);
-        setIsSavingAsEncryted(false);
+        setIsSavingAs(false);
         dismissSecret();
         setNote('');
         setOrgNote('');
@@ -203,11 +204,13 @@ const NoteComp = () => {
         mainDispatch({type: 'UPDATE_SECRET', payload: secret});
     }
 
-    const handleSaveAsSecretSubmit = (secret: string) => {
-        if(secret) {
-            saveToFileEncrypted(secret);
+    const handleSaveAs = (saveResults: {saveAs: string, encryptData: boolean, secret?: string}): void => {
+        if(saveResults.encryptData && saveResults.secret) {
+            saveToFileEncrypted(saveResults.secret);
+        } else {
+            saveToFile(fileName, note);
         }
-        setIsSavingAsEncryted(false);
+        setIsSavingAs(false);
     }
 
     const saveToFileEncrypted = (secret: string) => {
@@ -326,15 +329,11 @@ const NoteComp = () => {
                 </div>
             }
             {
-                isSavingAsEncrypted && 
-                <SecretComp confirm={true} info={t("providePasswordToEncryptFile")} handleSubmit={handleSaveAsSecretSubmit} />
-            }
-            {
                 needSecret && 
                 <SecretComp confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
             }
             {
-                !isLoading && !needSecret && !isSavingAsEncrypted && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
+                !isLoading && !needSecret && !isSavingAs && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
                     <div className='formGroupContainer'>
                         <Form.Group className='formGroup'>
                         <label className='upperLabel'>{t("filePath")}</label>
@@ -371,7 +370,11 @@ const NoteComp = () => {
                                 ref={noteRef}
                                 extensions={[
                                     javascript({ jsx: true }),
-                                    EditorView.lineWrapping
+                                    EditorView.lineWrapping,
+                                    EditorView.theme({
+                                        '.cm-gutter,.cm-content': { minHeight: '500px' },
+                                        '.cm-scroller': { overflow: 'auto' },
+                                    })
                                 ]} 
                                 onChange={onCMChange}
                                 />
@@ -387,13 +390,8 @@ const NoteComp = () => {
                         }
                         <div style={{flex: 1}}>&nbsp;</div>
                         &nbsp;
-                        <Button className="btn-lg" disabled={!isDirty} variant='primary' onClick={ () => {
-                            setIsSavingAsEncryted(true);
-                        }}
-                        title={t("encryptAndSaveToLocation")}>{t("saveAsEncrypted")}</Button>
-                        &nbsp;
                         <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!isDirty} variant='success' onClick={ () => {
-                            saveToFile(fileName, note);
+                            setIsSavingAs(true);
                         }}
                         title={t("saveToSelectedLocation")}>{t("saveAs")}</Button>
                         &nbsp;
@@ -403,6 +401,13 @@ const NoteComp = () => {
                         title={t("rollbackItemChanges")}>{t("cancel")}</Button>
                     </div>
                 </div>
+            }
+            {   
+                isSavingAs && 
+                <SaveAsComp 
+                    onSave={handleSaveAs}
+                    onClose={() => {setIsSavingAs(false)}}
+                />
             }
             {   
                 showUnsaved && 

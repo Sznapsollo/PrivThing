@@ -112,9 +112,9 @@ const Confirmation = ({
                 {modalContent}
             </Modal.Body>
             <Modal.Footer>
-                {showSaveButton && <Button variant={saveButtonVariant} onClick={handleSave}>{saveLabel}</Button>}
-                {showMiddleButton && <Button variant={middleButtonVariant} onClick={handleMiddle}>{middleLabel}</Button>}
-                {showCloseButton && <Button variant={closeButtonVariant} onClick={handleClose}>{closeLabel}</Button>}
+                {showSaveButton && <Button className={'btn-lg'} variant={saveButtonVariant} onClick={handleSave}>{saveLabel}</Button>}
+                {showMiddleButton && <Button className={'btn-lg'} variant={middleButtonVariant} onClick={handleMiddle}>{middleLabel}</Button>}
+                {showCloseButton && <Button className={'btn-lg'} variant={closeButtonVariant} onClick={handleClose}>{closeLabel}</Button>}
             </Modal.Footer>
         </Modal>
       </>

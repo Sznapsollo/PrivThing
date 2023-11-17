@@ -42,7 +42,7 @@ const AlertModal = () => {
                 {mainState.alertData?.message || ''}
             </Modal.Body>
             <Modal.Footer>
-                {<Button variant='secondary' onClick={handleClose}>{mainState.alertData?.buttonLabel || t('close')}</Button>}
+                {<Button className={'btn-lg'} variant='secondary' onClick={handleClose}>{mainState.alertData?.buttonLabel || t('close')}</Button>}
             </Modal.Footer>
         </Modal>
       </>

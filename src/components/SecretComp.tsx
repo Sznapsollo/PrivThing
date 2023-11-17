@@ -74,6 +74,7 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
                                 id='secretPass'
                                 type="password"
                                 name="secretValue"
+                                className={'form-control-lg'}
                                 placeholder=''
                                 autoFocus={true}
                                 value={secret}
@@ -92,6 +93,7 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
                             <Form.Control
                                 type="password"
                                 name="secretValueConfirm"
+                                className={'form-control-lg'}
                                 placeholder=''
                                 isInvalid={!isValid}
                                 value={secretConfirm}
@@ -101,7 +103,7 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
                             ></Form.Control>
                         </Form.Group>}
                         <div>&nbsp;</div>
-                        <Button type='submit' disabled={!isValid} style={{width: "100%"}} variant='success' onClick={ () => {
+                        <Button className='btn-lg' type='submit' disabled={!isValid} style={{width: "100%"}} variant='success' onClick={ () => {
                             submitSecret(undefined)
                         }}>{t("go")}</Button>
                     </Form>

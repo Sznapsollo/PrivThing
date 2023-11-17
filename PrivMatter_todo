@@ -9,8 +9,10 @@ todo:
 - most viewed?
 - local storage data 
 - possibility to save local storage data
+- file not found displays alert and closes tab
 
 done:
+- refactor save as as signle option
 - remember which active and return to it
 - ctr + f initiating CodeMirror search
 - tab remove context menu option
