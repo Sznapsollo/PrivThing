@@ -59,14 +59,21 @@ const Context = ({children}: Props) => {
         }
 
         let pmTabs = retrieveLocalStorage("pmTabs");
+        let activeTab = null;
         if(pmTabs && Array.isArray(pmTabs)) {
             appInitialState.tabs = pmTabs.map((pmTab) => {
                 if(!pmTab.tabId) {
                     pmTab.tabId = makeId(10);
                 }
+                if(pmTab.active) {
+                    activeTab = pmTab;
+                }
                 // pmTab.active = false;
                 return pmTab
             })
+        }
+        if(activeTab) {
+            appInitialState.editedItem = activeTab as Item
         }
     } catch(e) {
         console.warn("Defaults restore error", e);

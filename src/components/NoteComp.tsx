@@ -5,7 +5,7 @@ import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
-import { AlertData, Item } from '../model';
+import { AlertData, Item, SaveAsResults } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
 import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
@@ -14,6 +14,7 @@ import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
+
 const NoteComp = () => {
 
     const { t } = useTranslation();
@@ -45,11 +46,6 @@ const NoteComp = () => {
     useEffect(() => {
         if(rawNote?.length) {
             decryptData();
-        } else {
-            let activeTab = mainState.tabs.find((tabItem) => tabItem.active);
-            if(activeTab) {
-                mainDispatch({type: "SET_EDITED_ITEM", payload: {item: activeTab as Item, tab: activeTab}});
-            }
         }
     }, [rawNote]);
 
@@ -80,9 +76,11 @@ const NoteComp = () => {
                     // console.warn("Actions response", data);
                     return
                 }
-                if(!data.data) {
-                    // mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 5000, message: t('fileNotFound')} as AlertData})
-                    mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("fileNotFound")} as AlertData})
+                if(data.data == null && !!mainState.editedItem.path) {
+                    mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
+                    // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("fileNotFound")} as AlertData})
+                    let currentTabs = mainState.tabs.filter((tab) => tab.path !== mainState.editedItem.path);
+                    mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
                 }
                 if(typeof data.data === "string") {
                     setRawNote(data.data);
@@ -204,18 +202,20 @@ const NoteComp = () => {
         mainDispatch({type: 'UPDATE_SECRET', payload: secret});
     }
 
-    const handleSaveAs = (saveResults: {saveAs: string, encryptData: boolean, secret?: string}): void => {
+    const handleSaveAs = (saveResults: SaveAsResults): void => {
         if(saveResults.encryptData && saveResults.secret) {
-            saveToFileEncrypted(saveResults.secret);
+            saveToFileEncrypted(saveResults);
         } else {
-            saveToFile(fileName, note);
+            saveToFile(saveResults.fileName, note);
         }
         setIsSavingAs(false);
     }
 
-    const saveToFileEncrypted = (secret: string) => {
+    const saveToFileEncrypted = (saveResults: SaveAsResults) => {
         let fileNameLoc = fileName.replaceAll('.txt', '') + '.prvmttr';
-        saveToFile(fileNameLoc, encryptData(secret));
+        if(saveResults.secret) {
+            saveToFile(fileNameLoc, encryptData(saveResults.secret));
+        }
     }
 
     const saveToFile = (fileNameLoc: string, fileData: string) => {
@@ -307,7 +307,7 @@ const NoteComp = () => {
             setOrgNote(data);
             let currentTab = mainState.tabs.find((tab) => tab.active === true);
             if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
-                setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})});
+                setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})}, 100);
             }
         }
     };
@@ -405,6 +405,7 @@ const NoteComp = () => {
             {   
                 isSavingAs && 
                 <SaveAsComp 
+                    fileName={fileName}
                     onSave={handleSaveAs}
                     onClose={() => {setIsSavingAs(false)}}
                 />

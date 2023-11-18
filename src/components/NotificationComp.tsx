@@ -30,7 +30,7 @@ const handleClose = () => {
 
 return (
     <div style={{position: 'absolute', width: '100%', zIndex: 100}}>
-        { show && <Alert onClose={handleClose} severity={mainState.notificationData?.type || 'success'}>{mainState.notificationData?.message || ''}</Alert> }
+        { show && <Alert onClose={handleClose} className='notificationText' variant="filled" severity={mainState.notificationData?.type || 'success'}>{mainState.notificationData?.message || ''}</Alert> }
     </div>
 )
 }

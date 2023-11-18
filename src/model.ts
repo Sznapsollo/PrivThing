@@ -63,6 +63,13 @@ export interface NotificationData {
     closeAfter?: number
 }
 
+export interface SaveAsResults {
+    fileName: string,
+    saveAs: string,
+    encryptData: boolean
+    secret?: string
+}
+
 export interface SearchContextType {
     currentFolder: string
     searchQuery: string,

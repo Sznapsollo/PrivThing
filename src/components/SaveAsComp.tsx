@@ -2,26 +2,24 @@ import { useState, useEffect } from 'react'
 import { Modal, Button, Form } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import SecretComp from './SecretComp'
-
-interface saveAsResults {
-    saveAs: string,
-    encryptData: boolean
-    secret?: string
-}
+import { SaveAsResults } from '../model'
 
 interface Props {
-    onSave: (item: saveAsResults) => void,
+    fileName: string,
+    onSave: (item: SaveAsResults) => void,
     onClose: () => void
 }
 
 const SaveAsComp = ({
+    fileName,
     onSave, 
     onClose,
 }: Props) => {
 
     const { t } = useTranslation();
     const [encryptData, setEncryptData] = useState<boolean>(false);
-    const [saveAs, setSaveAs] = useState<string>('FILE')
+    const [saveAs, setSaveAs] = useState<string>('FILE');
+    const [saveFileName, setSaveFileName] = useState<string>(fileName);
 
     const handleClose = () => {
         onClose();
@@ -29,6 +27,7 @@ const SaveAsComp = ({
 
     const handleSave = () => {
         onSave({
+            fileName: saveFileName,
             saveAs: saveAs,
             encryptData: false
         });
@@ -36,6 +35,7 @@ const SaveAsComp = ({
 
     const handleSecretSubmit = (secret: string) => {
         onSave({
+            fileName: saveFileName,
             saveAs: saveAs,
             encryptData: encryptData,
             secret: secret
@@ -49,7 +49,8 @@ const SaveAsComp = ({
         onHide={handleClose}
         backdrop="static"
         keyboard={false}
-        size="lg"
+        // size="lg"
+        width={300}
         aria-labelledby="contained-modal-title-vcenter"
         centered
         >
@@ -59,6 +60,22 @@ const SaveAsComp = ({
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body style={{padding: 20}}>
+                <div className='formGroupContainer'>
+                    <Form.Group className='formGroup'>
+                        <label className='upperLabel'>{t("fileName")}</label>
+                        <Form.Control
+                            className='form-control-lg'
+                            type="text"
+                            name="fileName"
+                            placeholder=''
+                            value={saveFileName}
+                            required= {true}
+                            onChange={(e)=> {
+                                setSaveFileName(e.target.value);
+                            }}
+                        ></Form.Control>
+                    </Form.Group>
+                </div>
                 <div className='formGroupContainer'>
                     <Form.Group className='formGroup'>
                         <Form.Control 

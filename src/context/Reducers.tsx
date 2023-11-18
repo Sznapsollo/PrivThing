@@ -77,7 +77,6 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                     updatedTabs = updatedTabs.filter((item, index) => index !== tabToBeRemovedIndex);
                 }
             }
-
             if(!updatedTabs.length) {
                 updatedTabs.push({...itemPayload, tabId: makeId(10)});
                 activeTabIndex = updatedTabs.length - 1;
@@ -90,7 +89,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                         updatedTabs.push({...itemPayload, tabId: makeId(10)});
                         activeTabIndex = updatedTabs.length - 1;
                     }
-                } else {
+                } else if(tabPayLoad?.tabId) {
                     activeTabIndex = updatedTabs.findIndex((tab) => tab.tabId === tabPayLoad?.tabId);
                 }
             } else {
@@ -100,7 +99,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             if(activeTabIndex < 0) {activeTabIndex = 0;}
             updatedTabs = updatedTabs.map((tabItem, tabItemIndex) => {
                 if(tabItemIndex === activeTabIndex) {
-                    return {...itemPayload, tabId: tabItem.tabId, active: true};
+                    return {...itemPayload, tabId: tabItem.tabId, scrollTop: tabItem.scrollTop, active: true};
                 }
                 return {...tabItem, active: false};
             })
