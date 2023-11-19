@@ -47,6 +47,7 @@ const NoteComp = () => {
     const noteRef = useRef<ReactCodeMirrorRef>(null);
 
     useEffect(() => {
+        // console.log('changed rawNote', rawNote)
         if(rawNote?.length) {
             decryptData();
         }
@@ -124,6 +125,10 @@ const NoteComp = () => {
             setRawNote(editedItem.rawNote);
             setIsLoading(false);
         }
+
+        // it should be done also after note changes but that might not happen if we switch between same/empty data
+        // this is still not good and should be changed in the future
+        noteRef.current?.view?.focus()
     }
 
     useEffect(() => {
@@ -138,7 +143,7 @@ const NoteComp = () => {
     }, [secret]);
 
     useEffect(() => {
-        // console.log('changed edited item', editedItem)
+        // console.log('changed edited item path', editedItem)
         initializeEditedItem();
     }, [editedItem.path]);
 
@@ -158,6 +163,7 @@ const NoteComp = () => {
     }, [editedItemCandidate.item]);
 
     useEffect(() => {
+        // console.log('changed note', note)
         validateButtonsState();
         noteRef.current?.view?.focus()
     }, [note]);
@@ -275,10 +281,6 @@ const NoteComp = () => {
         } catch(e) {
             mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
         }
-
-        // setAskRefresh(false);
-        // mainDispatch({type: "UPDATE_ITEMS_LIST"});
-        // initializeEditedItem();
     }
 
     const saveEncrypted = (saveResults: SaveAsResults) => {
