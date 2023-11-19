@@ -1,6 +1,6 @@
 
-import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType } from '../model'
-import { saveCookie, makeId } from '../helpers/helpers'
+import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder } from '../model'
+import { makeId, retrieveLocalStorage, saveLocalStorage } from '../helpers/helpers'
 
 type HideItemsBar = {type: 'HIDE_ITEMS_BAR'};
 type HideSettings = {type: 'HIDE_SETTINGS'};
@@ -14,7 +14,7 @@ type ShowAlertModal = {type: 'SHOW_ALERT_MODAL', payload: AlertData};
 type ShowNotification = {type: 'SHOW_NOTIFICATION', payload: NotificationData};
 type ShowSettings = {type: 'SHOW_SETTINGS'};
 type ToggleItemsBar = {type: 'TOGGLE_ITEMS_BAR'};
-type UpdateItemsList = {type: 'UPDATE_ITEMS_LIST'};
+type UpdateItemsList = {type: 'UPDATE_ITEMS_LIST', payload: string};
 type UpdateTabs = {type: 'UPDATE_TABS', payload: Tab[]};
 type UpdateSecret = {type: 'UPDATE_SECRET', payload: string};
 
@@ -35,6 +35,7 @@ export type MainActions = ClearEditedItem |
     UpdateSecret;
 
 export const mainReducer = (state: MainContextType, action: MainActions) => {
+    // console.log('mainReducer', action.type)
     switch (action.type) {
         case "HIDE_ITEMS_BAR":
             return { ...state, fullItems: false};
@@ -54,9 +55,9 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             let tabPayLoad = action.payload.tab;
             let updatedTabs: Tab[] = state.tabs.slice() || []
             let activeTabIndex = -1;
-
+            
             if(action.payload.action === "REMOVE_TAB" && action.payload.tab) {
-                let tabToBeRemovedIndex = updatedTabs.findIndex((tab) => tab === tabPayLoad);
+                let tabToBeRemovedIndex = updatedTabs.findIndex((tab) => tab.tabId === tabPayLoad?.tabId);
                 if(tabToBeRemovedIndex < 0 ) {
                     return {...state}
                 }
@@ -69,7 +70,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                         updatedTabs[tabToBeRemovedIndex-1].active = true;
                         itemPayload = updatedTabs[tabToBeRemovedIndex-1];
                         tabPayLoad = undefined;
-                    } else if(tabToBeRemovedIndex === 0) {
+                    } else if(tabToBeRemovedIndex === 0 && updatedTabs.length > 1) {
                         updatedTabs[tabToBeRemovedIndex+1].active = true;
                         itemPayload = updatedTabs[tabToBeRemovedIndex+1];
                         tabPayLoad = undefined;
@@ -93,6 +94,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                     activeTabIndex = updatedTabs.findIndex((tab) => tab.tabId === tabPayLoad?.tabId);
                 }
             } else {
+                // NJ when adding new for example
                 activeTabIndex = updatedTabs.findIndex((tab) => tab.active === true);
             }
 
@@ -103,7 +105,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 }
                 return {...tabItem, active: false};
             })
-            return { ...state, editedItem: itemPayload, tabs: updatedTabs };
+            return { ...state, editedItem: itemPayload, tabs: updatedTabs, newItemToOpen: undefined };
         case "CLEAR_EDITED_ITEM":
             const payLoadItem: Item = {
                 name: '',
@@ -115,13 +117,45 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
         case "CLEAR_SECRET":
             return { ...state, secret: '' };
         case "SET_ITEMS":
-            let folders:string[] = [];
-            action.payload.forEach((item) => {
-                if(item.folder && folders.indexOf(item.folder) < 0) {
-                    folders.push(item.folder);
+            let folders:Folder[] = [];
+            let items = [];
+            try {
+                let localStorageFiles = retrieveLocalStorage('privmatter.files');
+                if(localStorageFiles) {
+                    for(let localStorageFileName in localStorageFiles) {
+                        let localStorageFile = localStorageFiles[localStorageFileName]
+                        let lcItem: Item = {
+                            folder: 'localStorage',
+                            path: 'localStorage/' + localStorageFileName,
+                            name: localStorageFileName,
+                            size: localStorageFile.size,
+                            lastModified: localStorageFile.lastModified
+                        }
+                        items.push(lcItem)
+                    }
+                }
+            } catch(e) {
+                alert("Problem retrieving localStorage items")
+            }
+            if(action.payload && action.payload.length) {
+                items = items.concat(action.payload);
+            }
+            let newItemToOpen;
+            items.forEach((item) => {
+                let foundFolder = folders.find((folder) => folder.name === item.folder);
+                if(foundFolder) {
+                    foundFolder.itemsCount++;
+                } else {
+                    folders.push({
+                        name: item.folder,
+                        itemsCount: 1
+                    } as Folder);
+                }
+                if(state.newPathToOpenCandidate && item.path === state.newPathToOpenCandidate) {
+                    newItemToOpen = item;
                 }
             })
-            return { ...state, items: action.payload, folders: (folders || []) };
+            return { ...state, items: items, folders: folders, newPathToOpenCandidate: '', newItemToOpen: newItemToOpen };
         case "SHOW_SETTINGS":
             return { ...state, showSettings: true };
         case "SHOW_ALERT_MODAL":
@@ -131,7 +165,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
         case "TOGGLE_ITEMS_BAR":
             return { ...state, fullItems: !state.fullItems };
         case "UPDATE_ITEMS_LIST":
-            return { ...state, itemsListRefreshTrigger: new Date().getTime() };
+            return { ...state, itemsListRefreshTrigger: new Date().getTime(), newItemToOpen: undefined, newPathToOpenCandidate: action.payload };
         case "UPDATE_SECRET":
             return { ...state, secret: action.payload};
         case "UPDATE_TABS":
@@ -155,10 +189,22 @@ export const searchReducer = (state: SearchContextType, action: SearchActions) =
         case "FILTER_BY_SEARCH":
             return { ...state, searchQuery: action.payload };
         case "SET_CURRENT_FOLDER":
+            try {
+                let pmSearchSettings = retrieveLocalStorage("privmatter.pmSearchSettings") || {};
+                pmSearchSettings.currentFolder =  action.payload;
+                saveLocalStorage("privmatter.pmSearchSettings", pmSearchSettings);
+            } catch(e) {
+                console.error("Error on SET_CURRENT_FOLDER", e);
+            }
             return { ...state, currentFolder: action.payload };
         case "SORT_BY":
-            let pmSearchSettings = {sort: action.payload}
-            saveCookie("pmSearchSettings", pmSearchSettings);
+            try {
+                let pmSearchSettings = retrieveLocalStorage("privmatter.pmSearchSettings") || {};
+                pmSearchSettings.sort =  action.payload;
+                saveLocalStorage("privmatter.pmSearchSettings", pmSearchSettings);
+            } catch(e) {
+                console.error("Error on SET_CURRENT_FOLDER", e);
+            }
             return { ...state, sort: action.payload };
         default:
             return state;

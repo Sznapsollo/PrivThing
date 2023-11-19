@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { AppState } from '../context/Context'
 import { Modal, Button, Form } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
-import { saveCookie } from '../helpers/helpers'
+import { saveLocalStorage } from '../helpers/helpers'
 import moment from 'moment';
 
 
@@ -24,7 +24,7 @@ const SettingsComp = () => {
     const handleSave = () => {
         settingsDispatch({type: "UPDATE_SETTINGS", payload: settings});
         mainDispatch({type: "HIDE_SETTINGS"});
-        saveCookie("pmSettings", settings);
+        saveLocalStorage("privmatter.pmSettings", settings);
     }
 
     const clone = (ob: any) => {
@@ -62,6 +62,7 @@ const SettingsComp = () => {
                         as="select" 
                         name="forgetSecretMode"
                         value={settings?.forgetSecretMode}
+                        className='form-control-lg'
                         onChange={(e) => {
                             let newSettings = clone(settings);
                             newSettings.forgetSecretMode = e.target.value;
@@ -79,7 +80,7 @@ const SettingsComp = () => {
                     <Form.Control
                         type="range"
                         name="forgetSecretTime"
-                        className='form-range'
+                        className='form-range form-control-lg'
                         placeholder='11'
                         min={10000}
                         max={3600000}
@@ -95,8 +96,8 @@ const SettingsComp = () => {
                 </Form.Group>}
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="primary" onClick={handleSave}>{t("save")}</Button>
-                <Button variant="danger" onClick={handleClose}>{t("cancel")}</Button>
+                <Button variant="primary" className={'btn-lg'} onClick={handleSave}>{t("save")}</Button>
+                <Button variant="danger" className={'btn-lg'} onClick={handleClose}>{t("cancel")}</Button>
             </Modal.Footer>
     </Modal>
         </>

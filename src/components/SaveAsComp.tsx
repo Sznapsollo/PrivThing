@@ -3,6 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import SecretComp from './SecretComp'
 import { SaveAsResults } from '../model'
+import { retrieveLocalStorage, saveLocalStorage } from '../helpers/helpers'
 
 interface Props {
     fileName: string,
@@ -16,27 +17,47 @@ const SaveAsComp = ({
     onClose,
 }: Props) => {
 
+    let pmSaveAsType
+    try {
+        pmSaveAsType = retrieveLocalStorage("privmatter.pmSaveAsType");
+    } catch(e) {
+        console.error("Error on pmSaveAsType", e);
+    }
+
     const { t } = useTranslation();
     const [encryptData, setEncryptData] = useState<boolean>(false);
-    const [saveAs, setSaveAs] = useState<string>('FILE');
+    const [saveAsType, setSaveAsType] = useState<string>(pmSaveAsType || "LOCAL_STORAGE");
     const [saveFileName, setSaveFileName] = useState<string>(fileName);
 
     const handleClose = () => {
         onClose();
     };
 
+    const handleFileName = ():string => {
+        let fileNameLoc = saveFileName;
+        if(encryptData) {
+            // we assume taht encrypted ones will end with '.prvmttr'
+            fileNameLoc = fileName.replaceAll('.txt', '')
+            if(!fileNameLoc.endsWith('.prvmttr')) {
+                fileNameLoc += '.prvmttr';
+            }
+            fileName.endsWith('.prvmttr')
+        }
+        return fileNameLoc
+    }
+
     const handleSave = () => {
         onSave({
-            fileName: saveFileName,
-            saveAs: saveAs,
+            fileName: handleFileName(),
+            saveAsType: saveAsType,
             encryptData: false
         });
     };
 
     const handleSecretSubmit = (secret: string) => {
         onSave({
-            fileName: saveFileName,
-            saveAs: saveAs,
+            fileName: handleFileName(),
+            saveAsType: saveAsType,
             encryptData: encryptData,
             secret: secret
         })
@@ -70,6 +91,7 @@ const SaveAsComp = ({
                             placeholder=''
                             value={saveFileName}
                             required= {true}
+                            autoFocus={true}
                             onChange={(e)=> {
                                 setSaveFileName(e.target.value);
                             }}
@@ -80,15 +102,16 @@ const SaveAsComp = ({
                     <Form.Group className='formGroup'>
                         <Form.Control 
                             as="select" 
-                            name="officialIdType"
+                            name="saveAsType"
                             className={'form-control-lg'}
-                            value={saveAs}
+                            value={saveAsType}
                             onChange={(e) => {
-                                setSaveAs(e.target.value)
+                                saveLocalStorage("privmatter.pmSaveAsType", e.target.value);
+                                setSaveAsType(e.target.value);
                             }}
                         >
+                            <option value="LOCAL_STORAGE">{t("localStorage")}</option>
                             <option value="FILE">{t("file")}</option>
-                            {/* <option value="LOCAL_STORAGE">{t("localStorage")}</option> */}
                         </Form.Control>
                     </Form.Group>
                 </div>
@@ -101,7 +124,7 @@ const SaveAsComp = ({
                             checked={encryptData}
                             className={'form-control-lg largeCheckbox'}
                             onChange={(e) => {
-                                setEncryptData(e.target.checked)
+                                setEncryptData(e.target.checked);
                             }}
                         ></Form.Check>
                     </Form.Group>

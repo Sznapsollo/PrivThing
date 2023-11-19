@@ -19,7 +19,7 @@ const TabsComp = () => {
     const [ tabContextMenu, setTabContextMenu ] = useState<TabContextMenu>(initialTabContextMenu)
 
     if(mainState.tabs) {
-        saveLocalStorage("pmTabs", mainState.tabs);
+        saveLocalStorage("privmatter.pmTabs", mainState.tabs);
     }
 
     const dragItem = useRef<number | null>();
@@ -134,10 +134,10 @@ const TabsComp = () => {
                             onContextMenu={(e) => handleContextMenu(e, tabItem)}
                         >{tabItem.name || t("empty")} &nbsp; 
                         </div>
-                        {mainState.tabs.length > 1 && <FiMinusCircle className='h2 itemTabIconRemove' onClick={(e) => {
+                        <FiMinusCircle className='h2 itemTabIconRemove' onClick={(e) => {
                             e.preventDefault();
-                            mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: mainState.editedItem, tab: tabItem, action: 'REMOVE_TAB'}});
-                        }}/>}
+                            mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: {}, tab: tabItem, action: 'REMOVE_TAB'}});
+                        }}/>
                     </span>
                         
                 ))

@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useReducer} from 'react'
 import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType, Tab } from '../model';
 import { mainReducer, searchReducer, settingsReducer } from './Reducers'
-import { retrieveCookie, retrieveLocalStorage, cloneProps, makeId } from '../helpers/helpers'
+import { retrieveLocalStorage, cloneProps, makeId } from '../helpers/helpers'
 
 const appInitialState: MainContextType = {
   secret: '',
@@ -53,12 +53,12 @@ const Context = ({children}: Props) => {
     //     settingsInitialState.forgetSecretTime = 120000;
     // }
     try {
-        let pmSettings = retrieveCookie("pmSettings");
+        let pmSettings = retrieveLocalStorage("privmatter.pmSettings");
         if(pmSettings) {
             cloneProps(pmSettings, settingsInitialState);
         }
 
-        let pmTabs = retrieveLocalStorage("pmTabs");
+        let pmTabs = retrieveLocalStorage("privmatter.pmTabs");
         let activeTab = null;
         if(pmTabs && Array.isArray(pmTabs)) {
             appInitialState.tabs = pmTabs.map((pmTab) => {
@@ -79,9 +79,12 @@ const Context = ({children}: Props) => {
         console.warn("Defaults restore error", e);
     }
 
-    let pmSearchSettings = retrieveCookie("pmSearchSettings");
+    let pmSearchSettings = retrieveLocalStorage("privmatter.pmSearchSettings");
     if(pmSearchSettings?.sort) {
         searchInitialState.sort = pmSearchSettings?.sort;
+    }
+    if(pmSearchSettings?.currentFolder) {
+        searchInitialState.currentFolder = pmSearchSettings?.currentFolder;
     }
 
     const [mainState, mainDispatch] = useReducer(mainReducer, appInitialState);

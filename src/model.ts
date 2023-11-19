@@ -14,7 +14,7 @@ export interface Item {
     name: string,
     path: string,
     rawNote?: string,
-    size: number
+    size?: number
 }
 
 export interface Tab extends Item {
@@ -24,6 +24,11 @@ export interface Tab extends Item {
     remove?: boolean,
     scrollTop?: number,
     tabId: string
+}
+
+export interface Folder {
+    name: string,
+    itemsCount: number
 }
 
 export interface ContextMenu {
@@ -43,17 +48,31 @@ export interface NavigationItem {
 }
 
 export interface MainContextType {
+    // data for modal alert
     alertData?: AlertData
+    // current edit item edited / viewed by user
     editedItem: Item,
+    // initial item to be open. exists so if user has some unsaved data, there will be prompt to save it first before loading edited item
     editedItemCandidate: NavigationItem,
-    folders: string[],
+    // unique items folders calculated after items load
+    folders: Folder[],
+    // all items
     items: Item[],
+    // user tabs
     tabs: Tab[],
+    // to operate full screen items for smaller screens
     fullItems: boolean,
+    // just a number to trigger items list rerender
     itemsListRefreshTrigger: number,
+    // data for showed notification
     notificationData?: NotificationData,
     secret: string,
-    showSettings: boolean
+    // show settings
+    showSettings: boolean,
+    // open after list is loaded. taken from newPathToOpenCandidate and filled if exists in items after load by path
+    newItemToOpen?: Item,
+    // candidate to open newly added
+    newPathToOpenCandidate?: string
 }
 
 export interface NotificationData {
@@ -65,7 +84,7 @@ export interface NotificationData {
 
 export interface SaveAsResults {
     fileName: string,
-    saveAs: string,
+    saveAsType: string,
     encryptData: boolean
     secret?: string
 }

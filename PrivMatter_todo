@@ -7,11 +7,16 @@ todo:
 - maybe debounce on search
 - use url to store chosen tab info
 - most viewed?
+- saving indicator
+- icon for file and local storage
+
+done:
+- localstorage delete item option
+- after save switch to saved item (for local storage or even the file if we find path not sure if it is possible file can be outside folders)
+- remember preferred folders
 - local storage data 
 - possibility to save local storage data
 - file not found displays alert and closes tab
-
-done:
 - refactor save as as signle option
 - remember which active and return to it
 - ctr + f initiating CodeMirror search

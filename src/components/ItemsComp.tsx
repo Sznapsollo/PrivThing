@@ -19,6 +19,7 @@ const ItemsComp = () => {
     const [scrollTop, setScrollTop] = useState<number>(0);
     const [transformedItems, setTransformedItems] = useState<Item[]>([]);
     const itemsContainerRef = useRef(null);
+    const [serverMode, setServerMode] = useState('unknown');
 
     const loadFromFile = (eventData: any) => {
         try {
@@ -49,6 +50,7 @@ const ItemsComp = () => {
     }
 
     useEffect(() => {
+        // console.log('refreshing items')
         setIsLoading(true);
         const requestOptions = {
             method: 'POST',
@@ -74,12 +76,15 @@ const ItemsComp = () => {
                 setFoldersLoaded(true);
             }
             if(Array.isArray(data?.data?.files)) {
-                // console.log(data.data)
+                // console.log('dispatching items', data.data)
                 mainDispatch({type: "SET_ITEMS", payload: data.data.files});
             }
         })
         .catch(function(error) {
             setIsLoading(false);
+            setFoldersLoaded(true);
+            setServerMode("offline");
+            mainDispatch({type: "SET_ITEMS", payload: []});
             console.warn('Fetch operation error: ', error.message);
         });
     }, [mainState.itemsListRefreshTrigger]);
@@ -178,7 +183,7 @@ const ItemsComp = () => {
                 <Form.Group className='formGroup'>
                     <Form.Control 
                         as="select" 
-                        name="officialIdType"
+                        name="sortBy"
                         value={searchState.sort}
                         onChange={(e) => {
                         searchDispatch({type: 'SORT_BY', payload: e.target.value});
@@ -196,7 +201,7 @@ const ItemsComp = () => {
                 <Form.Group className='formGroup'>
                     <Form.Control 
                         as="select" 
-                        name="officialIdType"
+                        name="currentFolder"
                         value={searchState.currentFolder}
                         onChange={(e) => {
                         searchDispatch({type: 'SET_CURRENT_FOLDER', payload: e.target.value});
@@ -205,14 +210,14 @@ const ItemsComp = () => {
                         <option value="">{t("allFolders")}</option>
                         {
                             mainState.folders.map((folder, folderIndex) => {
-                                return <option key={folderIndex} value={folder}>{folder}</option>
+                                return <option key={folderIndex} value={folder.name}>{folder.name}&nbsp;({folder.itemsCount})</option>
                             })
                         }
                     </Form.Control>
                 </Form.Group>
             </div>}
             {
-                !isLoading && !foldersLoaded && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("storageNotConfigured")}</div>
+                !isLoading && serverMode === "offline" && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("storageNotConfigured")}</div>
             }
             {
                 !isLoading && foldersLoaded === true && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}} >{t("filesLoaded")} ({transformedItems.length})</div>

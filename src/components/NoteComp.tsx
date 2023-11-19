@@ -12,6 +12,8 @@ import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
+import { retrieveLocalStorage, saveLocalStorage } from '../helpers/helpers';
+import moment from 'moment';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 
@@ -23,7 +25,7 @@ const NoteComp = () => {
         warning?: string
     }
 
-    const { mainState, mainDispatch, settingsState } = AppState();
+    const { mainState: {editedItem, editedItemCandidate, tabs, secret, newItemToOpen}, mainDispatch, settingsState } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
     const [rawNote, setRawNote] = useState<string>('');
@@ -35,6 +37,7 @@ const NoteComp = () => {
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
     const [needSecret, setNeedSecret] = useState<boolean>(false);
     const [askRefresh, setAskRefresh] = useState<boolean>(false);
+    const [askDelete, setAskDelete] = useState<boolean>(false);
     const [needSecretMeta, setNeedSecretMeta] = useState<SecretMeta>({});
     const [isSavingAs, setIsSavingAs] = useState<boolean>(false);
 
@@ -49,18 +52,43 @@ const NoteComp = () => {
         }
     }, [rawNote]);
 
+    useEffect(() => {
+        if(!newItemToOpen?.path) {
+            return
+        }
+        setIsDirty(false);
+        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: newItemToOpen}});
+    }, [newItemToOpen?.path]);
+
     const initializeEditedItem = () => {
         setInitialState();
-        let defaultFileName = (new Date().toJSON().slice(0,10).replace(/-/g,'_') + '_privmatter.txt');
-        setFilePath(mainState.editedItem.path || '');
-        setFileName(mainState.editedItem.name || defaultFileName);
-        if(mainState.editedItem.fetchData === true) {
+        let defaultFileName = moment().format('MMMM_Do_YYYY_h_mm_ss') + '_privmatter.txt';
+        setFilePath(editedItem.path || '');
+        setFileName(editedItem.name || defaultFileName);
+        if(isLocalStorageItem(editedItem)) {
+            setIsLoading(true);
+            try {
+                let localStorageFiles = retrieveLocalStorage('privmatter.files');
+                if(localStorageFiles && localStorageFiles[editedItem.name] != null && localStorageFiles[editedItem.name].data != null) {
+                    setRawNote(localStorageFiles[editedItem.name].data);
+                } else if(!!editedItem.path) {
+                    mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
+                    // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("fileNotFound")} as AlertData})
+                    let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
+                    mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
+                }
+            } catch(e) {
+                console.warn('localStorage read operation error: ', e);
+                mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
+            }
+            setIsLoading(false);
+        } else if(isExternalFileItem(editedItem)) {
             // NJ load and setEncrypted data
             setIsLoading(true);
             const requestOptions = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({type: 'retrieveFileFromPath', data: mainState.editedItem.path}) 
+                body: JSON.stringify({type: 'retrieveFileFromPath', data: editedItem.path}) 
             };
 
             fetch('actions', requestOptions)
@@ -76,10 +104,10 @@ const NoteComp = () => {
                     // console.warn("Actions response", data);
                     return
                 }
-                if(data.data == null && !!mainState.editedItem.path) {
+                if(data.data == null && !!editedItem.path) {
                     mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
                     // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("fileNotFound")} as AlertData})
-                    let currentTabs = mainState.tabs.filter((tab) => tab.path !== mainState.editedItem.path);
+                    let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
                     mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
                 }
                 if(typeof data.data === "string") {
@@ -89,45 +117,49 @@ const NoteComp = () => {
             .catch(function(error) {
                 setIsLoading(false);
                 console.warn('Fetch operation error: ', error.message);
+                mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
             });
-        } else if(mainState.editedItem.rawNote) {
+        } else if(editedItem.rawNote) {
             setIsLoading(true);
-            setRawNote(mainState.editedItem.rawNote);
+            setRawNote(editedItem.rawNote);
             setIsLoading(false);
         }
     }
 
     useEffect(() => {
         if(isEncrypted) {
-            if(!mainState.secret) {
+            if(!secret) {
                 giveMeSecret("", "");
             } else {
                 dismissSecret();
                 decryptData();
             }
         }
-    }, [mainState.secret]);
+    }, [secret]);
 
     useEffect(() => {
-        // console.log('changed edited item', mainState.editedItem)
+        // console.log('changed edited item', editedItem)
         initializeEditedItem();
-    }, [mainState.editedItem]);
+    }, [editedItem.path]);
 
     useEffect(() => {
         // NJ to check if there is something open to ask if we should save first
-        // console.log('changed editedItemCandidate item candidate', mainState.editedItemCandidate)
+        // console.log('changed editedItemCandidate item candidate', editedItemCandidate)
         if(isDirty) {
             setShowUnsaved(true);
         } else {
-            if(mainState.secret && settingsState.forgetSecretMode === "IMMEDIATE") {
+            if(secret && settingsState.forgetSecretMode === "IMMEDIATE") {
                 mainDispatch({type: 'CLEAR_SECRET'})     
             }
-            mainDispatch({type: 'SET_EDITED_ITEM', payload: mainState.editedItemCandidate}) 
+            if(editedItemCandidate?.item) {
+                mainDispatch({type: 'SET_EDITED_ITEM', payload: editedItemCandidate}) 
+            }
         }
-    }, [mainState.editedItemCandidate]);
+    }, [editedItemCandidate.item]);
 
     useEffect(() => {
         validateButtonsState();
+        noteRef.current?.view?.focus()
     }, [note]);
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -162,7 +194,7 @@ const NoteComp = () => {
             clearTimeout(scrollNoteHandle);
         }
         scrollNoteHandle = setTimeout(function() {
-            let currentTabs = mainState.tabs.map((tab) => {
+            let currentTabs = tabs.map((tab) => {
                 if(tab.active === true) {
                     return {...tab, scrollTop: scrollableRef.current?.scrollTop}
                 }
@@ -203,18 +235,73 @@ const NoteComp = () => {
     }
 
     const handleSaveAs = (saveResults: SaveAsResults): void => {
-        if(saveResults.encryptData && saveResults.secret) {
-            saveToFileEncrypted(saveResults);
+        if(saveResults.saveAsType === "LOCAL_STORAGE") {
+            if(saveResults.encryptData && saveResults.secret) {
+                saveEncrypted(saveResults);
+            } else {
+                saveToLocalStorage(saveResults.fileName, note);
+            }
+            mainDispatch({type: "UPDATE_ITEMS_LIST", payload: "localStorage/" + saveResults.fileName});
+            mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 3000, message: t('dataSaved')} as AlertData})
         } else {
-            saveToFile(saveResults.fileName, note);
+            if(saveResults.encryptData && saveResults.secret) {
+                saveEncrypted(saveResults);
+            } else {
+                saveToFile(saveResults.fileName, note);
+            }
         }
         setIsSavingAs(false);
     }
 
-    const saveToFileEncrypted = (saveResults: SaveAsResults) => {
-        let fileNameLoc = fileName.replaceAll('.txt', '') + '.prvmttr';
+    const handleDeleteItem = () => {
+        setAskDelete(false)
+        if(!isLocalStorageItem(editedItem)) {
+            return
+        }
+
+        try {
+            let privMatterLSFiles = retrieveLocalStorage('privmatter.files') || {};
+            if(privMatterLSFiles) {
+                delete privMatterLSFiles[fileName]
+                saveLocalStorage('privmatter.files', privMatterLSFiles);
+                mainDispatch({type: "UPDATE_ITEMS_LIST"});
+                var currTab = tabs.find((tab) => {
+                    return tab.path === filePath && tab.active === true
+                })
+                if(currTab) {
+                    mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: {}, tab: currTab, action: 'REMOVE_TAB'}});   
+                }
+            }
+        } catch(e) {
+            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
+        }
+
+        // setAskRefresh(false);
+        // mainDispatch({type: "UPDATE_ITEMS_LIST"});
+        // initializeEditedItem();
+    }
+
+    const saveEncrypted = (saveResults: SaveAsResults) => {
         if(saveResults.secret) {
-            saveToFile(fileNameLoc, encryptData(saveResults.secret));
+            if(saveResults.saveAsType === "LOCAL_STORAGE") {
+                saveToLocalStorage(saveResults.fileName, encryptData(saveResults.secret));
+            } else {
+                saveToFile(saveResults.fileName, encryptData(saveResults.secret));
+            }
+        }
+    }
+
+    const saveToLocalStorage = (fileNameLoc: string, fileData: string) => {
+        try {
+            let privMatterLSFiles = retrieveLocalStorage('privmatter.files') || {};
+            privMatterLSFiles[fileNameLoc] = {
+                size: fileData.length,
+                lastModified: new Date().getTime(),
+                data: fileData
+            }
+            saveLocalStorage('privmatter.files', privMatterLSFiles);
+        } catch(e) {
+            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
         }
     }
 
@@ -230,35 +317,70 @@ const NoteComp = () => {
         link.click();
     }
 
+    const isExternalFileItem = (item: Item): boolean => {
+        return (item.fetchData === true)
+    }
+
+    const isLocalStorageItem = (item: Item): boolean => {
+        return (item.folder === 'localStorage')
+    }
+
+    const canUpdateFile = (item: Item): boolean => {
+        if(!item.path) {
+            return false
+        }
+
+        if(isLocalStorageItem(item)) {
+            return true
+        } else if(isExternalFileItem(item)) {
+            return true
+        }
+        return false
+    }
+
     const updateFile = (callback?: () => void) => {
-        if(!mainState.editedItem.path || !mainState.editedItem.fetchData) {
+        if(!canUpdateFile(editedItem)) {
             return
         }
 
-        const fileData = isEncrypted ? encryptData(mainState.secret) : note;
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({type: 'updateFileFromPath', data: fileData, path: mainState.editedItem.path}) 
-        };
-        
-        fetch('actions', requestOptions)
-        .then(result => {return result.json()})
-        .then(data => {
-            if(data.status !== 0) {
-                // console.warn("Actions response", data);
-                mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
-                return
-            }
+        const fileData = isEncrypted ? encryptData(secret) : note;
+
+        if(isLocalStorageItem(editedItem)) {
+            saveToLocalStorage(editedItem.name, fileData);
+
             mainDispatch({type: "UPDATE_ITEMS_LIST"});
-            mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 5000, message: t('dataSaved')} as AlertData})
+            mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 3000, message: t('dataSaved')} as AlertData})
 
             if(callback) {
                 callback();
             } else {
                 initializeEditedItem();
             }
-        })
+        } else if(isExternalFileItem(editedItem)) {
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({type: 'updateFileFromPath', data: fileData, path: editedItem.path}) 
+            };
+            
+            fetch('actions', requestOptions)
+            .then(result => {return result.json()})
+            .then(data => {
+                if(data.status !== 0) {
+                    // console.warn("Actions response", data);
+                    mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
+                    return
+                }
+                mainDispatch({type: "UPDATE_ITEMS_LIST"});
+                mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 5000, message: t('dataSaved')} as AlertData})
+    
+                if(callback) {
+                    callback();
+                } else {
+                    initializeEditedItem();
+                }
+            })
+        }
     }
 
     const encryptData = (secret: string):string => {
@@ -287,12 +409,12 @@ const NoteComp = () => {
             if(encrypted === true) {
                 setIsEncrypted(true);
 
-                if(!mainState.secret) {
+                if(!secret) {
                     giveMeSecret("", "");
                     return
                 }
 
-                const bytes = CryptoJS.AES.decrypt(rawData, mainState.secret);
+                const bytes = CryptoJS.AES.decrypt(rawData, secret);
                 data = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
             } else {
                 data = rawData;
@@ -305,7 +427,7 @@ const NoteComp = () => {
         if(data && data.length) {
             setNote(data);
             setOrgNote(data);
-            let currentTab = mainState.tabs.find((tab) => tab.active === true);
+            let currentTab = tabs.find((tab) => tab.active === true);
             if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
                 setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})}, 100);
             }
@@ -383,10 +505,17 @@ const NoteComp = () => {
                     </div>
                     <div style={{display: "flex"}} className='formGroupContainer'>
                         {
-                            mainState.editedItem.fetchData && <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' onClick={ () => {
+                            canUpdateFile(editedItem) && <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' onClick={ () => {
                                 updateFile();
                             }}
-                            title={t("saveToLocation") + ' ' + mainState.editedItem.path}>{t("save")}</Button>
+                            title={t("saveToLocation") + ' ' + editedItem.path}>{t("save")}</Button>
+                        }
+                        &nbsp;
+                        {
+                            isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
+                                setAskDelete(true);
+                            }}
+                            title={t("delete")}>{t("delete")}</Button>
                         }
                         <div style={{flex: 1}}>&nbsp;</div>
                         &nbsp;
@@ -421,18 +550,26 @@ const NoteComp = () => {
                     externalShowMiddleButton={true}
                     handleExternalMiddle={() => {
                         setShowUnsaved(false);
-                        if(mainState.editedItemCandidate) {
-                            if(mainState.secret && settingsState.forgetSecretMode === "IMMEDIATE") {
+                        if(editedItemCandidate) {
+                            if(secret && settingsState.forgetSecretMode === "IMMEDIATE") {
                                 mainDispatch({type: 'CLEAR_SECRET'})     
                             }
-                            mainDispatch({type: 'SET_EDITED_ITEM', payload: mainState.editedItemCandidate});
+                            if(editedItemCandidate?.item) {
+                                mainDispatch({type: 'SET_EDITED_ITEM', payload: editedItemCandidate});
+                            }
                         }
                     }}
                     handleExternalSave={() => {
                         setShowUnsaved(false);
-                        updateFile(function() {
-                            mainDispatch({type: 'SET_EDITED_ITEM', payload: mainState.editedItemCandidate});
-                        });
+                        if(!canUpdateFile(editedItem)) {
+                            setIsSavingAs(true);
+                        } else {
+                            updateFile(function() {
+                                if(editedItemCandidate?.item) {
+                                    mainDispatch({type: 'SET_EDITED_ITEM', payload: editedItemCandidate});
+                                }
+                            });
+                        }
                     }}
                     handleExternalClose={() => {setShowUnsaved(false)}}
                 />
@@ -450,6 +587,17 @@ const NoteComp = () => {
                         initializeEditedItem();
                     }}
                     handleExternalClose={() => {setAskRefresh(false)}}
+                />
+            }
+            {   
+                askDelete && 
+                <ConfirmationComp 
+                    externalHeading={t("pleaseConfirm")}
+                    externalContent={t("confirmDelete", {item: fileName})}
+                    externalSaveLabel={t("yes")}
+                    externalCloseLabel={t("no")}
+                    handleExternalSave={handleDeleteItem}
+                    handleExternalClose={() => {setAskDelete(false)}}
                 />
             }
         </div>

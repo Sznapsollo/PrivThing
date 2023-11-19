@@ -2,7 +2,7 @@ import {useState, useEffect, useRef} from 'react'
 import ItemsComp from './ItemsComp';
 import NoteComp from './NoteComp';
 import { AppState } from '../context/Context'
-import { retrieveCookie, saveCookie } from '../helpers/helpers'
+import { retrieveLocalStorage, saveLocalStorage } from '../helpers/helpers'
 import { BsArrowLeftRight } from 'react-icons/bs';
 import '../styles.css'
 import TabsComp from './TabsComp';
@@ -10,7 +10,7 @@ import TabsComp from './TabsComp';
 
 let isItemsResizing: boolean = false;
 let resizeHideItemsHandle: ReturnType<typeof setTimeout> | null = null;
-let defaultItemsWidth: string = retrieveCookie("pmItemsWidth");
+let defaultItemsWidth: string = retrieveLocalStorage("privmatter.pmItemsWidth");
 
 const HomeComp = () => {
 
@@ -29,7 +29,7 @@ const HomeComp = () => {
             if(currentItemsWidth > 5 && currentItemsWidth < 100) {
                 // console.log('pmItemsWidth', currentItemsWidth)
 
-                saveCookie("pmItemsWidth", currentItemsWidth);
+                saveLocalStorage("privmatter.pmItemsWidth", currentItemsWidth);
             }
         }
     }
