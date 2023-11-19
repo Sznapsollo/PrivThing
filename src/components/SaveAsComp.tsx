@@ -37,11 +37,10 @@ const SaveAsComp = ({
         let fileNameLoc = saveFileName;
         if(encryptData) {
             // we assume taht encrypted ones will end with '.prvmttr'
-            fileNameLoc = fileName.replaceAll('.txt', '')
+            fileNameLoc = saveFileName.replaceAll('.txt', '')
             if(!fileNameLoc.endsWith('.prvmttr')) {
                 fileNameLoc += '.prvmttr';
             }
-            fileName.endsWith('.prvmttr')
         }
         return fileNameLoc
     }
