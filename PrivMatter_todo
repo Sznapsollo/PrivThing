@@ -9,8 +9,15 @@ todo:
 - most viewed?
 - saving indicator
 - icon for file and local storage
+- by default external server disabled to be enabled from settings
+- file extension for local stored notes not needed?
+- option to delete encrypted notes before logging into them
+- investigate autofocus
 
 done:
+- new note correction from toolbar (should work just as add new tab)
+- code mirror search auto closes (due to not redraw - problem with countdown)
+- countdown refactor
 - localstorage delete item option
 - after save switch to saved item (for local storage or even the file if we find path not sure if it is possible file can be outside folders)
 - remember preferred folders

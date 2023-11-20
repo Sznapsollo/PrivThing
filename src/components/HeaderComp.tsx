@@ -1,34 +1,128 @@
+import { useEffect, useState, useRef } from 'react'
 import { Navbar, Container, Nav, Dropdown, Button, Form, InputGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { AppState } from '../context/Context'
 import { FiPlusCircle } from 'react-icons/fi';
 import { LiaFilterSolid } from 'react-icons/lia';
 import { CiUndo } from 'react-icons/ci';
 import { FiMenu } from 'react-icons/fi';
-import { AppState } from '../context/Context'
 import { Item } from '../model';
+import moment from 'moment';
 import '../styles.css';
-import SecretComp from './SecretComp';
+import { getNewItem } from '../helpers/helpers';
 
-interface Props {
-    centerLabel?: string
-}
+let forgetSecretTime: Date | undefined = undefined;
+let forgetTimer: ReturnType<typeof setTimeout> | null, forgetDebounceTimer: ReturnType<typeof setTimeout> | null, countDownTimer: ReturnType<typeof setInterval> | null;
 
-const HeaderComp = ({centerLabel} : Props) => {
+const HeaderComp = () => {
+
+    const events = [
+        "load",
+        "mousemove",
+        "mousedown",
+        "click",
+        "scroll",
+        "keypress",
+    ];
 
     const { t } = useTranslation();
-    const { searchState, mainState, mainDispatch, searchDispatch } = AppState();
+    const { searchState, mainState, mainDispatch, searchDispatch, settingsState } = AppState();
+    const centerLabelref = useRef<HTMLDivElement>(null);
 
     const handleForgetSecret = () => {
-        if(!centerLabel?.length) {
+        if(!mainState.secret?.length) {
             return
         }
+        resetTimer();
+        clearEvents();
         mainDispatch({type: 'CLEAR_SECRET'});
     }
 
-    if(!centerLabel?.length && mainState?.secret) {
-        centerLabel = t("forgetPassword");
+    useEffect(() => {
+        // console.log('secret changed')
+        if(mainState.secret) {
+            Object.values(events).forEach((item) => {
+                if(settingsState.forgetSecretMode === 'AFTER_TIME') {
+                    window.removeEventListener(item, eventListenersPackage);
+                    window.addEventListener(item, eventListenersPackage);
+                } 
+            });
+        } else {
+            resetTimer();
+            clearEvents();
+            setCenterLabelContent('');
+        }
+        return () => {
+            resetTimer();
+            clearEvents();
+        }
+    }, [mainState.secret]);
+
+    const setCenterLabelContent = (labelContent: string): void => {
+        if(centerLabelref.current) {
+            centerLabelref.current.innerHTML = labelContent;
+        }
     }
+
+    const eventListenersPackage = () => {
+        if(mainState?.secret) {
+            setCenterLabelContent(t("forgetPassword"));
+        }
+        resetTimer();
+        forgetDebounceTimer = setTimeout(() => {
+            forgetDebounceTimer = null
+            handleLogoutTimer();
+        }, 200); 
+    }
+    
+    const clearEvents = () => {
+        Object.values(events).forEach((item) => {
+            window.removeEventListener(item, eventListenersPackage);
+        });
+    }
+
+    const handleLogoutTimer = () => {
+        forgetSecretTime = new Date(new Date().getTime() + settingsState.forgetSecretTime);
+        if (forgetTimer != null) { clearTimeout(forgetTimer); };
+        forgetTimer = setTimeout(() => {
+          resetTimer();
+          clearEvents();
+          handleForgetSecret();
+        }, settingsState.forgetSecretTime);
+        if (countDownTimer != null) { clearInterval(countDownTimer); };
+        countDownTimer = setInterval(() => {
+            updateForgetSecretInfo();
+        }, 1000)
+    };
+
+    const resetTimer = () => {
+        if(forgetDebounceTimer) {clearTimeout(forgetDebounceTimer);}
+        if (forgetTimer != null) { clearTimeout(forgetTimer); };
+        if (countDownTimer != null) { clearInterval(countDownTimer); };
+    };
+
+    const updateForgetSecretInfo = () => {
+        if(!forgetSecretTime) {
+            return
+        }
+        var timeDiff = forgetSecretTime.getTime() - new Date().getTime();
+        let msg = 'Password will expire in ' + formatDate(new Date(timeDiff), "mm:ss") + '<br>' + t("forgetPassword");
+        setCenterLabelContent(msg);
+    }
+
+    const formatDate = (value: Date | undefined, format: string): string => {
+		if(!value) {
+            return ''
+        }
+        try {
+			return moment(value).format(format)
+		} catch(e) {
+			console.warn('format date')
+		}
+		return ''
+	}
+
 
     return (
         <Navbar bg="dark" variant="dark" style={{height: 40}}>
@@ -63,16 +157,11 @@ const HeaderComp = ({centerLabel} : Props) => {
                         
                     </Form.Group>
                 </Navbar.Text>
-                <div className='navLink' onClick={handleForgetSecret}>{centerLabel || ''}</div>
+                <div className='navLink' onClick={handleForgetSecret} ref={centerLabelref}></div>
                 <Nav>
                     <Button className='btn-sm' variant="light" onClick={() => {
-                        const payLoadItem: Item = {
-                            name: '',
-                            path: '',
-                            size: 0,
-                            rawNote: undefined
-                        };
-                        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem}});
+                        const payLoadItem: Item = getNewItem();
+                        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
                     }}>
                         <FiPlusCircle style={{marginBottom: -1}} className='h2'/>
                     </Button>

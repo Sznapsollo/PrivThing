@@ -70,8 +70,8 @@ const SettingsComp = () => {
                         }}
                     >
                         <option value="AFTER_TIME">{t("afterSpecTime")}</option>
-                        <option value="NEVER">{t("never")}</option>
                         <option value="IMMEDIATE">{t("eachTimeRequired")}</option>
+                        <option value="NEVER">{t("never")}</option>
                     </Form.Control>
                 </Form.Group>
                 &nbsp;

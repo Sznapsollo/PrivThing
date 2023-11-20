@@ -3,7 +3,7 @@ import { AppState } from '../context/Context'
 import { useTranslation } from 'react-i18next'
 import { Item, Tab, TabContextMenu } from '../model';
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
-import { saveLocalStorage } from '../helpers/helpers'
+import { getNewItem, saveLocalStorage } from '../helpers/helpers'
 import TabContextMenuComp from './TabContextMenuComp';
 
 const initialTabContextMenu: TabContextMenu = {
@@ -143,12 +143,7 @@ const TabsComp = () => {
                 ))
             }
             <FiPlusCircle className='h2 itemTabIconAdd' onClick={() => {
-                const payLoadItem: Item = {
-                    name: '',
-                    path: '',
-                    size: 0,
-                    rawNote: undefined
-                };
+                const payLoadItem: Item = getNewItem();
                 mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}/>
             {tabContextMenu.show === true && <TabContextMenuComp x={tabContextMenu.x} y={tabContextMenu.y} tabItem={tabContextMenu.tab} closeContextMenu={handleContextMenuClose}/>}

@@ -3,7 +3,7 @@ import Cookies from 'universal-cookie';
 export function saveCookie(cookieName, cookieData) {
     try {
         const cookies = new Cookies();
-        cookies.set(cookieName, btoa(JSON.stringify(cookieData)), { path: '/' });
+        cookies.set(cookieName, btoa(encodeURIComponent(JSON.stringify(cookieData))), { path: '/' });
     } catch(e) {
         console.warn("saveCookie error")
     }
@@ -16,7 +16,7 @@ export function retrieveCookie(cookieName) {
         if(!cookieData) {
             return null
         }
-        return JSON.parse(atob(cookieData));
+        return JSON.parse(decodeURIComponent(atob(cookieData)));
     } catch(e) {
         console.warn("retrieveCookie error")
     }
@@ -29,7 +29,7 @@ export function retrieveLocalStorage(lsName) {
             return null
         }
         let lsData = window.localStorage.getItem(lsName)
-        return lsData ? JSON.parse(atob(lsData)) : null;
+        return lsData ? JSON.parse(decodeURIComponent(atob(lsData))) : null;
     } catch(e) {
         var errMsg = 'getLocalStorageData error for: ' + lsName
         console.warn(errMsg)
@@ -42,7 +42,7 @@ export function saveLocalStorage(lsName, data) {
         if(!window.localStorage) {
             return null
         }
-        window.localStorage.setItem(lsName, btoa(JSON.stringify(data)))
+        window.localStorage.setItem(lsName, btoa(encodeURIComponent(JSON.stringify(data))))
     } catch(e) {
         var errMsg = 'saveStorageData error for: ' + lsName
         console.warn(errMsg)
@@ -71,4 +71,13 @@ export function makeId(length) {
       counter += 1;
     }
     return result;
+}
+
+export function getNewItem() {
+    return {
+        name: '',
+        path: '',
+        size: 0,
+        rawNote: undefined
+    };
 }
