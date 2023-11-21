@@ -30,7 +30,6 @@ const NoteComp = () => {
     const [fileName, setFileName] = useState<string>('');
     const [rawNote, setRawNote] = useState<string>('');
     const [note, setNote] = useState<string>('');
-    const [orgNote, setOrgNote] = useState<string>('');
     const [isDirty, setIsDirty] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
@@ -45,6 +44,8 @@ const NoteComp = () => {
     const saveToFileButtonRef = useRef<HTMLButtonElement>(null);
     const scrollableRef = useRef<HTMLDivElement>(null);
     const noteRef = useRef<ReactCodeMirrorRef>(null);
+
+    const orgNote = useRef<string>('')
 
     useEffect(() => {
         // console.log('changed rawNote', rawNote)
@@ -217,7 +218,7 @@ const NoteComp = () => {
     }
 
     const validateButtonsState = () => {
-        setIsDirty((note !== orgNote));
+        setIsDirty((note !== orgNote.current));
     }
 
     const setInitialState = () => {
@@ -227,7 +228,7 @@ const NoteComp = () => {
         setIsSavingAs(false);
         dismissSecret();
         setNote('');
-        setOrgNote('');
+        orgNote.current = '';
         setRawNote('');
         setShowUnsaved(false);
     }
@@ -424,7 +425,7 @@ const NoteComp = () => {
         }
         if(data && data.length) {
             setNote(data);
-            setOrgNote(data);
+            orgNote.current = data;
             let currentTab = tabs.find((tab) => tab.active === true);
             if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
                 setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})}, 100);
@@ -532,7 +533,7 @@ const NoteComp = () => {
                         title={t("saveToSelectedLocation")}>{t("saveAs")}</Button>
                         &nbsp;
                         <Button className="btn-lg" disabled={!isDirty} variant='danger' onClick={() => {
-                            setNote(orgNote);
+                            setNote(orgNote.current);
                         }}
                         title={t("rollbackItemChanges")}>{t("cancel")}</Button>
                     </div>
