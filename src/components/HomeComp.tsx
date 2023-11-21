@@ -2,7 +2,7 @@ import {useState, useEffect, useRef} from 'react'
 import ItemsComp from './ItemsComp';
 import NoteComp from './NoteComp';
 import { AppState } from '../context/Context'
-import { retrieveLocalStorage, saveLocalStorage } from '../helpers/helpers'
+import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 import { BsArrowLeftRight } from 'react-icons/bs';
 import '../styles.css'
 import TabsComp from './TabsComp';

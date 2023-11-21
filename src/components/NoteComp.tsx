@@ -12,7 +12,7 @@ import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror'
 import { javascript } from '@codemirror/lang-javascript';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
-import { retrieveLocalStorage, saveLocalStorage } from '../helpers/helpers';
+import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import moment from 'moment';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
@@ -25,7 +25,7 @@ const NoteComp = () => {
         warning?: string
     }
 
-    const { mainState: {editedItem, editedItemCandidate, tabs, secret, newItemToOpen}, mainDispatch, settingsState } = AppState();
+    const { mainState: {editedItem, editedItemCandidate, tabs, secret, newItemToOpen}, mainDispatch, settingsState: {forgetSecretMode} } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
     const [rawNote, setRawNote] = useState<string>('');
@@ -125,10 +125,6 @@ const NoteComp = () => {
             setRawNote(editedItem.rawNote);
             setIsLoading(false);
         }
-
-        // it should be done also after note changes but that might not happen if we switch between same/empty data
-        // this is still not good and should be changed in the future
-        noteRef.current?.view?.focus()
     }
 
     useEffect(() => {
@@ -153,7 +149,7 @@ const NoteComp = () => {
         if(isDirty) {
             setShowUnsaved(true);
         } else {
-            if(secret && settingsState.forgetSecretMode === "IMMEDIATE") {
+            if(secret && forgetSecretMode === "IMMEDIATE") {
                 mainDispatch({type: 'CLEAR_SECRET'})     
             }
             if(editedItemCandidate?.item) {
@@ -165,7 +161,7 @@ const NoteComp = () => {
     useEffect(() => {
         // console.log('changed note', note)
         validateButtonsState();
-        noteRef.current?.view?.focus()
+        setTimeout(() => {noteRef.current?.view?.focus()}, 100)
     }, [note]);
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -453,8 +449,17 @@ const NoteComp = () => {
                 </div>
             }
             {
-                needSecret && 
-                <SecretComp confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
+                needSecret && <>
+                    <SecretComp confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
+                    <div style={{display: "flex"}} className='formGroupContainer'>
+                        {
+                            isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
+                                setAskDelete(true);
+                            }}
+                            title={t("delete")}>{t("delete")}</Button>
+                        }
+                    </div>
+                </>
             }
             {
                 !isLoading && !needSecret && !isSavingAs && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
@@ -553,7 +558,7 @@ const NoteComp = () => {
                     handleExternalMiddle={() => {
                         setShowUnsaved(false);
                         if(editedItemCandidate) {
-                            if(secret && settingsState.forgetSecretMode === "IMMEDIATE") {
+                            if(secret && forgetSecretMode === "IMMEDIATE") {
                                 mainDispatch({type: 'CLEAR_SECRET'})     
                             }
                             if(editedItemCandidate?.item) {

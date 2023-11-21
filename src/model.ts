@@ -97,5 +97,6 @@ export interface SearchContextType {
 
 export interface SettingsContextType {
     forgetSecretMode: string, // IMMEDIATE, AFTER_TIME, NEVER
-    forgetSecretTime: number
+    forgetSecretTime: number,
+    enableFileServer?: boolean
 }

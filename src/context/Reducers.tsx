@@ -1,6 +1,6 @@
 
 import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder } from '../model'
-import { makeId, retrieveLocalStorage, saveLocalStorage } from '../helpers/helpers'
+import { makeId, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
 type HideItemsBar = {type: 'HIDE_ITEMS_BAR'};
 type HideSettings = {type: 'HIDE_SETTINGS'};
@@ -218,7 +218,7 @@ export type SettingsActions = UpdateSettings;
 export const settingsReducer = (state: SettingsContextType, action: SettingsActions) => {
     switch (action.type) {
         case "UPDATE_SETTINGS":
-            return action.payload;
+            return {...action.payload};
         default:
             return state;
     }

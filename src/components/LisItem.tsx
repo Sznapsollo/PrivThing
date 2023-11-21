@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Item } from '../model';
 import { AppState } from '../context/Context'
 import { GiPadlock } from 'react-icons/gi';
+import { FaFolderOpen } from "react-icons/fa";
 import { useTranslation } from 'react-i18next'
 import moment from 'moment';
 import '../styles.css'
@@ -65,7 +66,10 @@ const LisItem = ({item, keyProp}: Props) => {
                 mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}
             >
-            {item.name?.endsWith('.prvmttr') && <div className='listItemIcon'><GiPadlock style={{marginBottom: 0, marginLeft: -5, marginRight: 5}} className='h2'/></div>}
+            <div className='listItemIcon'>
+                {item.name?.endsWith('.prvmttr') && <GiPadlock style={{margin: "1px 5px 0 -5px"}} className='h4'/>}
+                {(item.folder !== 'localStorage') && <FaFolderOpen style={{margin: "1px 5px 0 -3px"}} />}
+            </div>
             <div className='listItemBody' title={item.name + ( item.path ? ('\n' + item.path) : '') + ( item.lastModified ? ('\n' + t('lastModified') + ': ' + moment.utc(item.lastModified).format("YYYY-MM-DD HH:mm:ss")) : '') + ( item.size ? ('\n' + t('size') + ': ' + item.size + (item.folder !== 'localStorage' ? ' kB' : '')) : '')}>
                 <div className='name' data-content={item.name}></div>
                 <div className='path' data-content={item.path}></div>

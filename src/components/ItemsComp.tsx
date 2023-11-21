@@ -12,7 +12,7 @@ const ItemsComp = () => {
 
     const { t } = useTranslation();
 
-    const {mainState, mainDispatch, searchState, searchDispatch} = AppState();
+    const {mainState, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer}} = AppState();
     const { searchState: {currentFolder, sort, searchQuery} } = AppState()
     const [foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -58,35 +58,43 @@ const ItemsComp = () => {
             body: JSON.stringify({type: 'getListOfFiles'}) 
         };
       
-        fetch('actions', requestOptions)
-        .then(result => {
-            if(!result.ok) {
-                throw new Error('Network response was not ok.');
-            }
-            return result.json()
-        })
-        .then(data => {
-            setIsLoading(false);
-            if(data.status !== 0) {
-                // console.warn("Actions response", data);
-                return
-            }
-            if(data?.data?.files) {
-                // NJ will fire is service is configured and works
+        if(enableFileServer === true) {
+            fetch('actions', requestOptions)
+            .then(result => {
+                if(!result.ok) {
+                    throw new Error('Network response was not ok.');
+                }
+                return result.json()
+            })
+            .then(data => {
+                setIsLoading(false);
+                if(data.status !== 0) {
+                    // console.warn("Actions response", data);
+                    return
+                }
+                if(data?.data?.files) {
+                    // NJ will fire is service is configured and works
+                    setFoldersLoaded(true);
+                }
+                if(Array.isArray(data?.data?.files)) {
+                    // console.log('dispatching items', data.data)
+                    mainDispatch({type: "SET_ITEMS", payload: data.data.files});
+                }
+            })
+            .catch(function(error) {
+                setIsLoading(false);
                 setFoldersLoaded(true);
-            }
-            if(Array.isArray(data?.data?.files)) {
-                // console.log('dispatching items', data.data)
-                mainDispatch({type: "SET_ITEMS", payload: data.data.files});
-            }
-        })
-        .catch(function(error) {
+                setServerMode("offline");
+                mainDispatch({type: "SET_ITEMS", payload: []});
+                console.warn('Fetch operation error: ', error.message);
+            });
+        } else {
             setIsLoading(false);
             setFoldersLoaded(true);
-            setServerMode("offline");
+            setServerMode("disabled");
             mainDispatch({type: "SET_ITEMS", payload: []});
-            console.warn('Fetch operation error: ', error.message);
-        });
+        }
+
     }, [mainState.itemsListRefreshTrigger]);
 
     const transformItems = () => {

@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useReducer} from 'react'
 import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType, Tab } from '../model';
 import { mainReducer, searchReducer, settingsReducer } from './Reducers'
-import { retrieveLocalStorage, cloneProps, makeId } from '../helpers/helpers'
+import { retrieveLocalStorage, cloneProps, makeId } from '../utils/utils'
 
 const appInitialState: MainContextType = {
   secret: '',
@@ -22,7 +22,8 @@ const searchInitialState = {
 
 const settingsInitialState = {
   forgetSecretTime: 300000, 
-  forgetSecretMode: "AFTER_TIME"
+  forgetSecretMode: "AFTER_TIME",
+  enableFileServer: false
 }
 
 export const AppContext = createContext<{
@@ -56,6 +57,9 @@ const Context = ({children}: Props) => {
         let pmSettings = retrieveLocalStorage("privmatter.pmSettings");
         if(pmSettings) {
             cloneProps(pmSettings, settingsInitialState);
+        } else {
+            // for demo
+            // cloneProps({enableFileServer: true}, settingsInitialState);
         }
 
         let pmTabs = retrieveLocalStorage("privmatter.pmTabs");

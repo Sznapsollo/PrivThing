@@ -3,7 +3,7 @@ import { AppState } from '../context/Context'
 import { useTranslation } from 'react-i18next'
 import { Item, Tab, TabContextMenu } from '../model';
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
-import { getNewItem, saveLocalStorage } from '../helpers/helpers'
+import { getNewItem, saveLocalStorage } from '../utils/utils'
 import TabContextMenuComp from './TabContextMenuComp';
 
 const initialTabContextMenu: TabContextMenu = {

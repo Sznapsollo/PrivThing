@@ -8,13 +8,16 @@ todo:
 - use url to store chosen tab info
 - most viewed?
 - saving indicator
-- icon for file and local storage
-- by default external server disabled to be enabled from settings
-- file extension for local stored notes not needed?
-- option to delete encrypted notes before logging into them
-- investigate autofocus
+- PL translation
 
 done:
+- icon for note coming from file system
+- file extension for local stored notes not needed? (not really needed for now as we realize by title for icons ... leaving for now)
+- option to delete encrypted notes before logging into them
+- by default external server disabled to be enabled from settings (but enabled for git)
+- checkbox label clickable (saveAs)
+- investigate autofocus (still need improvement will not work for example between empty notes as not effect will not fire)
+- enter submit on create with password
 - new note correction from toolbar (should work just as add new tab)
 - code mirror search auto closes (due to not redraw - problem with countdown)
 - countdown refactor

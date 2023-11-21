@@ -3,7 +3,7 @@ import { Modal, Button, Form } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import SecretComp from './SecretComp'
 import { SaveAsResults } from '../model'
-import { retrieveLocalStorage, saveLocalStorage } from '../helpers/helpers'
+import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
 interface Props {
     fileName: string,
@@ -45,6 +45,15 @@ const SaveAsComp = ({
         return fileNameLoc
     }
 
+    const handleSubmitSaveAs = (event: React.FormEvent<HTMLFormElement> | undefined) => {
+        if(event) {
+            event.preventDefault();
+        }
+        if(!encryptData) {
+            handleSave();
+        }
+    }
+
     const handleSave = () => {
         onSave({
             fileName: handleFileName(),
@@ -80,54 +89,59 @@ const SaveAsComp = ({
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body style={{padding: 20}}>
-                <div className='formGroupContainer'>
-                    <Form.Group className='formGroup'>
-                        <label className='upperLabel'>{t("fileName")}</label>
-                        <Form.Control
-                            className='form-control-lg'
-                            type="text"
-                            name="fileName"
-                            placeholder=''
-                            value={saveFileName}
-                            required= {true}
-                            autoFocus={true}
-                            onChange={(e)=> {
-                                setSaveFileName(e.target.value);
-                            }}
-                        ></Form.Control>
-                    </Form.Group>
-                </div>
-                <div className='formGroupContainer'>
-                    <Form.Group className='formGroup'>
-                        <Form.Control 
-                            as="select" 
-                            name="saveAsType"
-                            className={'form-control-lg'}
-                            value={saveAsType}
-                            onChange={(e) => {
-                                saveLocalStorage("privmatter.pmSaveAsType", e.target.value);
-                                setSaveAsType(e.target.value);
-                            }}
-                        >
-                            <option value="LOCAL_STORAGE">{t("localStorage")}</option>
-                            <option value="FILE">{t("file")}</option>
-                        </Form.Control>
-                    </Form.Group>
-                </div>
-                <div className='formGroupContainer' style={{textAlign:'center'}}>
-                    <Form.Group className='formGroup' style={{display: 'inline-block'}}>
-                        <Form.Check
-                            type="checkbox"
-                            label={t("encryptData")}
-                            name="encryptData"
-                            checked={encryptData}
-                            className={'form-control-lg largeCheckbox'}
-                            onChange={(e) => {
-                                setEncryptData(e.target.checked);
-                            }}
-                        ></Form.Check>
-                    </Form.Group>
-                </div>
+                <Form onSubmit={(e) => {
+                    handleSubmitSaveAs(e);
+                }}>
+                    <div className='formGroupContainer'>
+                        <Form.Group className='formGroup'>
+                            <label className='upperLabel'>{t("fileName")}</label>
+                            <Form.Control
+                                className='form-control-lg'
+                                type="text"
+                                name="fileName"
+                                placeholder=''
+                                value={saveFileName}
+                                required= {true}
+                                autoFocus={true}
+                                onChange={(e)=> {
+                                    setSaveFileName(e.target.value);
+                                }}
+                            ></Form.Control>
+                        </Form.Group>
+                    </div>
+                    <div className='formGroupContainer'>
+                        <Form.Group className='formGroup'>
+                            <Form.Control 
+                                as="select" 
+                                name="saveAsType"
+                                className={'form-control-lg'}
+                                value={saveAsType}
+                                onChange={(e) => {
+                                    saveLocalStorage("privmatter.pmSaveAsType", e.target.value);
+                                    setSaveAsType(e.target.value);
+                                }}
+                            >
+                                <option value="LOCAL_STORAGE">{t("localStorage")}</option>
+                                <option value="FILE">{t("file")}</option>
+                            </Form.Control>
+                        </Form.Group>
+                    </div>
+                    <div className='formGroupContainer' style={{textAlign:'center'}}>
+                        <Form.Group className='formGroup' style={{display: 'inline-block'}}>
+                            <Form.Check
+                                id="encryptDataChbx"
+                                type="checkbox"
+                                label={t("encryptData")}
+                                name="encryptData"
+                                checked={encryptData}
+                                className={'form-control-lg largeCheckbox'}
+                                onChange={(e) => {
+                                    setEncryptData(e.target.checked);
+                                }}
+                            ></Form.Check>
+                        </Form.Group>
+                    </div>
+                </Form>
                 {encryptData && <SecretComp confirm={true} info={t("providePasswordToEncryptFile")} handleSubmit={handleSecretSubmit} />}
             </Modal.Body>
             <Modal.Footer style={{display: 'flex'}}>

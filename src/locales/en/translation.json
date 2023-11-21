@@ -11,6 +11,7 @@
     "delete": "Delete",
     "eachTimeRequired": "Each time it is required",
     "empty": "Empty",
+    "enableFileServer": "Enable file server",
     "encryptAndSaveToLocation": "Encrypt with password and save to selected location",
     "file": "File",
     "fileName": "File Name",

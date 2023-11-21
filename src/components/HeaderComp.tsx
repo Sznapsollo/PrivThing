@@ -10,9 +10,9 @@ import { FiMenu } from 'react-icons/fi';
 import { Item } from '../model';
 import moment from 'moment';
 import '../styles.css';
-import { getNewItem } from '../helpers/helpers';
+import { getNewItem } from '../utils/utils';
 
-let forgetSecretTime: Date | undefined = undefined;
+let forgetSecretTimeThreshold: Date | undefined = undefined;
 let forgetTimer: ReturnType<typeof setTimeout> | null, forgetDebounceTimer: ReturnType<typeof setTimeout> | null, countDownTimer: ReturnType<typeof setInterval> | null;
 
 const HeaderComp = () => {
@@ -27,7 +27,7 @@ const HeaderComp = () => {
     ];
 
     const { t } = useTranslation();
-    const { searchState, mainState, mainDispatch, searchDispatch, settingsState } = AppState();
+    const { searchState, mainState, mainDispatch, searchDispatch, settingsState: {forgetSecretMode, forgetSecretTime} } = AppState();
     const centerLabelref = useRef<HTMLDivElement>(null);
 
     const handleForgetSecret = () => {
@@ -43,7 +43,7 @@ const HeaderComp = () => {
         // console.log('secret changed')
         if(mainState.secret) {
             Object.values(events).forEach((item) => {
-                if(settingsState.forgetSecretMode === 'AFTER_TIME') {
+                if(forgetSecretMode === 'AFTER_TIME') {
                     window.removeEventListener(item, eventListenersPackage);
                     window.addEventListener(item, eventListenersPackage);
                 } 
@@ -83,13 +83,13 @@ const HeaderComp = () => {
     }
 
     const handleLogoutTimer = () => {
-        forgetSecretTime = new Date(new Date().getTime() + settingsState.forgetSecretTime);
+        forgetSecretTimeThreshold = new Date(new Date().getTime() + forgetSecretTime);
         if (forgetTimer != null) { clearTimeout(forgetTimer); };
         forgetTimer = setTimeout(() => {
           resetTimer();
           clearEvents();
           handleForgetSecret();
-        }, settingsState.forgetSecretTime);
+        }, forgetSecretTime);
         if (countDownTimer != null) { clearInterval(countDownTimer); };
         countDownTimer = setInterval(() => {
             updateForgetSecretInfo();
@@ -103,10 +103,10 @@ const HeaderComp = () => {
     };
 
     const updateForgetSecretInfo = () => {
-        if(!forgetSecretTime) {
+        if(!forgetSecretTimeThreshold) {
             return
         }
-        var timeDiff = forgetSecretTime.getTime() - new Date().getTime();
+        var timeDiff = forgetSecretTimeThreshold.getTime() - new Date().getTime();
         let msg = 'Password will expire in ' + formatDate(new Date(timeDiff), "mm:ss") + '<br>' + t("forgetPassword");
         setCenterLabelContent(msg);
     }
