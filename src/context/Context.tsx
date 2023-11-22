@@ -20,11 +20,13 @@ const searchInitialState = {
   currentFolder: ""
 }
 
-const settingsInitialState = {
+export const settingsInitialStateBaseline = {
   forgetSecretTime: 300000, 
   forgetSecretMode: "AFTER_TIME",
   enableFileServer: false
 }
+
+var settingsInitialState = {...settingsInitialStateBaseline}
 
 export const AppContext = createContext<{
     mainState: MainContextType,

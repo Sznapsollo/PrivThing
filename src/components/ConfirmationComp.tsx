@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ReactNode } from 'react'
 import { Modal, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
+    children: ReactNode,
     externalCloseButtonVariant?: string,
     externalCloseLabel?: string
-    externalContent?: string,
     externalHeading?: string,
     externalMiddleLabel?: string,
     externalMiddleButtonVariant?: string
@@ -24,9 +24,9 @@ interface Props {
 }
 
 const Confirmation = ({
+    children,
     externalCloseButtonVariant,
     externalCloseLabel, 
-    externalContent, 
     externalHeading,
     externalMiddleButtonVariant,
     externalMiddleLabel,
@@ -47,17 +47,16 @@ const Confirmation = ({
     const { t } = useTranslation();
 
     const [show, setShow] = useState(initialShow != null ? initialShow : true);
-    const [showCloseButton, setShowCloseButton] = useState(externalShowCloseButton != null ? externalShowCloseButton : true);
-    const [showMiddleButton, setShowMiddleButton] = useState(externalShowMiddleButton != null ? externalShowMiddleButton : false);
-    const [showSaveButton, setShowSaveButton] = useState(externalShowSaveButton != null ? externalShowSaveButton : true);
-    const [closeLabel, setCloseLabel] = useState(externalCloseLabel || t("close"));
-    const [middleLabel, setMiddleLabel] = useState(externalMiddleLabel || 'xxx');
-    const [saveLabel, setSaveLabel] = useState(externalSaveLabel || t("save"));
-    const [modalContent, setModalContent] = useState(externalContent || '');
+    const [showCloseButton] = useState(externalShowCloseButton != null ? externalShowCloseButton : true);
+    const [showMiddleButton] = useState(externalShowMiddleButton != null ? externalShowMiddleButton : false);
+    const [showSaveButton] = useState(externalShowSaveButton != null ? externalShowSaveButton : true);
+    const [closeLabel] = useState(externalCloseLabel || t("cancel"));
+    const [middleLabel] = useState(externalMiddleLabel || 'xxx');
+    const [saveLabel] = useState(externalSaveLabel || t("yes"));
     const [modalHeading, setModalHeading] = useState(externalHeading || '');
-    const [closeButtonVariant, setCloseButtonVariant] = useState(externalCloseButtonVariant || 'danger');
-    const [middleButtonVariant, setMiddleButtonVariant] = useState(externalMiddleButtonVariant || 'primary');
-    const [saveButtonVariant, setSaveButtonVariant] = useState(externalSaveButtonVariant || 'success');
+    const [closeButtonVariant] = useState(externalCloseButtonVariant || 'danger');
+    const [middleButtonVariant] = useState(externalMiddleButtonVariant || 'primary');
+    const [saveButtonVariant] = useState(externalSaveButtonVariant || 'success');
 
     const handleClose = () => {
         if(handleExternalClose) {
@@ -84,9 +83,6 @@ const Confirmation = ({
         if(handleExternalShow) {
             handleExternalShow();
         }
-        if(externalSetContent) {
-            setModalContent(externalSetContent());
-        }
         if(externalSetHeading) {
             setModalHeading(externalSetHeading());
         }
@@ -109,7 +105,7 @@ const Confirmation = ({
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {modalContent}
+                {children}
             </Modal.Body>
             <Modal.Footer>
                 {showSaveButton && <Button className={'btn-lg'} variant={saveButtonVariant} onClick={handleSave}>{saveLabel}</Button>}

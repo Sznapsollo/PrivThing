@@ -49,6 +49,18 @@ export function saveLocalStorage(lsName, data) {
     }
 }
 
+export function removeLocalStorage(lsName) {
+    try {
+        if(!window.localStorage) {
+            return null
+        }
+        window.localStorage.removeItem(lsName)
+    } catch(e) {
+        var errMsg = 'removeLocalStorage error for: ' + lsName
+        console.warn(errMsg)
+    }
+}
+
 export function cloneProps(obj1, obj2) {
     try {
         // NJ shallow copy

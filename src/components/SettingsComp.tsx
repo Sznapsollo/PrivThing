@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { AppState } from '../context/Context'
+import { AppState, settingsInitialStateBaseline } from '../context/Context'
 import { Modal, Button, Form } from 'react-bootstrap'
+import ConfirmationComp from './ConfirmationComp';
 import { useTranslation } from 'react-i18next'
-import { saveLocalStorage } from '../utils/utils'
+import { removeLocalStorage, saveLocalStorage } from '../utils/utils'
 import moment from 'moment';
 
 
@@ -11,7 +12,8 @@ const SettingsComp = () => {
     const { t } = useTranslation();
 
     const { mainState, mainDispatch, settingsState, settingsDispatch } = AppState();
-    const [ settings, setSettings ] = useState<any>(settingsState)
+    const [ settings, setSettings ] = useState<any>(settingsState);
+    const [ clearSettings, setClearSettings ] = useState<boolean>(false);
 
     useEffect(() => {
         setSettings(settingsState);
@@ -28,16 +30,18 @@ const SettingsComp = () => {
         mainDispatch({type: "UPDATE_ITEMS_LIST"});
     }
 
-    const clone = (ob: any) => {
-        var cloneObj = {} as any;
-        for (var attribut in ob) {
-            if (typeof ob[attribut] === "object") {
-                cloneObj[attribut] = ob[attribut].clone();
-            } else {
-                cloneObj[attribut] = ob[attribut];
-            }
-        }
-        return cloneObj;
+    const handleClearSettings = () => {
+        setClearSettings(false);
+
+        removeLocalStorage("privmatter.pmItemsWidth");
+        removeLocalStorage("privmatter.pmSaveAsType");
+        removeLocalStorage("privmatter.pmSearchSettings");
+        removeLocalStorage("privmatter.pmSettings");
+        removeLocalStorage("privmatter.pmTabs");
+
+        settingsDispatch({type: "UPDATE_SETTINGS", payload: settingsInitialStateBaseline});
+
+        handleClose();
     }
 
     return (
@@ -111,10 +115,25 @@ const SettingsComp = () => {
                 </div>
             </Modal.Body>
             <Modal.Footer>
+                <Button variant="danger" className={'btn-lg'} onClick={() => setClearSettings(true)}>{t("clearAllSettings")}</Button>
+                <div style={{flex: 1}}>&nbsp;</div>
                 <Button variant="primary" className={'btn-lg'} onClick={handleSave}>{t("save")}</Button>
                 <Button variant="danger" className={'btn-lg'} onClick={handleClose}>{t("cancel")}</Button>
             </Modal.Footer>
     </Modal>
+
+            {   
+            clearSettings && 
+            <ConfirmationComp
+                externalHeading={t("pleaseConfirm")}
+                externalSaveLabel={t("yes")}
+                externalCloseLabel={t("no")}
+                handleExternalSave={handleClearSettings}
+                handleExternalClose={() => {setClearSettings(false)}}
+            >
+                {t("clearAllSettingsConfirm")}
+            </ConfirmationComp>
+            }
         </>
       );
 }

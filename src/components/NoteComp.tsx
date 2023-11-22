@@ -28,7 +28,6 @@ const NoteComp = () => {
     const { mainState: {editedItem, editedItemCandidate, tabs, secret, newItemToOpen}, mainDispatch, settingsState: {forgetSecretMode} } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
-    const [rawNote, setRawNote] = useState<string>('');
     const [note, setNote] = useState<string>('');
     const [isDirty, setIsDirty] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -45,14 +44,15 @@ const NoteComp = () => {
     const scrollableRef = useRef<HTMLDivElement>(null);
     const noteRef = useRef<ReactCodeMirrorRef>(null);
 
-    const orgNote = useRef<string>('')
+    const orgNote = useRef<string>('');
+    const rawNote = useRef<string>('');
 
-    useEffect(() => {
-        // console.log('changed rawNote', rawNote)
-        if(rawNote?.length) {
+    const setRawNote = (rawNoteData: string): void => {
+        rawNote.current = rawNoteData;
+        if(rawNote.current?.length) {
             decryptData();
         }
-    }, [rawNote]);
+    }
 
     useEffect(() => {
         if(!newItemToOpen?.path) {
@@ -75,7 +75,7 @@ const NoteComp = () => {
                     setRawNote(localStorageFiles[editedItem.name].data);
                 } else if(!!editedItem.path) {
                     mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
-                    // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("fileNotFound")} as AlertData})
+                    // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("fileNotFound")} as AlertData})
                     let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
                     mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
                 }
@@ -108,7 +108,7 @@ const NoteComp = () => {
                 }
                 if(data.data == null && !!editedItem.path) {
                     mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
-                    // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("fileNotFound")} as AlertData})
+                    // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("fileNotFound")} as AlertData})
                     let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
                     mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
                 }
@@ -121,9 +121,9 @@ const NoteComp = () => {
                 console.warn('Fetch operation error: ', error.message);
                 mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
             });
-        } else if(editedItem.rawNote) {
+        } else {
             setIsLoading(true);
-            setRawNote(editedItem.rawNote);
+            setRawNote(editedItem.rawNote || '');
             setIsLoading(false);
         }
     }
@@ -132,6 +132,8 @@ const NoteComp = () => {
         if(isEncrypted) {
             if(!secret) {
                 giveMeSecret("", "");
+                setIsDirty(false); // no ideal since we loose eventual not saved changes to edited doc
+                // might address it in the future
             } else {
                 dismissSecret();
                 decryptData();
@@ -276,7 +278,7 @@ const NoteComp = () => {
                 }
             }
         } catch(e) {
-            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
+            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
         }
     }
 
@@ -300,7 +302,7 @@ const NoteComp = () => {
             }
             saveLocalStorage('privmatter.files', privMatterLSFiles);
         } catch(e) {
-            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
+            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
         }
     }
 
@@ -342,6 +344,11 @@ const NoteComp = () => {
             return
         }
 
+        if(isEncrypted && !secret) {
+            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("warning"), message: t("cantSaveWithoutPassword", {name: editedItem.name})} as AlertData})
+            return
+        }
+
         const fileData = isEncrypted ? encryptData(secret) : note;
 
         if(isLocalStorageItem(editedItem)) {
@@ -367,7 +374,7 @@ const NoteComp = () => {
             .then(data => {
                 if(data.status !== 0) {
                     // console.warn("Actions response", data);
-                    mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: "Error!", message: t("somethingWentWrong")} as AlertData})
+                    mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
                     return
                 }
                 mainDispatch({type: "UPDATE_ITEMS_LIST"});
@@ -393,11 +400,11 @@ const NoteComp = () => {
 
     const decryptData = () => {
         let data;
-        let rawData = rawNote;
+        let rawData = rawNote.current;
         let encrypted = false;
         try {
             encrypted = false;
-            if(fileName?.toLocaleLowerCase()?.includes('.prvmttr')) {
+            if(editedItem.name?.toLocaleLowerCase()?.includes('.prvmttr')) {
                 encrypted = true;
             }
             if(rawData.startsWith('privmatterencrypted_')) {
@@ -551,7 +558,6 @@ const NoteComp = () => {
                 showUnsaved && 
                 <ConfirmationComp 
                     externalHeading={t("warning")}
-                    externalContent={t("unsavedChanges")}
                     externalSaveLabel={t("save")}
                     externalMiddleLabel={t("ignoreUnsaved")}
                     externalCloseLabel={t("cancel")}
@@ -580,13 +586,12 @@ const NoteComp = () => {
                         }
                     }}
                     handleExternalClose={() => {setShowUnsaved(false)}}
-                />
+                >{t("unsavedChanges")}</ConfirmationComp>
             }
             {   
                 askRefresh && 
                 <ConfirmationComp 
                     externalHeading={t("question")}
-                    externalContent={t("confirmRefresh")}
                     externalSaveLabel={t("yes")}
                     externalCloseLabel={t("no")}
                     handleExternalSave={() => {
@@ -595,18 +600,17 @@ const NoteComp = () => {
                         initializeEditedItem();
                     }}
                     handleExternalClose={() => {setAskRefresh(false)}}
-                />
+                >{t("confirmRefresh")}</ConfirmationComp>
             }
             {   
                 askDelete && 
                 <ConfirmationComp 
                     externalHeading={t("pleaseConfirm")}
-                    externalContent={t("confirmDelete", {item: fileName})}
                     externalSaveLabel={t("yes")}
                     externalCloseLabel={t("no")}
                     handleExternalSave={handleDeleteItem}
                     handleExternalClose={() => {setAskDelete(false)}}
-                />
+                >{t("confirmDelete", {item: fileName})}</ConfirmationComp>
             }
         </div>
     )

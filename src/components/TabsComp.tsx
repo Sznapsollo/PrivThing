@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState } from '../context/Context'
 import { useTranslation } from 'react-i18next'
 import { Item, Tab, TabContextMenu } from '../model';
@@ -18,9 +18,11 @@ const TabsComp = () => {
     const { t } = useTranslation();
     const [ tabContextMenu, setTabContextMenu ] = useState<TabContextMenu>(initialTabContextMenu)
 
-    if(mainState.tabs) {
-        saveLocalStorage("privmatter.pmTabs", mainState.tabs);
-    }
+    useEffect(() => {
+        if(mainState.tabs) {
+            saveLocalStorage("privmatter.pmTabs", mainState.tabs);
+        }
+    }, [mainState.tabs])
 
     const dragItem = useRef<number | null>();
     const dragOverItem = useRef<number | null>();

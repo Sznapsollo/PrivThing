@@ -11,6 +11,9 @@ todo:
 - PL translation
 
 done:
+- clear all settings
+- confirmation with children
+- rawnote to ref
 - icon for note coming from file system
 - file extension for local stored notes not needed? (not really needed for now as we realize by title for icons ... leaving for now)
 - option to delete encrypted notes before logging into them
