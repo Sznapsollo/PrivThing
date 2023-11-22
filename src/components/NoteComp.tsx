@@ -67,6 +67,7 @@ const NoteComp = () => {
         let defaultFileName = moment().format('MMMM_Do_YYYY_h_mm_ss') + '_privmatter.txt';
         setFilePath(editedItem.path || '');
         setFileName(editedItem.name || defaultFileName);
+
         if(isLocalStorageItem(editedItem)) {
             setIsLoading(true);
             try {
@@ -230,6 +231,7 @@ const NoteComp = () => {
         setIsSavingAs(false);
         dismissSecret();
         setNote('');
+        setIsDirty(false);
         orgNote.current = '';
         setRawNote('');
         setShowUnsaved(false);
