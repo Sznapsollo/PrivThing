@@ -51,7 +51,6 @@ const ItemsComp = () => {
 
     useEffect(() => {
         // console.log('refreshing items')
-        setIsLoading(true);
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -59,6 +58,9 @@ const ItemsComp = () => {
         };
       
         if(enableFileServer === true) {
+            if(mainState.items?.length) {
+                setIsLoading(true);
+            }
             fetch('actions', requestOptions)
             .then(result => {
                 if(!result.ok) {
@@ -89,7 +91,6 @@ const ItemsComp = () => {
                 console.warn('Fetch operation error: ', error.message);
             });
         } else {
-            setIsLoading(false);
             setFoldersLoaded(true);
             setServerMode("disabled");
             mainDispatch({type: "SET_ITEMS", payload: []});
