@@ -58,7 +58,7 @@ const ItemsComp = () => {
         };
       
         if(enableFileServer === true) {
-            if(mainState.items?.length) {
+            if(!mainState.items?.length) {
                 setIsLoading(true);
             }
             fetch('actions', requestOptions)
