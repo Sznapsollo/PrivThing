@@ -10,7 +10,7 @@ import TabsComp from './TabsComp';
 
 let isItemsResizing: boolean = false;
 let resizeHideItemsHandle: ReturnType<typeof setTimeout> | null = null;
-let defaultItemsWidth: string = retrieveLocalStorage("privmatter.pmItemsWidth");
+let defaultItemsWidth: string = retrieveLocalStorage("privthing.pmItemsWidth");
 
 const HomeComp = () => {
 
@@ -29,7 +29,7 @@ const HomeComp = () => {
             if(currentItemsWidth > 5 && currentItemsWidth < 100) {
                 // console.log('pmItemsWidth', currentItemsWidth)
 
-                saveLocalStorage("privmatter.pmItemsWidth", currentItemsWidth);
+                saveLocalStorage("privthing.pmItemsWidth", currentItemsWidth);
             }
         }
     }

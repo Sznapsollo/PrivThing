@@ -64,14 +64,14 @@ const NoteComp = () => {
 
     const initializeEditedItem = () => {
         setInitialState();
-        let defaultFileName = moment().format('MMMM_Do_YYYY_h_mm_ss') + '_privmatter.txt';
+        let defaultFileName = moment().format('MMMM_Do_YYYY_h_mm_ss') + '_privthing.txt';
         setFilePath(editedItem.path || '');
         setFileName(editedItem.name || defaultFileName);
 
         if(isLocalStorageItem(editedItem)) {
             setIsLoading(true);
             try {
-                let localStorageFiles = retrieveLocalStorage('privmatter.files');
+                let localStorageFiles = retrieveLocalStorage('privthing.files');
                 if(localStorageFiles && localStorageFiles[editedItem.name] != null && localStorageFiles[editedItem.name].data != null) {
                     setRawNote(localStorageFiles[editedItem.name].data);
                 } else if(!!editedItem.path) {
@@ -267,10 +267,10 @@ const NoteComp = () => {
         }
 
         try {
-            let privMatterLSFiles = retrieveLocalStorage('privmatter.files') || {};
-            if(privMatterLSFiles) {
-                delete privMatterLSFiles[fileName]
-                saveLocalStorage('privmatter.files', privMatterLSFiles);
+            let privThingLSFiles = retrieveLocalStorage('privthing.files') || {};
+            if(privThingLSFiles) {
+                delete privThingLSFiles[fileName]
+                saveLocalStorage('privthing.files', privThingLSFiles);
                 mainDispatch({type: "UPDATE_ITEMS_LIST"});
                 var currTab = tabs.find((tab) => {
                     return tab.path === filePath && tab.active === true
@@ -296,13 +296,13 @@ const NoteComp = () => {
 
     const saveToLocalStorage = (fileNameLoc: string, fileData: string) => {
         try {
-            let privMatterLSFiles = retrieveLocalStorage('privmatter.files') || {};
-            privMatterLSFiles[fileNameLoc] = {
+            let privThingLSFiles = retrieveLocalStorage('privthing.files') || {};
+            privThingLSFiles[fileNameLoc] = {
                 size: fileData.length,
                 lastModified: new Date().getTime(),
                 data: fileData
             }
-            saveLocalStorage('privmatter.files', privMatterLSFiles);
+            saveLocalStorage('privthing.files', privThingLSFiles);
         } catch(e) {
             mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
         }
@@ -397,7 +397,7 @@ const NoteComp = () => {
             secret
         ).toString();
 
-        return 'privmatterencrypted_' + encryptedData;
+        return 'privthingencrypted_' + encryptedData;
     };
 
     const decryptData = () => {
@@ -406,12 +406,12 @@ const NoteComp = () => {
         let encrypted = false;
         try {
             encrypted = false;
-            if(editedItem.name?.toLocaleLowerCase()?.includes('.prvmttr')) {
+            if(editedItem.name?.toLocaleLowerCase()?.includes('.prvthng')) {
                 encrypted = true;
             }
-            if(rawData.startsWith('privmatterencrypted_')) {
+            if(rawData.startsWith('privthingencrypted_')) {
                 encrypted = true;
-                rawData = rawData.replace('privmatterencrypted_', '');
+                rawData = rawData.replace('privthingencrypted_', '');
             }
 
             if(encrypted === true) {

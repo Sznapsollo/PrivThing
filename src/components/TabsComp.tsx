@@ -20,7 +20,7 @@ const TabsComp = () => {
 
     useEffect(() => {
         if(mainState.tabs) {
-            saveLocalStorage("privmatter.pmTabs", mainState.tabs);
+            saveLocalStorage("privthing.pmTabs", mainState.tabs);
         }
     }, [mainState.tabs])
 

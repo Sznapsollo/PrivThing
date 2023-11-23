@@ -67,7 +67,7 @@ const LisItem = ({item, keyProp}: Props) => {
             }}
             >
             <div className='listItemIcon'>
-                {item.name?.endsWith('.prvmttr') && <GiPadlock style={{margin: "1px 5px 0 -5px"}} className='h4'/>}
+                {item.name?.endsWith('.prvthng') && <GiPadlock style={{margin: "1px 5px 0 -5px"}} className='h4'/>}
                 {(item.folder !== 'localStorage') && <FaFolderOpen style={{margin: "1px 5px 0 -3px"}} />}
             </div>
             <div className='listItemBody' title={item.name + ( item.path ? ('\n' + item.path) : '') + ( item.lastModified ? ('\n' + t('lastModified') + ': ' + moment.utc(item.lastModified).format("YYYY-MM-DD HH:mm:ss")) : '') + ( item.size ? ('\n' + t('size') + ': ' + item.size + (item.folder !== 'localStorage' ? ' kB' : '')) : '')}>

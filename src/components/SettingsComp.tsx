@@ -26,18 +26,18 @@ const SettingsComp = () => {
     const handleSave = () => {
         settingsDispatch({type: "UPDATE_SETTINGS", payload: settings});
         mainDispatch({type: "HIDE_SETTINGS"});
-        saveLocalStorage("privmatter.pmSettings", settings);
+        saveLocalStorage("privthing.pmSettings", settings);
         mainDispatch({type: "UPDATE_ITEMS_LIST"});
     }
 
     const handleClearSettings = () => {
         setClearSettings(false);
 
-        removeLocalStorage("privmatter.pmItemsWidth");
-        removeLocalStorage("privmatter.pmSaveAsType");
-        removeLocalStorage("privmatter.pmSearchSettings");
-        removeLocalStorage("privmatter.pmSettings");
-        removeLocalStorage("privmatter.pmTabs");
+        removeLocalStorage("privthing.pmItemsWidth");
+        removeLocalStorage("privthing.pmSaveAsType");
+        removeLocalStorage("privthing.pmSearchSettings");
+        removeLocalStorage("privthing.pmSettings");
+        removeLocalStorage("privthing.pmTabs");
 
         settingsDispatch({type: "UPDATE_SETTINGS", payload: settingsInitialStateBaseline});
 
@@ -61,40 +61,44 @@ const SettingsComp = () => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Form.Group className='formGroup'>
-                    <label className='upperLabel'>{t("forgetSecretMode")}</label>
-                    <Form.Control 
-                        as="select" 
-                        name="forgetSecretMode"
-                        value={settings?.forgetSecretMode}
-                        className='form-control-lg'
+                <label className='sectionLabel'>{t("passwordSettings")}</label>
+                <div className='formSection'>
+                    <Form.Group className='formGroup'>
+                        <label className='upperLabel'>{t("forgetSecretMode")}</label>
+                        <Form.Control 
+                            as="select" 
+                            name="forgetSecretMode"
+                            value={settings?.forgetSecretMode}
+                            className='form-control-lg'
                         onChange={(e) => {
-                            setSettings({...settings, forgetSecretMode: e.target.value});
-                        }}
-                    >
-                        <option value="AFTER_TIME">{t("afterSpecTime")}</option>
-                        <option value="IMMEDIATE">{t("eachTimeRequired")}</option>
-                        <option value="NEVER">{t("never")}</option>
-                    </Form.Control>
-                </Form.Group>
-                &nbsp;
-                {settings.forgetSecretMode === "AFTER_TIME" && <Form.Group className='formGroup'>
-                    <label className='upperLabel'>{t("forgetSecretTime")}</label>
-                    <Form.Control
-                        type="range"
-                        name="forgetSecretTime"
-                        className='form-range form-control-lg'
-                        placeholder='11'
-                        min={10000}
-                        max={3600000}
-                        style={{height: 35}}
-                        value={settings.forgetSecretTime}
-                        onChange={(e) => {
-                            setSettings({...settings, forgetSecretTime: parseInt(e.target.value)});
-                        }}
-                    ></Form.Control>
-                    <div style={{padding: 10, textAlign: "center"}}>{moment.utc(settings.forgetSecretTime).format("HH:mm:ss")}</div>
-                </Form.Group>}
+                                setSettings({...settings, forgetSecretMode: e.target.value});
+                            }}
+                        >
+                            <option value="AFTER_TIME">{t("afterSpecTime")}</option>
+                            <option value="IMMEDIATE">{t("eachTimeRequired")}</option>
+                            <option value="NEVER">{t("never")}</option>
+                        </Form.Control>
+                    </Form.Group>
+                    &nbsp;
+                    {settings.forgetSecretMode === "AFTER_TIME" && <Form.Group className='formGroup'>
+                        <label className='upperLabel'>{t("forgetSecretTime")}</label>
+                        <Form.Control
+                            type="range"
+                            name="forgetSecretTime"
+                            className='form-range form-control-lg'
+                            placeholder='11'
+                            min={10000}
+                            max={3600000}
+                            style={{height: 35}}
+                            value={settings.forgetSecretTime}
+                            onChange={(e) => {
+                                setSettings({...settings, forgetSecretTime: parseInt(e.target.value)});
+                            }}
+                        ></Form.Control>
+                        <div style={{padding: 10, textAlign: "center"}}>{moment.utc(settings.forgetSecretTime).format("HH:mm:ss")}</div>
+                    </Form.Group>}
+                </div>
+                
                 <div className='formGroupContainer' style={{textAlign:'center'}}>
                     <Form.Group className='formGroup' style={{display: 'inline-block'}}>
                         <Form.Check

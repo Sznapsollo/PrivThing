@@ -109,6 +109,13 @@ body, html, #root, .App {
     transition: all .3s ease-in-out;
 }
 
+.formSection {
+    padding: 20px;
+    margin: 10px;
+    border: 1px solid #f2f2f2;
+    border-radius: 10px;
+}
+
 .itemTabIconRemove {
     margin: 0px 5px 0px -25px !important;
 }
@@ -230,6 +237,7 @@ body, html, #root, .App {
     display: none !important;
 }
 
+label.sectionLabel,
 label.upperLabel {
     margin-left: 10px;
     position: absolute;

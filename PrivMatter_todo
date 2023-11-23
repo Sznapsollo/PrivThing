@@ -1,17 +1,26 @@
 todo:
-- go to folder feature
-- clear filters
-- folders picker precount
-- better demo files
-- copy paths to clipboard
-- maybe debounce on search
-- use url to store chosen tab info
-- most viewed?
-- saving indicator
 - PL translation
-- update list to be quiet (update array once it is down)
+- export localStorage items
+- import items to localStorage
+- do something when there are many many tabs (maybe dropdown?)
+- add button stand out more (left side?)
+- file path do not display for local storage
+- manual pick file elsewhere
+- local storage files add folder structure
+- pick file file types
+- Files to notes/items
+- info The Notepad's text is saved to a temporary cache and might be deleted when you delete your browsing history/cache or run disk cleaning application.
+Use Autosave to save the text to the Downloads folder. Avoid using Notepad with Incognito/Private window, or your notes will not be saved to the browser's cache!
+- possibility to hide folders
+- possibility to hide manual pick file
+- settigs grouped
+- contact info
+- git info
+- switch to PrivThing
 
 done:
+- folders picker precount
+- update list to be quiet (update array once it is down)
 - clear all settings
 - confirmation with children
 - rawnote to ref

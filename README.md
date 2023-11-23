@@ -1,10 +1,10 @@
-# PrivMatter
+# PrivThing
 
 ## About
 
 Tool for managing notes with notes/scripts/passwords and other data. 
 
-By default PrivMatter uses local browser storage to store notes.
+By default PrivThing uses local browser storage to store notes.
 
 You can also save notes as files on your drive and also open notes from files from your drive.
 
@@ -14,7 +14,7 @@ This repository does not contain server for following additional folders - more 
 
 ### How it looks - DEMO Time!
 
-- under **<a href="https://cultrides.com/test/Github/PrivMatter/" target="_blank">UI Demo address</a>** you can have a peek at user interface of PrivMatter. It is deployed on shared host so functionalities regarding saving updates to demo existing notes will return error as it is disabled.
+- under **<a href="https://cultrides.com/test/Github/PrivThing/" target="_blank">UI Demo address</a>** you can have a peek at user interface of PrivThing. It is deployed on shared host so functionalities regarding saving updates to demo existing notes will return error as it is disabled.
 
 But you can add / change / delete your own new notes in local storage mode. Since it is local storage these will be only visible to you.
 
@@ -24,7 +24,7 @@ There are also examples of encrypted files. Password to these files is in their 
 
 - you can add / update / encrypt / remove notes
 
-- PrivMatter utilizes CodeMirror for note so it nicely displays code and line numbers + has some other CodeMirror features
+- PrivThing utilizes CodeMirror for note so it nicely displays code and line numbers + has some other CodeMirror features
 
 - you can pick local file using Choose file field. It can also be encrypted file then you will be able to decrypt it with password
 
@@ -32,7 +32,7 @@ There are also examples of encrypted files. Password to these files is in their 
 
 ### Passwords
 
-PrivMatter has capabilities to encrypt / decrypt notes containg security data like passwords, private data etc.
+PrivThing has capabilities to encrypt / decrypt notes containg security data like passwords, private data etc.
 
 Password is not saved or send anywhere. There is no reminder for it. You forget it then you have a problem ;-)
 
@@ -45,7 +45,7 @@ You have three options in settings of handling passwords.
 
 #### Optional Server
 
-Optionally you can provide server and configure it to serve PrivMatter as web and provide the following apis so PrivMatter could also handle files from different locations (it all depends what server will provide)
+Optionally you can provide server and configure it to serve PrivThing as web and provide the following apis so PrivThing could also handle files from different locations (it all depends what server will provide)
 
 Server is expected to enable APIs 
 - getListOfFiles - get list of files (the idea is that server can get files from different folders)
@@ -54,7 +54,7 @@ Server is expected to enable APIs
 
 I will upload small example server in separate git. I use vertx based server which can be easily run with java and configured as service.
 
-#### PrivMatter features which make it nice to use it for notes
+#### PrivThing features which make it nice to use it for notes
 
 - tabs
   - reordable

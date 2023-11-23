@@ -56,7 +56,7 @@ const Context = ({children}: Props) => {
     //     settingsInitialState.forgetSecretTime = 120000;
     // }
     try {
-        let pmSettings = retrieveLocalStorage("privmatter.pmSettings");
+        let pmSettings = retrieveLocalStorage("privthing.pmSettings");
         if(pmSettings) {
             cloneProps(pmSettings, settingsInitialState);
         } else {
@@ -64,7 +64,7 @@ const Context = ({children}: Props) => {
             // cloneProps({enableFileServer: true}, settingsInitialState);
         }
 
-        let pmTabs = retrieveLocalStorage("privmatter.pmTabs");
+        let pmTabs = retrieveLocalStorage("privthing.pmTabs");
         let activeTab = null;
         if(pmTabs && Array.isArray(pmTabs)) {
             appInitialState.tabs = pmTabs.map((pmTab) => {
@@ -85,7 +85,7 @@ const Context = ({children}: Props) => {
         console.warn("Defaults restore error", e);
     }
 
-    let pmSearchSettings = retrieveLocalStorage("privmatter.pmSearchSettings");
+    let pmSearchSettings = retrieveLocalStorage("privthing.pmSearchSettings");
     if(pmSearchSettings?.sort) {
         searchInitialState.sort = pmSearchSettings?.sort;
     }

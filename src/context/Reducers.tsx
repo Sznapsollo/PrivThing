@@ -120,7 +120,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             let folders:Folder[] = [];
             let items = [];
             try {
-                let localStorageFiles = retrieveLocalStorage('privmatter.files');
+                let localStorageFiles = retrieveLocalStorage('privthing.files');
                 if(localStorageFiles) {
                     for(let localStorageFileName in localStorageFiles) {
                         let localStorageFile = localStorageFiles[localStorageFileName]
@@ -190,18 +190,18 @@ export const searchReducer = (state: SearchContextType, action: SearchActions) =
             return { ...state, searchQuery: action.payload };
         case "SET_CURRENT_FOLDER":
             try {
-                let pmSearchSettings = retrieveLocalStorage("privmatter.pmSearchSettings") || {};
+                let pmSearchSettings = retrieveLocalStorage("privthing.pmSearchSettings") || {};
                 pmSearchSettings.currentFolder =  action.payload;
-                saveLocalStorage("privmatter.pmSearchSettings", pmSearchSettings);
+                saveLocalStorage("privthing.pmSearchSettings", pmSearchSettings);
             } catch(e) {
                 console.error("Error on SET_CURRENT_FOLDER", e);
             }
             return { ...state, currentFolder: action.payload };
         case "SORT_BY":
             try {
-                let pmSearchSettings = retrieveLocalStorage("privmatter.pmSearchSettings") || {};
+                let pmSearchSettings = retrieveLocalStorage("privthing.pmSearchSettings") || {};
                 pmSearchSettings.sort =  action.payload;
-                saveLocalStorage("privmatter.pmSearchSettings", pmSearchSettings);
+                saveLocalStorage("privthing.pmSearchSettings", pmSearchSettings);
             } catch(e) {
                 console.error("Error on SET_CURRENT_FOLDER", e);
             }

@@ -128,7 +128,7 @@ const HeaderComp = () => {
         <Navbar bg="dark" variant="dark" style={{height: 40}}>
             <Container className='brandContainer'>
                 <Navbar.Brand>
-                    <Link to="/">{t("privMatter")}</Link>
+                    <Link to="/">{t("privThing")}</Link>
                 </Navbar.Brand>
             </Container>
             <Container fluid={true}>

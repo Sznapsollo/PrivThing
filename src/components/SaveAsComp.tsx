@@ -19,7 +19,7 @@ const SaveAsComp = ({
 
     let pmSaveAsType
     try {
-        pmSaveAsType = retrieveLocalStorage("privmatter.pmSaveAsType");
+        pmSaveAsType = retrieveLocalStorage("privthing.pmSaveAsType");
     } catch(e) {
         console.error("Error on pmSaveAsType", e);
     }
@@ -36,10 +36,10 @@ const SaveAsComp = ({
     const handleFileName = ():string => {
         let fileNameLoc = saveFileName;
         if(encryptData) {
-            // we assume taht encrypted ones will end with '.prvmttr'
+            // we assume that encrypted ones will end with '.prvthng'
             fileNameLoc = saveFileName.replaceAll('.txt', '')
-            if(!fileNameLoc.endsWith('.prvmttr')) {
-                fileNameLoc += '.prvmttr';
+            if(!fileNameLoc.endsWith('.prvthng')) {
+                fileNameLoc += '.prvthng';
             }
         }
         return fileNameLoc
@@ -117,7 +117,7 @@ const SaveAsComp = ({
                                 className={'form-control-lg'}
                                 value={saveAsType}
                                 onChange={(e) => {
-                                    saveLocalStorage("privmatter.pmSaveAsType", e.target.value);
+                                    saveLocalStorage("privthing.pmSaveAsType", e.target.value);
                                     setSaveAsType(e.target.value);
                                 }}
                             >
