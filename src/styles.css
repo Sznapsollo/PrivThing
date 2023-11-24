@@ -340,6 +340,19 @@ label.upperLabel {
   padding: 8px;
 }
 
+.imageRotateHorizontal{
+    -moz-animation: spinHorizontal .5s infinite linear;
+    -o-animation: spinHorizontal .5s infinite linear;    
+    -webkit-animation: spinHorizontal .5s infinite linear;
+    animation: spinHorizontal .5s infinite linear;
+    animation-iteration-count: 1;
+}
+
+@keyframes spinHorizontal {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(360deg); }
+}
+
  /* Media Queries */
  @media (max-width: 771px) {
     /* .resizer {

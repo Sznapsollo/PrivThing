@@ -191,7 +191,7 @@ const HeaderComp = () => {
                 <Container className='brandContainer'>
                     <Navbar.Brand>
                         <Link to="/">
-                            <i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="d-inline-block align-top" alt="" /></i>
+                            <i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="imageRotateHorizontal d-inline-block align-top" alt="" /></i>
                             <div className='navbarTitle'>{t("privThing")}</div>
                         </Link>
                     </Navbar.Brand>

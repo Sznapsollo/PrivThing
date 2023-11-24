@@ -10,8 +10,6 @@ import NotificationComp from './components/NotificationComp';
 
 function App() {
 
-    console.log("App redraw")
-
     useEffect(() => {
         i18n.changeLanguage('en');
     }, []);
