@@ -31,6 +31,7 @@ const ResultsComp = ({results, onClose}: Props) => {
             externalShowCloseButton={false}
             canScroll={true}
             handleExternalSave={onClose}
+            handleExternalClose={onClose}
             externalFooterContent={`${t('results')}: ${t('ok')}: ${resultCount.ok}, ${t('fail')}: ${resultCount.fail}`}
         >
             

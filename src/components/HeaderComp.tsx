@@ -258,6 +258,7 @@ const HeaderComp = () => {
                     externalShowCloseButton={false}
                     canScroll={true}
                     handleExternalSave={()=>setShowAbout(false)}
+                    handleExternalClose={()=>setShowAbout(false)}
                 >
                     <div style={{padding: 20, fontSize: 14}}>
                         PrivThing is a tool to manage notes. Provides some nice features listed below to better organize my work.
