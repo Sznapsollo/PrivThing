@@ -7,6 +7,17 @@ export interface AlertData {
     show: boolean
 }
 
+export interface ContextMenu {
+    show: boolean,
+    x: number,
+    y: number
+}
+
+export interface Folder {
+    name: string,
+    itemsCount: number
+}
+
 export interface Item {
     fetchData?: boolean,
     folder?: string,
@@ -15,36 +26,6 @@ export interface Item {
     path: string,
     rawNote?: string,
     size?: number
-}
-
-export interface Tab extends Item {
-    active?: boolean,
-    isDragged?: boolean,
-    isNew?: boolean,
-    remove?: boolean,
-    scrollTop?: number,
-    tabId: string
-}
-
-export interface Folder {
-    name: string,
-    itemsCount: number
-}
-
-export interface ContextMenu {
-    show: boolean,
-    x: number,
-    y: number
-}
-
-export interface TabContextMenu extends ContextMenu {
-    tab?: Tab
-}
-
-export interface NavigationItem {
-    item: Item,
-    tab?: Tab,
-    action?: string
 }
 
 export interface MainContextType {
@@ -75,11 +56,23 @@ export interface MainContextType {
     newPathToOpenCandidate?: string
 }
 
+export interface NavigationItem {
+    item: Item,
+    tab?: Tab,
+    action?: string
+}
+
 export interface NotificationData {
     message?: string,
     show: boolean,
     type: AlertColor,
     closeAfter?: number
+}
+
+export interface ProcessingResult {
+    name: string, 
+    result: string, 
+    status: number
 }
 
 export interface SaveAsResults {
@@ -99,4 +92,17 @@ export interface SettingsContextType {
     forgetSecretMode: string, // IMMEDIATE, AFTER_TIME, NEVER
     forgetSecretTime: number,
     enableFileServer?: boolean
+}
+
+export interface Tab extends Item {
+    active?: boolean,
+    isDragged?: boolean,
+    isNew?: boolean,
+    remove?: boolean,
+    scrollTop?: number,
+    tabId: string
+}
+
+export interface TabContextMenu extends ContextMenu {
+    tab?: Tab
 }

@@ -38,6 +38,7 @@ const SettingsComp = () => {
         removeLocalStorage("privthing.pmSearchSettings");
         removeLocalStorage("privthing.pmSettings");
         removeLocalStorage("privthing.pmTabs");
+        removeLocalStorage("privthing.isIntroduced");
 
         settingsDispatch({type: "UPDATE_SETTINGS", payload: settingsInitialStateBaseline});
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Form, InputGroup } from "react-bootstrap";
+import { Button, Form, InputGroup } from "react-bootstrap";
 import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context'
 import LisItem from './LisItem';
@@ -7,6 +7,8 @@ import { AiOutlineLoading } from 'react-icons/ai';
 import { CiUndo } from 'react-icons/ci';
 import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { Item } from '../model';
+import { FiPlusCircle } from 'react-icons/fi';
+import { getNewItem } from '../utils/utils';
 
 const ItemsComp = () => {
 
@@ -21,7 +23,12 @@ const ItemsComp = () => {
     const itemsContainerRef = useRef(null);
     const [serverMode, setServerMode] = useState('unknown');
 
-    const loadFromFile = (eventData: any) => {
+    const handleNewItem = () => {
+        const payLoadItem: Item = getNewItem();
+        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
+    }
+
+    const loadFromFile = (eventData: HTMLInputElement) => {
         try {
             if(!eventData?.value || !eventData?.files?.length) {
                 console.warn('Incorrect picked data!!')
@@ -153,7 +160,7 @@ const ItemsComp = () => {
                         placeholder=''
                         // value={[path]}
                         onChange={(e) => {
-                            loadFromFile(e.target as any);
+                            loadFromFile(e.target as HTMLInputElement);
                         }}
                     ></Form.Control>
                 </Form.Group>
@@ -229,7 +236,11 @@ const ItemsComp = () => {
                 !isLoading && serverMode === "offline" && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("storageNotConfigured")}</div>
             }
             {
-                !isLoading && foldersLoaded === true && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}} >{t("filesLoaded")} ({transformedItems.length})</div>
+                !isLoading && foldersLoaded === true &&
+                    <div style={{display: 'flex'}}>
+                        <div style={{flex: 1, wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}} >{t("filesLoaded")} ({transformedItems.length})</div>
+                        <div><Button className='btn-success' onClick={handleNewItem}>{t('new')}&nbsp;<FiPlusCircle style={{marginBottom: -1}} className='h2'/></Button></div>
+                    </div>
             }
             <div className='itemsContainer' ref={itemsContainerRef} onScroll={handleScroll}>
             {
@@ -246,6 +257,7 @@ const ItemsComp = () => {
                 </div>
             }
             </div>
+            <div className='privThingGitHubInfo'>{t('privThingOpenSource')} <a href="https://github.com/Sznapsollo/PrivThing" target="_blank">{t('privThingGitHub')}</a></div>
         </div>
     )
 }

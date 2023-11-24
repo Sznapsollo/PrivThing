@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
@@ -14,8 +14,10 @@ import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import moment from 'moment';
+import { Alert } from '@mui/material';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
+var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
 
 const NoteComp = () => {
 
@@ -25,13 +27,14 @@ const NoteComp = () => {
         warning?: string
     }
 
-    const { mainState: {editedItem, editedItemCandidate, tabs, secret, newItemToOpen}, mainDispatch, settingsState: {forgetSecretMode} } = AppState();
+    const { mainState: {editedItem, editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode} } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
     const [note, setNote] = useState<string>('');
     const [isDirty, setIsDirty] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
+    const [isIntroduced, setIsIntroduced] = useState<boolean>(isIntroducedGlb);
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
     const [needSecret, setNeedSecret] = useState<boolean>(false);
     const [askRefresh, setAskRefresh] = useState<boolean>(false);
@@ -243,6 +246,16 @@ const NoteComp = () => {
 
     const handleSaveAs = (saveResults: SaveAsResults): void => {
         if(saveResults.saveAsType === "LOCAL_STORAGE") {
+
+            // check if there is some with this name
+            let alreadyExistingItem = items.find((item) => {
+                return item.folder === "localStorage" && item.name === saveResults.fileName
+            })
+            if(alreadyExistingItem) {
+                mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 3000, message: t('itemXAlreadyExists', {item: saveResults.fileName})} as AlertData})
+                return
+            }
+
             if(saveResults.encryptData && saveResults.secret) {
                 saveEncrypted(saveResults);
             } else {
@@ -282,6 +295,11 @@ const NoteComp = () => {
         } catch(e) {
             mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
         }
+    }
+
+    const handleAcceptIntroduction = () => {
+        setIsIntroduced(true);
+        saveLocalStorage("privthing.isIntroduced", true);
     }
 
     const saveEncrypted = (saveResults: SaveAsResults) => {
@@ -520,6 +538,11 @@ const NoteComp = () => {
                                 </div>
                         </Form.Group>
                     </div>
+                    { !isIntroduced && 
+                    <Alert className='privThingIntroduction' onClose={handleAcceptIntroduction} severity="info">
+                        {t('privThingIntroduction')}
+                    </Alert>
+                    }
                     <div style={{display: "flex"}} className='formGroupContainer'>
                         {
                             canUpdateFile(editedItem) && <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' onClick={ () => {
@@ -536,7 +559,7 @@ const NoteComp = () => {
                         }
                         <div style={{flex: 1}}>&nbsp;</div>
                         &nbsp;
-                        <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!isDirty} variant='success' onClick={ () => {
+                        <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!note?.length} variant='success' onClick={ () => {
                             setIsSavingAs(true);
                         }}
                         title={t("saveToSelectedLocation")}>{t("saveAs")}</Button>

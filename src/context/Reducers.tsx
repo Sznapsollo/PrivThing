@@ -1,5 +1,5 @@
 
-import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder } from '../model'
+import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult } from '../model'
 import { makeId, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
 type HideItemsBar = {type: 'HIDE_ITEMS_BAR'};

@@ -14,11 +14,7 @@ This repository does not contain server for following additional folders - more 
 
 ### How it looks - DEMO Time!
 
-- under **<a href="https://cultrides.com/test/Github/PrivThing/" target="_blank">UI Demo address</a>** you can have a peek at user interface of PrivThing. It is deployed on shared host so functionalities regarding saving updates to demo existing notes will return error as it is disabled.
-
-But you can add / change / delete your own new notes in local storage mode. Since it is local storage these will be only visible to you.
-
-There are also examples of encrypted files. Password to these files is in their name (last part).
+- go to  **<a href="https://privthing.com/" target="_blank">UI Demo address</a>** - open for anyone who want sto have some notes online
 
 ### What it does
 

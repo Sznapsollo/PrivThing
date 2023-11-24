@@ -3,9 +3,11 @@ import { Modal, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 
 interface Props {
+    canScroll?: boolean,
     children: ReactNode,
     externalCloseButtonVariant?: string,
     externalCloseLabel?: string
+    externalFooterContent?: string,
     externalHeading?: string,
     externalMiddleLabel?: string,
     externalMiddleButtonVariant?: string
@@ -24,9 +26,11 @@ interface Props {
 }
 
 const Confirmation = ({
+    canScroll,
     children,
     externalCloseButtonVariant,
     externalCloseLabel, 
+    externalFooterContent,
     externalHeading,
     externalMiddleButtonVariant,
     externalMiddleLabel,
@@ -57,6 +61,7 @@ const Confirmation = ({
     const [closeButtonVariant] = useState(externalCloseButtonVariant || 'danger');
     const [middleButtonVariant] = useState(externalMiddleButtonVariant || 'primary');
     const [saveButtonVariant] = useState(externalSaveButtonVariant || 'success');
+    const [footerContent] = useState(externalFooterContent || '');
 
     const handleClose = () => {
         if(handleExternalClose) {
@@ -104,10 +109,13 @@ const Confirmation = ({
                 {modalHeading}
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body style={!canScroll ? {height: '100%', overflowY: 'inherit'} : {height: '60vh', overflowY: 'scroll'}}>
                 {children}
             </Modal.Body>
             <Modal.Footer>
+                <div style={{flex: 1}}>&nbsp;</div>
+                {footerContent}
+                <div style={{flex: 1}}>&nbsp;</div>
                 {showSaveButton && <Button className={'btn-lg'} variant={saveButtonVariant} onClick={handleSave}>{saveLabel}</Button>}
                 {showMiddleButton && <Button className={'btn-lg'} variant={middleButtonVariant} onClick={handleMiddle}>{middleLabel}</Button>}
                 {showCloseButton && <Button className={'btn-lg'} variant={closeButtonVariant} onClick={handleClose}>{closeLabel}</Button>}

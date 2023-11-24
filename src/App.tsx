@@ -3,7 +3,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import i18n from './i18n';
 import AlertModalComp from './components/AlertModalComp';
-import Header from './components/HeaderComp'
+import HeaderComp from './components/HeaderComp'
 import HomeComp from './components/HomeComp';
 import SettingsComp from './components/SettingsComp';
 import NotificationComp from './components/NotificationComp';
@@ -20,7 +20,7 @@ function App() {
         <div className="App">
             <NotificationComp />
             <BrowserRouter basename='/listingFilesServer'>
-                <Header />
+                <HeaderComp />
                 <Routes>
                     <Route path='/' element={<HomeComp/>} />
                 </Routes>

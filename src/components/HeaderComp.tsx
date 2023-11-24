@@ -3,14 +3,15 @@ import { Navbar, Container, Nav, Dropdown, Button, Form, InputGroup } from 'reac
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { AppState } from '../context/Context'
-import { FiPlusCircle } from 'react-icons/fi';
 import { LiaFilterSolid } from 'react-icons/lia';
 import { CiUndo } from 'react-icons/ci';
 import { FiMenu } from 'react-icons/fi';
-import { Item } from '../model';
+import { AlertData, ProcessingResult } from '../model';
+import ConfirmationComp from './ConfirmationComp';
 import moment from 'moment';
 import '../styles.css';
-import { getNewItem } from '../utils/utils';
+import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
+import ResultsComp from './ResultsComp';
 
 let forgetSecretTimeThreshold: Date | undefined = undefined;
 let forgetTimer: ReturnType<typeof setTimeout> | null, forgetDebounceTimer: ReturnType<typeof setTimeout> | null, countDownTimer: ReturnType<typeof setInterval> | null;
@@ -28,6 +29,9 @@ const HeaderComp = () => {
 
     const { t } = useTranslation();
     const { searchState, mainState, mainDispatch, searchDispatch, settingsState: {forgetSecretMode, forgetSecretTime} } = AppState();
+    const [ processingResult , setProcessingResult ] = useState<ProcessingResult[]>([])
+    const [ showProcessingResult, setShowProcessingResult ] = useState(false);
+    const [ showAbout, setShowAbout ] = useState(false);
     const centerLabelref = useRef<HTMLDivElement>(null);
 
     const handleForgetSecret = () => {
@@ -123,62 +127,167 @@ const HeaderComp = () => {
 		return ''
 	}
 
+    const handleExportLocalStorageItems = () => {
+        let localStorageFilesData = retrieveLocalStorage('privthing.files') || {};
+
+        const blob = new Blob([JSON.stringify(localStorageFilesData)], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = moment().format('MMMM_Do_YYYY_h_mm_ss') + '_privthing_backup.txt';
+        link.href = url;
+        
+        link.click();
+    }
+
+    const handleImportLocalStorageItems = () => {
+        try {
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.onchange = (e: any) => { 
+                try {
+                    let results:ProcessingResult[] = [];
+                    if(e.target?.value) {
+                        var file = e.target.files[0]; 
+                        var reader = new FileReader();
+                        reader.onload = function(event:any) {
+                            // The file's text will be printed here
+                            let currentLocalStorage = retrieveLocalStorage('privthing.files') || {};
+                            let importedLocalStorage = JSON.parse(event.target.result)
+                            for(let storageItem in importedLocalStorage) {
+                                if(currentLocalStorage[storageItem] != null) {
+                                    results.push({name: storageItem, result: t('itemAlreadyExists'), status: -1});
+                                } else {
+                                    results.push({name: storageItem, result: t('itemImported'), status: 0});
+                                    currentLocalStorage[storageItem] = importedLocalStorage[storageItem];
+                                }
+                            }
+                            let okResult = results.find((resultItem => resultItem.status === 0))
+                            if(okResult) {
+                                saveLocalStorage('privthing.files', currentLocalStorage);
+                                mainDispatch({type: "UPDATE_ITEMS_LIST"});
+                            }
+                            setProcessingResult(results);
+                            setShowProcessingResult(true);
+                        };
+                    
+                        reader.readAsText(file);
+                    }
+                } catch(e) {
+                    console.warn('localStorage handleImportLocalStorageItems operation error: ', e);
+                    mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as AlertData})
+                }
+            }
+
+            input.click();
+        } catch(e) {
+            console.warn('localStorage handleImportLocalStorageItems operation error #2: ', e);
+            mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as AlertData})
+        }
+    }
 
     return (
-        <Navbar bg="dark" variant="dark" style={{height: 40}}>
-            <Container className='brandContainer'>
-                <Navbar.Brand>
-                    <Link to="/">{t("privThing")}</Link>
-                </Navbar.Brand>
-            </Container>
-            <Container fluid={true}>
-                <Button className='btn-sm showItemsButton' variant="light" onClick={() => {
-                    mainDispatch({type: "TOGGLE_ITEMS_BAR"});
-                }}><LiaFilterSolid style={{marginBottom: -1}} className='h2'/></Button>
-                <span style={{flex: 1}} className="dummyHeaderSpacer bigScreenItem">&nbsp;</span>
-                <Navbar.Text style={{flex: 1}} className='search bigScreenItem'>
-                    <Form.Group className='formGroup'>
-                        <InputGroup>
-                            <Form.Control 
-                                placeholder={t("startTypingToFilterFiles")} 
-                                value={searchState.searchQuery}
-                                className={'form-control-lg m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
-                                onChange={(e) =>
-                                    {
-                                        searchDispatch({type: 'FILTER_BY_SEARCH', payload: e.target.value});
-                                
+        <>
+            <Navbar bg="dark" variant="dark" style={{height: 40}}>
+                <Container className='brandContainer'>
+                    <Navbar.Brand>
+                        <Link to="/">
+                            <i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="d-inline-block align-top" alt="" /></i>
+                            <div className='navbarTitle'>{t("privThing")}</div>
+                        </Link>
+                    </Navbar.Brand>
+                </Container>
+                <Container fluid={true}>
+                    <Button className='btn-sm showItemsButton' variant="light" onClick={() => {
+                        mainDispatch({type: "TOGGLE_ITEMS_BAR"});
+                    }}><LiaFilterSolid style={{marginBottom: -1}} className='h2'/></Button>
+                    <span style={{flex: 1}} className="dummyHeaderSpacer bigScreenItem">&nbsp;</span>
+                    <Navbar.Text style={{flex: 1}} className='search bigScreenItem'>
+                        <Form.Group className='formGroup'>
+                            <InputGroup>
+                                <Form.Control 
+                                    placeholder={t("startTypingToFilterFiles")} 
+                                    value={searchState.searchQuery}
+                                    className={'form-control-lg m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
+                                    onChange={(e) =>
+                                        {
+                                            searchDispatch({type: 'FILTER_BY_SEARCH', payload: e.target.value});
+                                    
+                                        }
                                     }
-                                }
-                            />
-                            {searchState.searchQuery && <InputGroup.Text className="clearInput" onClick={(e) => {
-                                searchDispatch({type: 'FILTER_BY_SEARCH', payload: ''});
-                            }}><CiUndo/></InputGroup.Text>}
-                        </InputGroup>
-                        
-                    </Form.Group>
-                </Navbar.Text>
-                <div className='navLink' onClick={handleForgetSecret} ref={centerLabelref}></div>
-                <Nav>
-                    <Button className='btn-sm' variant="light" onClick={() => {
-                        const payLoadItem: Item = getNewItem();
-                        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
-                    }}>
-                        <FiPlusCircle style={{marginBottom: -1}} className='h2'/>
-                    </Button>
-                    &nbsp;
-                    <Dropdown>
-                        <Dropdown.Toggle variant="light">
-                            <FiMenu fontSize="25px" />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className='dropdown-menu-end'>
-                            <Dropdown.Item onClick={() => {
-                                mainDispatch({type: "SHOW_SETTINGS"});
-                            }}>{t("settings")}</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </Nav>
-            </Container>
-        </Navbar>
+                                />
+                                {searchState.searchQuery && <InputGroup.Text className="clearInput" onClick={(e) => {
+                                    searchDispatch({type: 'FILTER_BY_SEARCH', payload: ''});
+                                }}><CiUndo/></InputGroup.Text>}
+                            </InputGroup>
+                            
+                        </Form.Group>
+                    </Navbar.Text>
+                    <div className='navLink' onClick={handleForgetSecret} ref={centerLabelref}></div>
+                    <Nav>
+                        <Dropdown>
+                            <Dropdown.Toggle variant="light">
+                                <FiMenu fontSize="25px" />
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu className='dropdown-menu-end'>
+                                <Dropdown.Item onClick={() => {
+                                    mainDispatch({type: "SHOW_SETTINGS"});
+                                }}>{t("settings")}</Dropdown.Item>
+                                <Dropdown.Item onClick={handleExportLocalStorageItems}>{t("exportLocalStorageItems")}</Dropdown.Item>
+                                <Dropdown.Item onClick={handleImportLocalStorageItems}>{t("importLocalStorageItems")}</Dropdown.Item>
+                                <Dropdown.Item onClick={() => setShowAbout(true)}>{t("aboutPrivThing")}</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Nav>
+                </Container>
+            </Navbar>
+            {
+                showProcessingResult && 
+                <ResultsComp 
+                    results={processingResult}
+                    onClose={ () => {
+                        setShowProcessingResult(false); 
+                        setProcessingResult([]);
+                    }}
+                />
+            }
+            {
+                showAbout &&
+                <ConfirmationComp
+                    externalHeading={t("aboutPrivThing")}
+                    externalSaveLabel={t("ok")}
+                    externalShowCloseButton={false}
+                    canScroll={true}
+                    handleExternalSave={()=>setShowAbout(false)}
+                >
+                    <div style={{padding: 20, fontSize: 14}}>
+                        PrivThing is a tool to manage notes. Provides some nice features listed below to better organize my work.
+                        <br/><br/>
+                        <ul>
+                            <li>Tabs that can be reordered, and that are remembered</li>
+                            <li>Hotkeys: ctrl+f, ctrl+s</li>
+                            <li>Encrypt some more fragile notes with passwords (just dont forget it - passwords are not stored anywhere so no way to remind it)</li>
+                            <li>Very nice CodeMirror editor which comes with many perks like code marking, search, line numbers etc</li>
+                            <li>Slider between items and note body</li>
+                            <li>Search & sort features</li>
+                            <li>If you host it on some local server it provides quick access to files from different folders</li>
+                            <li>Export & Import of local storage items</li>
+                            <li>...</li>
+                        </ul>
+                        <br/><br/>
+                        It is Open Source. Check it on GitHub - <a href="https://github.com/Sznapsollo/PrivThing" target="_blank">https://github.com/Sznapsollo/PrivThing</a>
+                        <br/><br/>
+                        I have always some list of things that I want to add here. I usually come up with them when I use this tool and something is missing. 
+                        On GitHub there is a todo file committed with such points.
+                        I am always open to suggestions and happy when some feature comes to mind that will speed things up.
+                        <br/><br/>
+                        I you have some ideas please share on Git or <a href="mailto: office@webproject.waw.pl">Email me</a>.
+                        <br/><br/>
+                        Have nice day,
+                        NJ
+                    </div>
+                </ConfirmationComp>
+            }
+        </>
     )
 }
 

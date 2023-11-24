@@ -1,24 +1,29 @@
 todo:
-- PL translation
+- PL translation + other translations
+- auto language
+- language selectable from settings
 - export localStorage items
 - import items to localStorage
 - do something when there are many many tabs (maybe dropdown?)
-- add button stand out more (left side?)
 - file path do not display for local storage
 - manual pick file elsewhere
 - local storage files add folder structure
-- pick file file types
 - Files to notes/items
-- info The Notepad's text is saved to a temporary cache and might be deleted when you delete your browsing history/cache or run disk cleaning application.
-Use Autosave to save the text to the Downloads folder. Avoid using Notepad with Incognito/Private window, or your notes will not be saved to the browser's cache!
 - possibility to hide folders
 - possibility to hide manual pick file
 - settigs grouped
 - contact info
-- git info
-- switch to PrivThing
+- disable save passwords prompts
+
 
 done:
+- about PrivThing
+- cant save local storage with the same name
+- add button stand out more (left side?)
+- icon in header
+- import results window (ok/fails/intersection/icons)
+- git info
+- switch to PrivThing
 - folders picker precount
 - update list to be quiet (update array once it is down)
 - clear all settings
