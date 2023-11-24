@@ -14,7 +14,7 @@ This repository does not contain server for following additional folders - more 
 
 ### How it looks - DEMO Time!
 
-- go to  **<a href="https://privthing.com/" target="_blank">UI Demo address</a>** - open for anyone who want sto have some notes online
+- go to  **<a href="https://privthing.com/" target="_blank">privthing.com/</a>** - open for anyone who want sto have some notes online
 
 ### What it does
 
@@ -24,7 +24,9 @@ This repository does not contain server for following additional folders - more 
 
 - you can pick local file using Choose file field. It can also be encrypted file then you will be able to decrypt it with password
 
-- create new file (+ button on top right) and then save it as local file (Save As option for normal save and Save As encrypted to save with password)
+- create new note in browser localStorage or save them sa files. 
+
+- notes can be encrypted
 
 ### Passwords
 
