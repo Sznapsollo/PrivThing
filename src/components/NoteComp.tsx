@@ -245,6 +245,9 @@ const NoteComp = () => {
     }
 
     const handleSaveAs = (saveResults: SaveAsResults): void => {
+        if(!canSaveFile(saveResults)) {
+            return
+        }
         if(saveResults.saveAsType === "LOCAL_STORAGE") {
 
             // check if there is some with this name
@@ -346,8 +349,24 @@ const NoteComp = () => {
         return (item.folder === 'localStorage')
     }
 
+    const canSaveFile = (item: SaveAsResults): boolean => {
+        if(!item.saveAsType?.length) {
+            return false
+        }
+
+        if(!item.fileName?.length) {
+            return false
+        }
+
+        return true
+    }
+
     const canUpdateFile = (item: Item): boolean => {
-        if(!item.path) {
+        if(!item.path?.length) {
+            return false
+        }
+
+        if(!item.name?.length) {
             return false
         }
 
@@ -491,31 +510,34 @@ const NoteComp = () => {
             }
             {
                 !isLoading && !needSecret && !isSavingAs && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
-                    <div className='formGroupContainer'>
-                        <Form.Group className='formGroup'>
-                        <label className='upperLabel'>{t("filePath")}</label>
-                        <Form.Control
-                            className='form-control-lg'
-                            type="text"
-                            name="filePath"
-                            placeholder=''
-                            value={filePath}
-                            readOnly={true}
-                        ></Form.Control>
-                        </Form.Group>
-                    </div>
-                    <div className='formGroupContainer'>
-                        <Form.Group className='formGroup'>
-                            <label className='upperLabel'>{t("fileName")}</label>
-                            <Form.Control
-                                className='form-control-lg'
-                                type="text"
-                                name="fileName"
-                                placeholder=''
-                                value={fileName}
-                                readOnly={true}
-                            ></Form.Control>
-                        </Form.Group>
+                    <div className='noteInputFields'>
+                        <div className='formGroupContainer' style={{flex: 1}}>
+                            <Form.Group className='formGroup'>
+                                <label className='upperLabel'>{t("filePath")}</label>
+                                <Form.Control
+                                    className='form-control-lg'
+                                    type="text"
+                                    name="filePath"
+                                    placeholder=''
+                                    value={filePath}
+                                    readOnly={true}
+                                ></Form.Control>
+                            </Form.Group>
+                        </div>
+                        <div style={{width: 5, height: 1}}></div>
+                        <div className='formGroupContainer' style={{flex: 1}}>
+                            <Form.Group className='formGroup'>
+                                <label className='upperLabel'>{t("fileName")}</label>
+                                <Form.Control
+                                    className='form-control-lg'
+                                    type="text"
+                                    name="fileName"
+                                    placeholder=''
+                                    value={fileName}
+                                    readOnly={true}
+                                ></Form.Control>
+                            </Form.Group>
+                        </div>
                     </div>
                     <div className='formGroupContainer flexStretch'>
                         <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onScroll={()=> {rememberScrollPosition()}}>

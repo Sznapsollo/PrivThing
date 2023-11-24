@@ -281,6 +281,12 @@ a:not(.dropdown-item) {
     padding: 20px 20px 0 20px;
 } 
 
+.noteInputFields {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+}
+
 .showItemsButton {
     display: none !important;
 }
@@ -379,6 +385,10 @@ label.upperLabel {
   
     .title {
       font-size: 18px !important;
+    }
+
+    .noteInputFields {
+        flex-direction: column;
     }
 }
 

@@ -54,7 +54,17 @@ const SaveAsComp = ({
         }
     }
 
+    const validateForm = () => {
+        if(!saveFileName?.length) {
+            return false
+        }
+        return true
+    }
+
     const handleSave = () => {
+        if(!validateForm()) {
+            return
+        }
         onSave({
             fileName: handleFileName(),
             saveAsType: saveAsType,
@@ -63,6 +73,9 @@ const SaveAsComp = ({
     };
 
     const handleSecretSubmit = (secret: string) => {
+        if(!validateForm()) {
+            return
+        }
         onSave({
             fileName: handleFileName(),
             saveAsType: saveAsType,
@@ -103,6 +116,7 @@ const SaveAsComp = ({
                                 value={saveFileName}
                                 required= {true}
                                 autoFocus={true}
+                                isInvalid={!saveFileName?.length}
                                 onChange={(e)=> {
                                     setSaveFileName(e.target.value);
                                 }}
