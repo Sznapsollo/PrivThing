@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react'
 import {Alert} from '@mui/material'
 import { AppState } from '../context/Context';
 import { NotificationData } from '../model';
+import { MAIN_ACTIONS } from '../context/Reducers';
 
 let notifictionCloseHandle: ReturnType<typeof setTimeout> | null = null;
 
@@ -25,7 +26,7 @@ useEffect(() => {
 }, [mainState.notificationData]);
 
 const handleClose = () => {
-    mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: false} as NotificationData})
+    mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: false} as NotificationData})
 };
 
 return (

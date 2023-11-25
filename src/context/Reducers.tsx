@@ -2,21 +2,39 @@
 import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult } from '../model'
 import { makeId, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
-type HideItemsBar = {type: 'HIDE_ITEMS_BAR'};
-type HideSettings = {type: 'HIDE_SETTINGS'};
-type LoadFromPickedFile = {type: 'LOAD_FROM_PICKED_FILE', payload: any};
-type SetEditedItemCandidatel = {type: 'SET_EDITED_ITEM_CANDIDATE', payload: NavigationItem};
-type SetEditedItem = {type: 'SET_EDITED_ITEM', payload: NavigationItem};
-type ClearEditedItem = {type: 'CLEAR_EDITED_ITEM'};
-type ClearSecret = {type: 'CLEAR_SECRET'};
-type SetItems = {type: 'SET_ITEMS', payload: Item[]};
-type ShowAlertModal = {type: 'SHOW_ALERT_MODAL', payload: AlertData};
-type ShowNotification = {type: 'SHOW_NOTIFICATION', payload: NotificationData};
-type ShowSettings = {type: 'SHOW_SETTINGS'};
-type ToggleItemsBar = {type: 'TOGGLE_ITEMS_BAR'};
-type UpdateItemsList = {type: 'UPDATE_ITEMS_LIST', payload: string};
-type UpdateTabs = {type: 'UPDATE_TABS', payload: Tab[]};
-type UpdateSecret = {type: 'UPDATE_SECRET', payload: string};
+export enum MAIN_ACTIONS {
+    HIDE_ITEMS_BAR = 'HIDE_ITEMS_BAR',
+    HIDE_SETTINGS = 'HIDE_SETTINGS',
+    LOAD_FROM_PICKED_FILE = 'LOAD_FROM_PICKED_FILE',
+    SET_EDITED_ITEM_CANDIDATE = 'SET_EDITED_ITEM_CANDIDATE',
+    SET_EDITED_ITEM = 'SET_EDITED_ITEM',
+    CLEAR_EDITED_ITEM = 'CLEAR_EDITED_ITEM',
+    CLEAR_SECRET = 'CLEAR_SECRET',
+    SET_ITEMS = 'SET_ITEMS',
+    SHOW_ALERT_MODAL = 'SHOW_ALERT_MODAL',
+    SHOW_NOTIFICATION = 'SHOW_NOTIFICATION',
+    SHOW_SETTINGS = 'SHOW_SETTINGS',
+    TOGGLE_ITEMS_BAR = 'TOGGLE_ITEMS_BAR',
+    UPDATE_ITEMS_LIST = 'UPDATE_ITEMS_LIST',
+    UPDATE_TABS = 'UPDATE_TABS',
+    UPDATE_SECRET = 'UPDATE_SECRET'
+}
+
+type HideItemsBar = {type: MAIN_ACTIONS.HIDE_ITEMS_BAR};
+type HideSettings = {type: MAIN_ACTIONS.HIDE_SETTINGS};
+type LoadFromPickedFile = {type: MAIN_ACTIONS.LOAD_FROM_PICKED_FILE, payload: any};
+type SetEditedItemCandidatel = {type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: NavigationItem};
+type SetEditedItem = {type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: NavigationItem};
+type ClearEditedItem = {type: MAIN_ACTIONS.CLEAR_EDITED_ITEM};
+type ClearSecret = {type: MAIN_ACTIONS.CLEAR_SECRET};
+type SetItems = {type: MAIN_ACTIONS.SET_ITEMS, payload: Item[]};
+type ShowAlertModal = {type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: AlertData};
+type ShowNotification = {type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: NotificationData};
+type ShowSettings = {type: MAIN_ACTIONS.SHOW_SETTINGS};
+type ToggleItemsBar = {type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR};
+type UpdateItemsList = {type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: string};
+type UpdateTabs = {type: MAIN_ACTIONS.UPDATE_TABS, payload: Tab[]};
+type UpdateSecret = {type: MAIN_ACTIONS.UPDATE_SECRET, payload: string};
 
 export type MainActions = ClearEditedItem |
     ClearSecret | 
@@ -37,15 +55,15 @@ export type MainActions = ClearEditedItem |
 export const mainReducer = (state: MainContextType, action: MainActions) => {
     // console.log('mainReducer', action.type)
     switch (action.type) {
-        case "HIDE_ITEMS_BAR":
+        case MAIN_ACTIONS.HIDE_ITEMS_BAR:
             return { ...state, fullItems: false};
-        case "HIDE_SETTINGS":
+        case MAIN_ACTIONS.HIDE_SETTINGS:
             return { ...state, showSettings: false };
-        case "LOAD_FROM_PICKED_FILE":
+        case MAIN_ACTIONS.LOAD_FROM_PICKED_FILE:
             return { ...state, pickedFileEvent: action.payload };
-        case "SET_EDITED_ITEM_CANDIDATE":
+        case MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE:
             return { ...state, editedItemCandidate: action.payload, fullItems: false };
-        case "SET_EDITED_ITEM":
+        case MAIN_ACTIONS.SET_EDITED_ITEM:
             if(!action.payload.item) {
                 // console.log('No item in payload')
                 return {...state}
@@ -106,7 +124,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 return {...tabItem, active: false};
             })
             return { ...state, editedItem: itemPayload, tabs: updatedTabs, newItemToOpen: undefined };
-        case "CLEAR_EDITED_ITEM":
+        case MAIN_ACTIONS.CLEAR_EDITED_ITEM:
             const payLoadItem: Item = {
                 name: '',
                 path: '',
@@ -114,9 +132,9 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 rawNote: undefined
             };
             return { ...state, editedItem: payLoadItem };
-        case "CLEAR_SECRET":
+        case MAIN_ACTIONS.CLEAR_SECRET:
             return { ...state, secret: '' };
-        case "SET_ITEMS":
+        case MAIN_ACTIONS.SET_ITEMS:
             let folders:Folder[] = [];
             let items = [];
             try {
@@ -156,39 +174,46 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 }
             })
             return { ...state, items: items, folders: folders, newPathToOpenCandidate: '', newItemToOpen: newItemToOpen };
-        case "SHOW_SETTINGS":
-            return { ...state, showSettings: true };
-        case "SHOW_ALERT_MODAL":
+        case MAIN_ACTIONS.SHOW_ALERT_MODAL:
             return { ...state, alertData: action.payload };
-        case "SHOW_NOTIFICATION":
+        case MAIN_ACTIONS.SHOW_NOTIFICATION:
             return { ...state, notificationData: action.payload };
-        case "TOGGLE_ITEMS_BAR":
+        case MAIN_ACTIONS.SHOW_SETTINGS:
+            return { ...state, showSettings: true };
+        case MAIN_ACTIONS.TOGGLE_ITEMS_BAR:
             return { ...state, fullItems: !state.fullItems };
-        case "UPDATE_ITEMS_LIST":
+        case MAIN_ACTIONS.UPDATE_ITEMS_LIST:
             return { ...state, itemsListRefreshTrigger: new Date().getTime(), newItemToOpen: undefined, newPathToOpenCandidate: action.payload };
-        case "UPDATE_SECRET":
+        case MAIN_ACTIONS.UPDATE_SECRET:
             return { ...state, secret: action.payload};
-        case "UPDATE_TABS":
+        case MAIN_ACTIONS.UPDATE_TABS:
             return { ...state, tabs: action.payload};
         default:
             return state;
     }
 };
 
-type ClearFilters = {type: 'CLEAR_FILTERS', payload: boolean};
-type FilterBySearch = {type: 'FILTER_BY_SEARCH', payload: string};
-type SetCurrentFolder = {type: 'SET_CURRENT_FOLDER', payload: string};
-type SortByPrice = {type: 'SORT_BY', payload: string};
+export enum SEARCH_ACTIONS {
+    CLEAR_FILTERS = 'CLEAR_FILTERS',
+    FILTER_BY_SEARCH = 'FILTER_BY_SEARCH',
+    SET_CURRENT_FOLDER = 'SET_CURRENT_FOLDER',
+    SORT_BY = 'SORT_BY'
+}
+
+type ClearFilters = {type: SEARCH_ACTIONS.CLEAR_FILTERS, payload: boolean};
+type FilterBySearch = {type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: string};
+type SetCurrentFolder = {type: SEARCH_ACTIONS.SET_CURRENT_FOLDER, payload: string};
+type SortByPrice = {type: SEARCH_ACTIONS.SORT_BY, payload: string};
 
 export type SearchActions = ClearFilters | FilterBySearch | SetCurrentFolder | SortByPrice;
 
 export const searchReducer = (state: SearchContextType, action: SearchActions) => {
     switch (action.type) {
-        case "CLEAR_FILTERS":
+        case SEARCH_ACTIONS.CLEAR_FILTERS:
             return { ...state };
-        case "FILTER_BY_SEARCH":
+        case SEARCH_ACTIONS.FILTER_BY_SEARCH:
             return { ...state, searchQuery: action.payload };
-        case "SET_CURRENT_FOLDER":
+        case SEARCH_ACTIONS.SET_CURRENT_FOLDER:
             try {
                 let pmSearchSettings = retrieveLocalStorage("privthing.pmSearchSettings") || {};
                 pmSearchSettings.currentFolder =  action.payload;
@@ -197,7 +222,7 @@ export const searchReducer = (state: SearchContextType, action: SearchActions) =
                 console.error("Error on SET_CURRENT_FOLDER", e);
             }
             return { ...state, currentFolder: action.payload };
-        case "SORT_BY":
+        case SEARCH_ACTIONS.SORT_BY:
             try {
                 let pmSearchSettings = retrieveLocalStorage("privthing.pmSearchSettings") || {};
                 pmSearchSettings.sort =  action.payload;
@@ -211,13 +236,16 @@ export const searchReducer = (state: SearchContextType, action: SearchActions) =
     }
 };
 
-type UpdateSettings = {type: 'UPDATE_SETTINGS', payload: SettingsContextType};
+export enum SETTINGS_ACTIONS {
+    UPDATE_SETTINGS = 'UPDATE_SETTINGS'
+}
+type UpdateSettings = {type: SETTINGS_ACTIONS.UPDATE_SETTINGS, payload: SettingsContextType};
 
 export type SettingsActions = UpdateSettings;
 
 export const settingsReducer = (state: SettingsContextType, action: SettingsActions) => {
     switch (action.type) {
-        case "UPDATE_SETTINGS":
+        case SETTINGS_ACTIONS.UPDATE_SETTINGS:
             return {...action.payload};
         default:
             return state;

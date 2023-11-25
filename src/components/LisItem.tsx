@@ -6,6 +6,7 @@ import { FaFolderOpen } from "react-icons/fa";
 import { useTranslation } from 'react-i18next'
 import moment from 'moment';
 import '../styles.css'
+import { MAIN_ACTIONS } from '../context/Reducers';
 
 interface Props {
     item: Item,
@@ -51,7 +52,7 @@ const LisItem = ({item, keyProp}: Props) => {
                     fetchData: item.folder === 'localStorage' ? false : true,
                     rawNote: undefined
                 };
-                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}
             onContextMenu={(e) => {
                 e.preventDefault();
@@ -63,7 +64,7 @@ const LisItem = ({item, keyProp}: Props) => {
                     fetchData: item.folder === 'localStorage' ? false : true,
                     rawNote: undefined
                 };
-                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}
             >
             <div className='listItemIcon'>

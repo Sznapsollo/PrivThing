@@ -9,6 +9,7 @@ import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { Item } from '../model';
 import { FiPlusCircle } from 'react-icons/fi';
 import { getNewItem } from '../utils/utils';
+import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
 
 const ItemsComp = () => {
 
@@ -25,7 +26,7 @@ const ItemsComp = () => {
 
     const handleNewItem = () => {
         const payLoadItem: Item = getNewItem();
-        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
+        mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
     }
 
     const loadFromFile = (eventData: HTMLInputElement) => {
@@ -47,7 +48,7 @@ const ItemsComp = () => {
                     rawNote: event.target.result
                 };
 
-                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem}});
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem}});
             };
         
             reader.readAsText(file);
@@ -87,20 +88,20 @@ const ItemsComp = () => {
                 }
                 if(Array.isArray(data?.data?.files)) {
                     // console.log('dispatching items', data.data)
-                    mainDispatch({type: "SET_ITEMS", payload: data.data.files});
+                    mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: data.data.files});
                 }
             })
             .catch(function(error) {
                 setIsLoading(false);
                 setFoldersLoaded(true);
                 setServerMode("offline");
-                mainDispatch({type: "SET_ITEMS", payload: []});
+                mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: []});
                 console.warn('Fetch operation error: ', error.message);
             });
         } else {
             setFoldersLoaded(true);
             setServerMode("disabled");
-            mainDispatch({type: "SET_ITEMS", payload: []});
+            mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: []});
         }
 
     }, [mainState.itemsListRefreshTrigger]);
@@ -183,12 +184,12 @@ const ItemsComp = () => {
                             className={'m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
                             onChange={(e) =>
                                 {
-                                    searchDispatch({type: 'FILTER_BY_SEARCH', payload: e.target.value});
+                                    searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: e.target.value});
                                 }
                             }
                         />
                         {searchState.searchQuery && <InputGroup.Text className="clearInput" onClick={(e) => {
-                            searchDispatch({type: 'FILTER_BY_SEARCH', payload: ''});
+                            searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: ''});
                         }}><CiUndo/></InputGroup.Text>}
                     </InputGroup>
                     
@@ -202,7 +203,7 @@ const ItemsComp = () => {
                         name="sortBy"
                         value={searchState.sort}
                         onChange={(e) => {
-                        searchDispatch({type: 'SORT_BY', payload: e.target.value});
+                        searchDispatch({type: SEARCH_ACTIONS.SORT_BY, payload: e.target.value});
                         }}
                     >
                         <option value="nameLowToHigh">{t("nameLowToHigh")}</option>
@@ -220,7 +221,7 @@ const ItemsComp = () => {
                         name="currentFolder"
                         value={searchState.currentFolder}
                         onChange={(e) => {
-                        searchDispatch({type: 'SET_CURRENT_FOLDER', payload: e.target.value});
+                        searchDispatch({type: SEARCH_ACTIONS.SET_CURRENT_FOLDER, payload: e.target.value});
                         }}
                     >
                         <option value="">{t("allFolders")}</option>

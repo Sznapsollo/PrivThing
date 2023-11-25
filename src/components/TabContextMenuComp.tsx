@@ -3,6 +3,7 @@ import { useClickAway } from 'react-use';
 import { Tab } from '../model';
 import { AppState } from '../context/Context';
 import { useTranslation } from 'react-i18next'
+import { MAIN_ACTIONS } from '../context/Reducers';
 
 interface Props {
     x: number, 
@@ -24,13 +25,13 @@ const TabContextMenuComp = ({x, y, tabItem, closeContextMenu}: Props) => {
         <div ref={contextMenuRef} style={{top: y, left: x}} className='contextMenu'>
             <div className='contextMenuItem' onClick={() => {
                 closeContextMenu();
-                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: {}, tab: tabItem, action: 'REMOVE_TAB'}});
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: {}, tab: tabItem, action: 'REMOVE_TAB'}});
             }}>
                 {t("closeTab")}
             </div>
             <div className='contextMenuItem' onClick={() => {
                 closeContextMenu();
-                mainDispatch({type: "UPDATE_TABS", payload: []});
+                mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: []});
             }}>
                 {t("closeAllTabs")}
             </div>

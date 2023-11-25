@@ -5,6 +5,7 @@ import { Item, Tab, TabContextMenu } from '../model';
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { getNewItem, saveLocalStorage } from '../utils/utils'
 import TabContextMenuComp from './TabContextMenuComp';
+import { MAIN_ACTIONS } from '../context/Reducers';
 
 const initialTabContextMenu: TabContextMenu = {
     show: false,
@@ -52,7 +53,7 @@ const TabsComp = () => {
 
         const copyListItems = [...mainState.tabs];
         copyListItems[position].isDragged = true;
-        mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: copyListItems});
     };
    
     const dragEnter = (e: HTMLSpanElement, position:number) => {
@@ -82,7 +83,7 @@ const TabsComp = () => {
         
         copyListItems[position].isDragged = true;
 
-        mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: copyListItems});
     };
    
     const drop = <T,>(e: T) => {
@@ -91,7 +92,7 @@ const TabsComp = () => {
             return {...tabItem, isDragged: false};
         });
         if(dragItem.current == null || dragOverItem.current == null) {
-            mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
+            mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: copyListItems});
             return
         }
         const dragItemContent = copyListItems[dragItem.current];
@@ -101,7 +102,7 @@ const TabsComp = () => {
         dragItem.current = null;
         dragOverItem.current = null;
 
-        mainDispatch({type: "UPDATE_TABS", payload: copyListItems});
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: copyListItems});
     };
 
     // dndn stuff end
@@ -131,14 +132,14 @@ const TabsComp = () => {
                                 if(tabItem.active === true) {
                                     return
                                 }
-                                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: tabItem, tab: tabItem}});
+                                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: tabItem, tab: tabItem}});
                                 }}
                             onContextMenu={(e) => handleContextMenu(e, tabItem)}
                         >{tabItem.name || t("empty")} &nbsp; 
                         </div>
                         <FiMinusCircle className='h2 itemTabIconRemove' onClick={(e) => {
                             e.preventDefault();
-                            mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: {}, tab: tabItem, action: 'REMOVE_TAB'}});
+                            mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: {}, tab: tabItem, action: 'REMOVE_TAB'}});
                         }}/>
                     </span>
                         
@@ -146,7 +147,7 @@ const TabsComp = () => {
             }
             <FiPlusCircle className='h2 itemTabIconAdd' onClick={() => {
                 const payLoadItem: Item = getNewItem();
-                mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}/>
             {tabContextMenu.show === true && <TabContextMenuComp x={tabContextMenu.x} y={tabContextMenu.y} tabItem={tabContextMenu.tab} closeContextMenu={handleContextMenuClose}/>}
         </div>

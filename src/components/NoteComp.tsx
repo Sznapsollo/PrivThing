@@ -15,6 +15,7 @@ import SaveAsComp from './SaveAsComp';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import moment from 'moment';
 import { Alert } from '@mui/material';
+import { MAIN_ACTIONS } from '../context/Reducers';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
@@ -62,7 +63,7 @@ const NoteComp = () => {
             return
         }
         setIsDirty(false);
-        mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: newItemToOpen}});
+        mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: newItemToOpen}});
     }, [newItemToOpen?.path]);
 
     const initializeEditedItem = () => {
@@ -78,14 +79,14 @@ const NoteComp = () => {
                 if(localStorageFiles && localStorageFiles[editedItem.name] != null && localStorageFiles[editedItem.name].data != null) {
                     setRawNote(localStorageFiles[editedItem.name].data);
                 } else if(!!editedItem.path) {
-                    mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
-                    // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("fileNotFound")} as AlertData})
+                    mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
+                    // mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("error"), message: t("fileNotFound")} as AlertData})
                     let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
-                    mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
+                    mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs});
                 }
             } catch(e) {
                 console.warn('localStorage read operation error: ', e);
-                mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
+                mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
             }
             setIsLoading(false);
         } else if(isExternalFileItem(editedItem)) {
@@ -111,10 +112,10 @@ const NoteComp = () => {
                     return
                 }
                 if(data.data == null && !!editedItem.path) {
-                    mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
-                    // mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("fileNotFound")} as AlertData})
+                    mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '')} as AlertData})
+                    // mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("error"), message: t("fileNotFound")} as AlertData})
                     let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
-                    mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
+                    mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs});
                 }
                 if(typeof data.data === "string") {
                     setRawNote(data.data);
@@ -123,7 +124,7 @@ const NoteComp = () => {
             .catch(function(error) {
                 setIsLoading(false);
                 console.warn('Fetch operation error: ', error.message);
-                mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
+                mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
             });
         } else {
             setIsLoading(true);
@@ -157,10 +158,10 @@ const NoteComp = () => {
             setShowUnsaved(true);
         } else {
             if(secret && forgetSecretMode === "IMMEDIATE") {
-                mainDispatch({type: 'CLEAR_SECRET'})     
+                mainDispatch({type: MAIN_ACTIONS.CLEAR_SECRET})     
             }
             if(editedItemCandidate?.item) {
-                mainDispatch({type: 'SET_EDITED_ITEM', payload: editedItemCandidate}) 
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate}) 
             }
         }
     }, [editedItemCandidate.item]);
@@ -182,7 +183,7 @@ const NoteComp = () => {
             if(updateFileButtonRef.current) {
                 updateFileButtonRef.current.click();
             }
-        } else if (e.ctrlKey && e.key.toLowerCase() === "s" && !updateFileButtonRef.current && saveToFileButtonRef.current && saveToFileButtonRef.current?.disabled === false){
+        } else if (e.ctrlKey && e.key.toLowerCase() === "s" && saveToFileButtonRef.current && saveToFileButtonRef.current?.disabled === false){
             e.preventDefault();
             if(saveToFileButtonRef.current) {
                 saveToFileButtonRef.current.click();
@@ -209,7 +210,7 @@ const NoteComp = () => {
                 }
                 return {...tab}
             });
-            mainDispatch({type: "UPDATE_TABS", payload: currentTabs});
+            mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs});
         }, 200)
     }
 
@@ -241,7 +242,7 @@ const NoteComp = () => {
     }
 
     const handleSecretSubmit = (secret: string) => {
-        mainDispatch({type: 'UPDATE_SECRET', payload: secret});
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_SECRET, payload: secret});
     }
 
     const handleSaveAs = (saveResults: SaveAsResults): void => {
@@ -255,7 +256,7 @@ const NoteComp = () => {
                 return item.folder === "localStorage" && item.name === saveResults.fileName
             })
             if(alreadyExistingItem) {
-                mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 3000, message: t('itemXAlreadyExists', {item: saveResults.fileName})} as AlertData})
+                mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 3000, message: t('itemXAlreadyExists', {item: saveResults.fileName})} as AlertData})
                 return
             }
 
@@ -264,8 +265,8 @@ const NoteComp = () => {
             } else {
                 saveToLocalStorage(saveResults.fileName, note);
             }
-            mainDispatch({type: "UPDATE_ITEMS_LIST", payload: "localStorage/" + saveResults.fileName});
-            mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 3000, message: t('dataSaved')} as AlertData})
+            mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: "localStorage/" + saveResults.fileName});
+            mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 3000, message: t('dataSaved')} as AlertData})
         } else {
             if(saveResults.encryptData && saveResults.secret) {
                 saveEncrypted(saveResults);
@@ -287,16 +288,16 @@ const NoteComp = () => {
             if(privThingLSFiles) {
                 delete privThingLSFiles[fileName]
                 saveLocalStorage('privthing.files', privThingLSFiles);
-                mainDispatch({type: "UPDATE_ITEMS_LIST"});
+                mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
                 var currTab = tabs.find((tab) => {
                     return tab.path === filePath && tab.active === true
                 })
                 if(currTab) {
-                    mainDispatch({type: "SET_EDITED_ITEM_CANDIDATE", payload: {item: {}, tab: currTab, action: 'REMOVE_TAB'}});   
+                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: {}, tab: currTab, action: 'REMOVE_TAB'}});   
                 }
             }
         } catch(e) {
-            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
+            mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
         }
     }
 
@@ -325,7 +326,7 @@ const NoteComp = () => {
             }
             saveLocalStorage('privthing.files', privThingLSFiles);
         } catch(e) {
-            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
+            mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
         }
     }
 
@@ -384,7 +385,7 @@ const NoteComp = () => {
         }
 
         if(isEncrypted && !secret) {
-            mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("warning"), message: t("cantSaveWithoutPassword", {name: editedItem.name})} as AlertData})
+            mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("warning"), message: t("cantSaveWithoutPassword", {name: editedItem.name})} as AlertData})
             return
         }
 
@@ -393,8 +394,8 @@ const NoteComp = () => {
         if(isLocalStorageItem(editedItem)) {
             saveToLocalStorage(editedItem.name, fileData);
 
-            mainDispatch({type: "UPDATE_ITEMS_LIST"});
-            mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 3000, message: t('dataSaved')} as AlertData})
+            mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
+            mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 3000, message: t('dataSaved')} as AlertData})
 
             if(callback) {
                 callback();
@@ -413,11 +414,11 @@ const NoteComp = () => {
             .then(data => {
                 if(data.status !== 0) {
                     // console.warn("Actions response", data);
-                    mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
+                    mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
                     return
                 }
-                mainDispatch({type: "UPDATE_ITEMS_LIST"});
-                mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, closeAfter: 5000, message: t('dataSaved')} as AlertData})
+                mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
+                mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 5000, message: t('dataSaved')} as AlertData})
     
                 if(callback) {
                     callback();
@@ -479,6 +480,7 @@ const NoteComp = () => {
         }
     };
 
+    var canUpdateFileDom = canUpdateFile(editedItem);
 
     //https://codemirror.net/docs/ref/
     const onCMChange = useCallback((val: any, viewUpdate: any) => {
@@ -567,10 +569,15 @@ const NoteComp = () => {
                     }
                     <div style={{display: "flex"}} className='formGroupContainer'>
                         {
-                            canUpdateFile(editedItem) && <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' onClick={ () => {
-                                updateFile();
-                            }}
-                            title={t("saveToLocation") + ' ' + editedItem.path}>{t("save")}</Button>
+                            canUpdateFileDom && 
+                            <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' 
+                                onClick={ () => {
+                                    updateFile();
+                                }}
+                                title={t("saveToLocation") + ' ' + editedItem.path}>
+                                    {t("save")}
+                                    {canUpdateFileDom === true && isDirty === true &&  <div style={{fontSize: 10, margin: '-5px 0 -5px 0'}}>Ctrl + S</div>}
+                            </Button>
                         }
                         &nbsp;
                         {
@@ -584,7 +591,10 @@ const NoteComp = () => {
                         <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!note?.length} variant='success' onClick={ () => {
                             setIsSavingAs(true);
                         }}
-                        title={t("saveToSelectedLocation")}>{t("saveAs")}</Button>
+                        title={t("saveToSelectedLocation")}>
+                            {t("saveAs")}
+                            {(note?.length > 0) && (canUpdateFileDom !== true || isDirty !== true) &&  <div style={{fontSize: 10, margin: '-5px 0 -5px 0'}}>Ctrl + S</div>}
+                        </Button>
                         &nbsp;
                         <Button className="btn-lg" disabled={!isDirty} variant='danger' onClick={() => {
                             setNote(orgNote.current);
@@ -613,10 +623,10 @@ const NoteComp = () => {
                         setShowUnsaved(false);
                         if(editedItemCandidate) {
                             if(secret && forgetSecretMode === "IMMEDIATE") {
-                                mainDispatch({type: 'CLEAR_SECRET'})     
+                                mainDispatch({type: MAIN_ACTIONS.CLEAR_SECRET})     
                             }
                             if(editedItemCandidate?.item) {
-                                mainDispatch({type: 'SET_EDITED_ITEM', payload: editedItemCandidate});
+                                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate});
                             }
                         }
                     }}
@@ -627,7 +637,7 @@ const NoteComp = () => {
                         } else {
                             updateFile(function() {
                                 if(editedItemCandidate?.item) {
-                                    mainDispatch({type: 'SET_EDITED_ITEM', payload: editedItemCandidate});
+                                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate});
                                 }
                             });
                         }
@@ -643,7 +653,7 @@ const NoteComp = () => {
                     externalCloseLabel={t("no")}
                     handleExternalSave={() => {
                         setAskRefresh(false);
-                        mainDispatch({type: "UPDATE_ITEMS_LIST"});
+                        mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
                         initializeEditedItem();
                     }}
                     handleExternalClose={() => {setAskRefresh(false)}}

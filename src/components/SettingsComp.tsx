@@ -5,6 +5,7 @@ import ConfirmationComp from './ConfirmationComp';
 import { useTranslation } from 'react-i18next'
 import { removeLocalStorage, saveLocalStorage } from '../utils/utils'
 import moment from 'moment';
+import { MAIN_ACTIONS, SETTINGS_ACTIONS } from '../context/Reducers';
 
 
 const SettingsComp = () => {
@@ -20,14 +21,14 @@ const SettingsComp = () => {
     }, [settingsState]);
 
     const handleClose = () => {
-        mainDispatch({type: "HIDE_SETTINGS"});
+        mainDispatch({type: MAIN_ACTIONS.HIDE_SETTINGS});
     }
 
     const handleSave = () => {
-        settingsDispatch({type: "UPDATE_SETTINGS", payload: settings});
-        mainDispatch({type: "HIDE_SETTINGS"});
+        settingsDispatch({type: SETTINGS_ACTIONS.UPDATE_SETTINGS, payload: settings});
+        mainDispatch({type: MAIN_ACTIONS.SHOW_SETTINGS});
         saveLocalStorage("privthing.pmSettings", settings);
-        mainDispatch({type: "UPDATE_ITEMS_LIST"});
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
     }
 
     const handleClearSettings = () => {
@@ -40,7 +41,7 @@ const SettingsComp = () => {
         removeLocalStorage("privthing.pmTabs");
         removeLocalStorage("privthing.isIntroduced");
 
-        settingsDispatch({type: "UPDATE_SETTINGS", payload: settingsInitialStateBaseline});
+        settingsDispatch({type: SETTINGS_ACTIONS.UPDATE_SETTINGS, payload: settingsInitialStateBaseline});
 
         handleClose();
     }

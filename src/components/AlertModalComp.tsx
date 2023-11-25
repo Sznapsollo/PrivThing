@@ -3,6 +3,7 @@ import { Modal, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context';
 import { AlertData } from '../model';
+import { MAIN_ACTIONS } from '../context/Reducers';
 
 const AlertModal = () => {
 
@@ -19,7 +20,7 @@ const AlertModal = () => {
     }, [mainState.alertData]);
 
     const handleClose = () => {
-        mainDispatch({type: 'SHOW_ALERT_MODAL', payload: {show: false} as AlertData})
+        mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: false} as AlertData})
     };
   
     return (

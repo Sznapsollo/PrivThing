@@ -6,6 +6,7 @@ import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 import { BsArrowLeftRight } from 'react-icons/bs';
 import '../styles.css'
 import TabsComp from './TabsComp';
+import { MAIN_ACTIONS } from '../context/Reducers';
 
 
 let isItemsResizing: boolean = false;
@@ -43,7 +44,7 @@ const HomeComp = () => {
                 clearTimeout(resizeHideItemsHandle);
             }
             resizeHideItemsHandle = setTimeout(function() {
-                mainDispatch({type: 'HIDE_ITEMS_BAR'});
+                mainDispatch({type: MAIN_ACTIONS.HIDE_ITEMS_BAR});
             }, 200);
         }
     }

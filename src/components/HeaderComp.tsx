@@ -12,6 +12,7 @@ import moment from 'moment';
 import '../styles.css';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import ResultsComp from './ResultsComp';
+import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
 
 let forgetSecretTimeThreshold: Date | undefined = undefined;
 let forgetTimer: ReturnType<typeof setTimeout> | null, forgetDebounceTimer: ReturnType<typeof setTimeout> | null, countDownTimer: ReturnType<typeof setInterval> | null;
@@ -40,7 +41,7 @@ const HeaderComp = () => {
         }
         resetTimer();
         clearEvents();
-        mainDispatch({type: 'CLEAR_SECRET'});
+        mainDispatch({type: MAIN_ACTIONS.CLEAR_SECRET});
     }
 
     useEffect(() => {
@@ -164,7 +165,7 @@ const HeaderComp = () => {
                             let okResult = results.find((resultItem => resultItem.status === 0))
                             if(okResult) {
                                 saveLocalStorage('privthing.files', currentLocalStorage);
-                                mainDispatch({type: "UPDATE_ITEMS_LIST"});
+                                mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
                             }
                             setProcessingResult(results);
                             setShowProcessingResult(true);
@@ -174,14 +175,14 @@ const HeaderComp = () => {
                     }
                 } catch(e) {
                     console.warn('localStorage handleImportLocalStorageItems operation error: ', e);
-                    mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as AlertData})
+                    mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as AlertData})
                 }
             }
 
             input.click();
         } catch(e) {
             console.warn('localStorage handleImportLocalStorageItems operation error #2: ', e);
-            mainDispatch({type: 'SHOW_NOTIFICATION', payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as AlertData})
+            mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as AlertData})
         }
     }
 
@@ -198,7 +199,7 @@ const HeaderComp = () => {
                 </Container>
                 <Container fluid={true}>
                     <Button className='btn-sm showItemsButton' variant="light" onClick={() => {
-                        mainDispatch({type: "TOGGLE_ITEMS_BAR"});
+                        mainDispatch({type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR});
                     }}><LiaFilterSolid style={{marginBottom: -1}} className='h2'/></Button>
                     <span style={{flex: 1}} className="dummyHeaderSpacer bigScreenItem">&nbsp;</span>
                     <Navbar.Text style={{flex: 1}} className='search bigScreenItem'>
@@ -210,13 +211,13 @@ const HeaderComp = () => {
                                     className={'form-control-lg m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
                                     onChange={(e) =>
                                         {
-                                            searchDispatch({type: 'FILTER_BY_SEARCH', payload: e.target.value});
+                                            searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: e.target.value});
                                     
                                         }
                                     }
                                 />
                                 {searchState.searchQuery && <InputGroup.Text className="clearInput" onClick={(e) => {
-                                    searchDispatch({type: 'FILTER_BY_SEARCH', payload: ''});
+                                    searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: ''});
                                 }}><CiUndo/></InputGroup.Text>}
                             </InputGroup>
                             
@@ -230,7 +231,7 @@ const HeaderComp = () => {
                             </Dropdown.Toggle>
                             <Dropdown.Menu className='dropdown-menu-end'>
                                 <Dropdown.Item onClick={() => {
-                                    mainDispatch({type: "SHOW_SETTINGS"});
+                                    mainDispatch({type: MAIN_ACTIONS.SHOW_SETTINGS});
                                 }}>{t("settings")}</Dropdown.Item>
                                 <Dropdown.Item onClick={handleExportLocalStorageItems}>{t("exportLocalStorageItems")}</Dropdown.Item>
                                 <Dropdown.Item onClick={handleImportLocalStorageItems}>{t("importLocalStorageItems")}</Dropdown.Item>

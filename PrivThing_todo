@@ -14,9 +14,11 @@ todo:
 - settigs grouped
 - contact info
 - disable save passwords prompts
-- make state actions as enums
+- google analytics
 
 done:
+- make state actions as enums
+- hotkets tips
 - filename required
 - file name next to file path
 - about PrivThing
