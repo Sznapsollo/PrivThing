@@ -122,8 +122,8 @@ a:not(.dropdown-item) {
 
 .navbarTitle {
     display: inline;
-    font-size: 20px;
-    padding: 0 0 0 5px;
+    font-size: 16px;
+    padding: 2px 0 0 5px;
     color: white;
 }
 
@@ -392,10 +392,18 @@ label.upperLabel {
     }
 }
 
+.smallScreenHeaderItem {
+    display: none !important;
+}
+
 @media (max-width: 500px) {
-    .bigScreenItem,
+    .bigScreenHeaderItem,
     .resizer {
         display: none;
+    }
+
+    .smallScreenHeaderItem {
+        display: block !important;
     }
     
     .itemsResizeWrapper {

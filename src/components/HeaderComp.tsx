@@ -192,17 +192,23 @@ const HeaderComp = () => {
                 <Container className='brandContainer'>
                     <Navbar.Brand>
                         <Link to="/">
-                            <i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="imageRotateHorizontal d-inline-block align-top" alt="" /></i>
-                            <div className='navbarTitle'>{t("privThing")}</div>
+                            <div style={{display: 'flex', flexDirection: 'row'}}>
+                                <div style={{paddingTop: 3}}><i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="imageRotateHorizontal d-inline-block align-top" alt="" /></i></div>
+                                <div className='navbarTitle'>
+                                    <div>{t("privThing")}</div>
+                                    <div style={{fontSize: 10, color: '#ffffff80', margin: '-4px 0 0 0'}}>ONLINE NOTEPAD</div>
+                                </div>
+                            </div>
                         </Link>
                     </Navbar.Brand>
                 </Container>
                 <Container fluid={true}>
+                    <span style={{flex: 1}} className="dummyHeaderSpacer smallScreenHeaderItem">&nbsp;</span>
                     <Button className='btn-sm showItemsButton' variant="light" onClick={() => {
                         mainDispatch({type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR});
                     }}><LiaFilterSolid style={{marginBottom: -1}} className='h2'/></Button>
-                    <span style={{flex: 1}} className="dummyHeaderSpacer bigScreenItem">&nbsp;</span>
-                    <Navbar.Text style={{flex: 1}} className='search bigScreenItem'>
+                    <span style={{flex: 1}} className="dummyHeaderSpacer bigScreenHeaderItem">&nbsp;</span>
+                    <Navbar.Text style={{flex: 1}} className='search bigScreenHeaderItem'>
                         <Form.Group className='formGroup'>
                             <InputGroup>
                                 <Form.Control 

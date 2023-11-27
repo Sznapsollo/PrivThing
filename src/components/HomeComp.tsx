@@ -82,7 +82,7 @@ const HomeComp = () => {
     
     return (
         <div className={'home nonTextSelectable'}>
-            <div ref={itewsWrapperRef} className={"itemsResizeWrapper " + (mainState.fullItems === true ? 'fullItemsDisplay' : '')} style={{width: mainState.fullItems === true ? 'auto' : itemsWidth + '%'}}>
+            <div ref={itewsWrapperRef} className={"itemsResizeWrapper " + (mainState.fullItems === true ? 'fullItemsDisplay' : '')} style={{width: mainState.fullItems === true ? '100%' : itemsWidth + '%'}}>
                 <ItemsComp />    
             </div>
             <div className='resizer'
