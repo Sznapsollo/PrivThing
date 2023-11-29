@@ -10,6 +10,7 @@ import { Item } from '../model';
 import { FiPlusCircle } from 'react-icons/fi';
 import { getNewItem } from '../utils/utils';
 import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
+import axios from 'axios';
 
 const ItemsComp = () => {
 
@@ -59,30 +60,27 @@ const ItemsComp = () => {
 
     useEffect(() => {
         // console.log('refreshing items')
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({type: 'getListOfFiles'}) 
-        };
       
         if(enableFileServer === true) {
             if(!mainState.items?.length) {
                 setIsLoading(true);
             }
-            fetch('actions', requestOptions)
-            .then(result => {
-                if(!result.ok) {
-                    throw new Error('Network response was not ok.');
+            axios.post('actions', 
+                JSON.stringify({type: 'getListOfFiles'}), 
+                {
+                    headers: {
+                    "Content-Type": 'application/json',
+                    },
                 }
-                return result.json()
-            })
-            .then(data => {
+            )
+            .then(response => {
                 setIsLoading(false);
-                if(data.status !== 0) {
+                let data = response.data;
+                if(data?.status !== 0) {
                     // console.warn("Actions response", data);
                     return
                 }
-                if(data?.data?.files) {
+                if(data.data?.files) {
                     // NJ will fire is service is configured and works
                     setFoldersLoaded(true);
                 }

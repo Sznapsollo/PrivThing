@@ -15,8 +15,12 @@ todo:
 - contact info
 - disable save passwords prompts
 - google analytics
+- length of document
+- compare options
+- sidenotes
 
 done:
+- switch to axios
 - make state actions as enums
 - hotkets tips
 - filename required

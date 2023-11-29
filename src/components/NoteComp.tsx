@@ -16,6 +16,7 @@ import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import moment from 'moment';
 import { Alert } from '@mui/material';
 import { MAIN_ACTIONS } from '../context/Reducers';
+import axios from 'axios';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
@@ -92,22 +93,19 @@ const NoteComp = () => {
         } else if(isExternalFileItem(editedItem)) {
             // NJ load and setEncrypted data
             setIsLoading(true);
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({type: 'retrieveFileFromPath', data: editedItem.path}) 
-            };
 
-            fetch('actions', requestOptions)
-            .then(result => {
-                if(!result.ok) {
-                    throw new Error('Network response was not ok.');
+            axios.post('actions', 
+                JSON.stringify({type: 'retrieveFileFromPath', data: editedItem.path}), 
+                {
+                    headers: {
+                    "Content-Type": 'application/json',
+                    },
                 }
-                return result.json()
-            })
-            .then(data => {
+            )
+            .then(response => {
+                let data = response.data
                 setIsLoading(false);
-                if(data.status !== 0) {
+                if(data?.status !== 0) {
                     // console.warn("Actions response", data);
                     return
                 }
@@ -409,10 +407,17 @@ const NoteComp = () => {
                 body: JSON.stringify({type: 'updateFileFromPath', data: fileData, path: editedItem.path}) 
             };
             
-            fetch('actions', requestOptions)
-            .then(result => {return result.json()})
-            .then(data => {
-                if(data.status !== 0) {
+            axios.post('actions', 
+                JSON.stringify({type: 'updateFileFromPath', data: fileData, path: editedItem.path}),
+                {
+                    headers: {
+                    "Content-Type": 'application/json',
+                    },
+                }
+            )
+            .then(response => {
+                let data = response.data;
+                if(data?.status !== 0) {
                     // console.warn("Actions response", data);
                     mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("error"), message: t("somethingWentWrong")} as AlertData})
                     return
