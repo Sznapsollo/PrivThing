@@ -20,6 +20,7 @@ todo:
 - sidenotes
 
 done:
+- better add new note button when nothing
 - switch to axios
 - make state actions as enums
 - hotkets tips

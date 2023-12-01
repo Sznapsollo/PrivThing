@@ -235,13 +235,25 @@ const ItemsComp = () => {
                 !isLoading && serverMode === "offline" && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("storageNotConfigured")}</div>
             }
             {
-                !isLoading && foldersLoaded === true &&
+                !isLoading && foldersLoaded === true && !!mainState.items?.length &&
                     <div style={{display: 'flex'}}>
                         <div style={{flex: 1, wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}} >{t("filesLoaded")} ({transformedItems.length})</div>
                         <div><Button className='btn-success' onClick={handleNewItem}>{t('new')}&nbsp;<FiPlusCircle style={{marginBottom: -1}} className='h2'/></Button></div>
                     </div>
             }
             <div className='itemsContainer' ref={itemsContainerRef} onScroll={handleScroll}>
+            {
+                !isLoading && foldersLoaded === true && !mainState.items?.length &&  
+                <div className='parentFiller' onClick={handleNewItem}>
+                    <div className='childCenter newBig'>
+                        <FiPlusCircle style={{marginBottom: -1, width: 50, height: 50}}/>
+                        <div style={{fontSize: 18}}>{t('newBig')}</div>
+                        {/* <Button onClick={handleNewItem}>{t('new')}&nbsp;<FiPlusCircle style={{marginBottom: -1}} className='h2'/></Button> */}
+                    </div>
+                </div>
+                
+                
+            }
             {
                 !isLoading && foldersLoaded === true && transformedItems.map((item, itemIndex) => {
                     return <LisItem key={itemIndex} keyProp={itemIndex} item={item}/>

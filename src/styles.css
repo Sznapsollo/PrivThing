@@ -354,6 +354,33 @@ label.upperLabel {
     animation-iteration-count: 1;
 }
 
+.parentFiller {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    margin: 0 40px 0 0 ;
+    display: flex;
+}
+
+.childCenter {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+}
+
+.newBig {
+    cursor: pointer;
+    text-align: center;
+    padding: 60px 30px;
+    border-radius: 10px;
+}
+
+.newBig:hover {
+    background-color: #ffffff10;
+}
+
 @keyframes spinHorizontal {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(360deg); }

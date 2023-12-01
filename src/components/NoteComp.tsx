@@ -558,7 +558,7 @@ const NoteComp = () => {
                                     javascript({ jsx: true }),
                                     EditorView.lineWrapping,
                                     EditorView.theme({
-                                        '.cm-gutter,.cm-content': { minHeight: '500px' },
+                                        '.cm-gutter,.cm-content': { borderBottom: "nonde", minHeight: '1000px' },
                                         '.cm-scroller': { overflow: 'auto' },
                                     })
                                 ]} 
