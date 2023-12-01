@@ -381,6 +381,10 @@ label.upperLabel {
     background-color: #ffffff10;
 }
 
+.cm-focused {
+    outline: none !important;
+}
+
 @keyframes spinHorizontal {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(360deg); }
