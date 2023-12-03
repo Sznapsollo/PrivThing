@@ -188,7 +188,7 @@ const HeaderComp = () => {
 
     return (
         <>
-            <Navbar bg="dark" variant="dark" style={{height: 40}}>
+            <Navbar bg="dark" variant="dark" style={{height: 50}}>
                 <Container className='brandContainer'>
                     <Navbar.Brand>
                         <Link to="/">
