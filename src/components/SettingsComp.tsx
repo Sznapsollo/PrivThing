@@ -26,8 +26,8 @@ const SettingsComp = () => {
 
     const handleSave = () => {
         settingsDispatch({type: SETTINGS_ACTIONS.UPDATE_SETTINGS, payload: settings});
-        mainDispatch({type: MAIN_ACTIONS.SHOW_SETTINGS});
         saveLocalStorage("privthing.pmSettings", settings);
+        mainDispatch({type: MAIN_ACTIONS.HIDE_SETTINGS});
         mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
     }
 
