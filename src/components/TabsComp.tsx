@@ -127,9 +127,9 @@ const TabsComp = () => {
                     onDragEnd={drop}
                     draggable={true}
                     >
-                        <div className={'itemTab ' + ((tabItem.active === true) ? ' selected': '') + ((tabItem.isDragged === true) ? ' isDragged': '')} 
+                        <div className={'itemTab ' + ((tabItem.isActive === true) ? ' selected': '') + ((tabItem.isDragged === true) ? ' isDragged': '')} 
                             onClick={() => {
-                                if(tabItem.active === true) {
+                                if(tabItem.isActive === true) {
                                     return
                                 }
                                 mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: tabItem, tab: tabItem}});

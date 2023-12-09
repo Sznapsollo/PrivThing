@@ -1,12 +1,12 @@
 import React, {createContext, useContext, useReducer} from 'react'
-import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType, Tab } from '../model';
+import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType, Tab, EditItem } from '../model';
 import { mainReducer, searchReducer, settingsReducer } from './Reducers'
 import { retrieveLocalStorage, cloneProps, makeId } from '../utils/utils'
 
 const appInitialState: MainContextType = {
   secret: '',
   editedItemCandidate: {} as NavigationItem,
-  editedItem: {} as Item,
+  editedItemTabs: [{isActive: true}] as EditItem[],
   items: [],
   tabs: [],
   folders: [],
@@ -71,15 +71,16 @@ const Context = ({children}: Props) => {
                 if(!pmTab.tabId) {
                     pmTab.tabId = makeId(10);
                 }
-                if(pmTab.active) {
+                if(pmTab.isActive) {
                     activeTab = pmTab;
                 }
-                // pmTab.active = false;
+                // pmTab.isActive = false;
                 return pmTab
             })
         }
         if(activeTab) {
-            appInitialState.editedItem = activeTab as Item
+            appInitialState.editedItemTabs = [{...activeTab as Item, isActive: true} as EditItem];
+            appInitialState.activeEditedItemPath = (activeTab as Item).path;
         }
     } catch(e) {
         console.warn("Defaults restore error", e);

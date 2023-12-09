@@ -18,9 +18,11 @@ todo:
 - length of document
 - compare options
 - sidenotes
-- splitter few tabs opened at the same time
+- drawable edit item tabs
+- close all edit item tabs
 
 done:
+- splitter few tabs opened at the same time
 - better add new note button when nothing
 - switch to axios
 - make state actions as enums
@@ -56,10 +58,10 @@ done:
 - possibility to save local storage data
 - file not found displays alert and closes tab
 - refactor save as as signle option
-- remember which active and return to it
+- remember which isActive and return to it
 - ctr + f initiating CodeMirror search
 - tab remove context menu option
-- clicking on item opens new tab, if such tab exists it becomes active
+- clicking on item opens new tab, if such tab exists it becomes isActive
 - make items not participate in ctrl + f search by using :before & data-content
 - switch from textArea to CodeMirror
 - forget passsword

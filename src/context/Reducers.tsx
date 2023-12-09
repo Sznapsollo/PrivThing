@@ -1,15 +1,17 @@
 
-import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult } from '../model'
-import { makeId, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
+import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult, EditItem } from '../model'
+import { getNewItem, makeId, manageEditItemTabs, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
 export enum MAIN_ACTIONS {
+    CLEAR_EDITED_ITEM = 'CLEAR_EDITED_ITEM',
+    CLEAR_SECRET = 'CLEAR_SECRET',
     HIDE_ITEMS_BAR = 'HIDE_ITEMS_BAR',
     HIDE_SETTINGS = 'HIDE_SETTINGS',
     LOAD_FROM_PICKED_FILE = 'LOAD_FROM_PICKED_FILE',
+    REMOVE_EDITED_ITEM_TAB = 'REMOVE_EDITED_ITEM_TAB_ACTIVE',
     SET_EDITED_ITEM_CANDIDATE = 'SET_EDITED_ITEM_CANDIDATE',
     SET_EDITED_ITEM = 'SET_EDITED_ITEM',
-    CLEAR_EDITED_ITEM = 'CLEAR_EDITED_ITEM',
-    CLEAR_SECRET = 'CLEAR_SECRET',
+    SET_EDITED_ITEM_TAB_ACTIVE = 'SET_EDITED_ITEM_TAB_ACTIVE',
     SET_ITEMS = 'SET_ITEMS',
     SHOW_ALERT_MODAL = 'SHOW_ALERT_MODAL',
     SHOW_NOTIFICATION = 'SHOW_NOTIFICATION',
@@ -20,13 +22,15 @@ export enum MAIN_ACTIONS {
     UPDATE_SECRET = 'UPDATE_SECRET'
 }
 
+type ClearEditedItem = {type: MAIN_ACTIONS.CLEAR_EDITED_ITEM};
+type ClearSecret = {type: MAIN_ACTIONS.CLEAR_SECRET};
 type HideItemsBar = {type: MAIN_ACTIONS.HIDE_ITEMS_BAR};
 type HideSettings = {type: MAIN_ACTIONS.HIDE_SETTINGS};
 type LoadFromPickedFile = {type: MAIN_ACTIONS.LOAD_FROM_PICKED_FILE, payload: any};
+type RemoveEditedItemTab = {type: MAIN_ACTIONS.REMOVE_EDITED_ITEM_TAB, payload: EditItem};
 type SetEditedItemCandidate = {type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: NavigationItem};
 type SetEditedItem = {type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: NavigationItem};
-type ClearEditedItem = {type: MAIN_ACTIONS.CLEAR_EDITED_ITEM};
-type ClearSecret = {type: MAIN_ACTIONS.CLEAR_SECRET};
+type SetEditedItemTabActive = {type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: EditItem};
 type SetItems = {type: MAIN_ACTIONS.SET_ITEMS, payload: Item[]};
 type ShowAlertModal = {type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: AlertData};
 type ShowNotification = {type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: NotificationData};
@@ -41,8 +45,10 @@ export type MainActions = ClearEditedItem |
     HideItemsBar | 
     HideSettings |
     LoadFromPickedFile | 
+    RemoveEditedItemTab |
     SetEditedItemCandidate | 
     SetEditedItem | 
+    SetEditedItemTabActive |
     SetItems | 
     ShowAlertModal | 
     ShowNotification |
@@ -62,7 +68,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
         case MAIN_ACTIONS.LOAD_FROM_PICKED_FILE:
             return { ...state, pickedFileEvent: action.payload };
         case MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE:
-            return { ...state, editedItemCandidate: action.payload, fullItems: false };
+            return { ...state, editedItemCandidate: {...action.payload, id: makeId(10)}, fullItems: false };
         case MAIN_ACTIONS.SET_EDITED_ITEM:
             if(!action.payload.item) {
                 // console.log('No item in payload')
@@ -72,7 +78,6 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             let itemPayload = {...action.payload.item};
             let tabPayLoad = action.payload.tab;
             let updatedTabs: Tab[] = state.tabs.slice() || []
-            let activeTabIndex = -1;
             
             if(action.payload.action === "REMOVE_TAB" && action.payload.tab) {
                 let tabToBeRemovedIndex = updatedTabs.findIndex((tab) => tab.tabId === tabPayLoad?.tabId);
@@ -81,57 +86,98 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 }
                 let tabToBeRemoved = updatedTabs[tabToBeRemovedIndex];
 
-                if(!tabToBeRemoved.active) {
+                if(!tabToBeRemoved.isActive) {
                     return {...state, tabs: updatedTabs.filter((item, index) => index !== tabToBeRemovedIndex)}
                 } else {
                     if(tabToBeRemovedIndex > 0) {
-                        updatedTabs[tabToBeRemovedIndex-1].active = true;
+                        updatedTabs[tabToBeRemovedIndex-1].isActive = true;
                         itemPayload = updatedTabs[tabToBeRemovedIndex-1];
                         tabPayLoad = undefined;
                     } else if(tabToBeRemovedIndex === 0 && updatedTabs.length > 1) {
-                        updatedTabs[tabToBeRemovedIndex+1].active = true;
+                        updatedTabs[tabToBeRemovedIndex+1].isActive = true;
                         itemPayload = updatedTabs[tabToBeRemovedIndex+1];
                         tabPayLoad = undefined;
                     }
                     updatedTabs = updatedTabs.filter((item, index) => index !== tabToBeRemovedIndex);
                 }
             }
-            if(!updatedTabs.length) {
-                updatedTabs.push({...itemPayload, tabId: makeId(10)});
-                activeTabIndex = updatedTabs.length - 1;
-            } else if(tabPayLoad) {
-                if(tabPayLoad.isNew) {
-                    if(tabPayLoad.path) {
-                        activeTabIndex = updatedTabs.findIndex((tab) => tab.path === tabPayLoad?.path);
-                    }
-                    if(activeTabIndex < 0) {
-                        updatedTabs.push({...itemPayload, tabId: makeId(10)});
-                        activeTabIndex = updatedTabs.length - 1;
-                    }
-                } else if(tabPayLoad?.tabId) {
-                    activeTabIndex = updatedTabs.findIndex((tab) => tab.tabId === tabPayLoad?.tabId);
-                }
+            updatedTabs = manageHeaderTabs(updatedTabs, itemPayload, tabPayLoad);
+            let editedItemTabs = state.editedItemTabs || []
+            if(action.payload.action === "NEW_EDIT_ITEM_TAB") {
+                editedItemTabs = editedItemTabs.map((editedItemTab) => { editedItemTab.isActive = false; return editedItemTab })
+                editedItemTabs = [...editedItemTabs, {...getNewItem(), isActive: true}]
             } else {
-                // NJ when adding new for example
-                activeTabIndex = updatedTabs.findIndex((tab) => tab.active === true);
+                editedItemTabs = manageEditItemTabs(editedItemTabs, itemPayload);
             }
 
-            if(activeTabIndex < 0) {activeTabIndex = 0;}
-            updatedTabs = updatedTabs.map((tabItem, tabItemIndex) => {
-                if(tabItemIndex === activeTabIndex) {
-                    return {...itemPayload, tabId: tabItem.tabId, scrollTop: tabItem.scrollTop, active: true};
-                }
-                return {...tabItem, active: false};
+            return { 
+                ...state, 
+                editedItemTabs: editedItemTabs, 
+                activeEditedItemPath: itemPayload.path,
+                tabs: updatedTabs, 
+                newItemToOpen: undefined ,
+                editedItemCandidate: undefined
+            };
+        case MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE:
+            if(!action.payload) {
+                // console.log('No item in payload')
+                return {...state}
+            }
+
+            return {
+                ...state,
+                activeEditedItemPath: action.payload.path,
+                editedItemTabs: state.editedItemTabs.map((editedItemTab) => { 
+                    if(editedItemTab === action.payload) {
+                        return {...editedItemTab, isActive: true}
+                    }
+                    return {...editedItemTab, isActive: false}
+                }),
+                tabs: manageHeaderTabs((state.tabs.slice() || []), action.payload, null, 'CHANGE_ACTIVE')
+            }
+        case MAIN_ACTIONS.REMOVE_EDITED_ITEM_TAB:
+            if(!action.payload) {
+                // console.log('No item in payload')
+                return {...state}
+            }
+
+            let foundActiveEditItemTabIndex =  state.editedItemTabs.findIndex((editedItemTab) => { 
+                return (editedItemTab === action.payload)
             })
-            return { ...state, editedItem: itemPayload, tabs: updatedTabs, newItemToOpen: undefined };
+
+            if(foundActiveEditItemTabIndex < 0) {
+                return {...state}
+            }
+
+            let newActiveEditItemTab
+            let activeEditedItemPath = state.activeEditedItemPath;
+            let foundActiveEditItemTab = state.editedItemTabs[foundActiveEditItemTabIndex];
+            let updatedActiveEditItemTabs = state.editedItemTabs.filter((item, index) => index !== foundActiveEditItemTabIndex)
+            if(foundActiveEditItemTab.isActive) {
+                let newActiveIndex = 0;
+                if(foundActiveEditItemTabIndex > 0) {
+                    newActiveIndex = foundActiveEditItemTabIndex-1;
+                }
+                newActiveEditItemTab = updatedActiveEditItemTabs[newActiveIndex];
+                newActiveEditItemTab.isActive = true;
+                activeEditedItemPath = newActiveEditItemTab.path;
+            }
+
+            return {
+                ...state,
+                activeEditedItemPath: activeEditedItemPath,
+                editedItemTabs: updatedActiveEditItemTabs,
+                tabs: newActiveEditItemTab ? manageHeaderTabs((state.tabs.slice() || []), newActiveEditItemTab, null, 'CHANGE_ACTIVE') : state.tabs
+            }
         case MAIN_ACTIONS.CLEAR_EDITED_ITEM:
-            const payLoadItem: Item = {
+            const clearedItem: Item = {
                 name: '',
                 path: '',
                 size: 0,
                 rawNote: undefined
             };
-            return { ...state, editedItem: payLoadItem };
+
+            return { ...state, editedItemTabs: manageEditItemTabs(state.editedItemTabs, clearedItem) };
         case MAIN_ACTIONS.CLEAR_SECRET:
             return { ...state, secret: '' };
         case MAIN_ACTIONS.SET_ITEMS:

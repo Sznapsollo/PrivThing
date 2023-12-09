@@ -5,7 +5,7 @@ import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
-import { AlertData, Item, SaveAsResults } from '../model';
+import { AlertData, EditItem, Item, SaveAsResults } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
 import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
@@ -21,7 +21,11 @@ import axios from 'axios';
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
 
-const NoteComp = () => {
+interface Props {
+    editedItem: EditItem
+}
+
+const NoteComp = ({editedItem}: Props) => {
 
     const { t } = useTranslation();
     interface SecretMeta {
@@ -29,7 +33,7 @@ const NoteComp = () => {
         warning?: string
     }
 
-    const { mainState: {editedItem, editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode} } = AppState();
+    const { mainState: {editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode} } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
     const [note, setNote] = useState<string>('');
@@ -51,6 +55,7 @@ const NoteComp = () => {
 
     const orgNote = useRef<string>('');
     const rawNote = useRef<string>('');
+    const initializeEditedItemId = useRef<string | undefined>('')
 
     const setRawNote = (rawNoteData: string): void => {
         rawNote.current = rawNoteData;
@@ -66,6 +71,48 @@ const NoteComp = () => {
         setIsDirty(false);
         mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: newItemToOpen}});
     }, [newItemToOpen?.path]);
+
+    useEffect(() => {
+        if(isEncrypted) {
+            if(!secret) {
+                giveMeSecret("", "");
+                setIsDirty(false); // no ideal since we loose eventual not saved changes to edited doc
+                // might address it in the future
+            } else {
+                dismissSecret();
+                decryptData();
+            }
+        }
+    }, [secret]);
+
+    useEffect(() => {
+        // console.log('changed edited item path', editedItem)
+        initializeEditedItem();
+    }, [editedItem.path]);
+
+    useEffect(() => {
+        // NJ to check if there is something open to ask if we should save first
+        // console.log('changed editedItemCandidate item candidate', editedItemCandidate)
+        if(!editedItem.isActive || !editedItemCandidate?.id) {
+            return
+        }
+        if(isDirty) {
+            setShowUnsaved(true);
+        } else {
+            if(secret && forgetSecretMode === "IMMEDIATE") {
+                mainDispatch({type: MAIN_ACTIONS.CLEAR_SECRET})     
+            }
+            if(editedItemCandidate?.item) {
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate}) 
+            }
+        }
+    }, [editedItemCandidate?.id]);
+
+    useEffect(() => {
+        // console.log('changed note', note)
+        validateButtonsState();
+        setTimeout(() => {noteRef.current?.view?.focus()}, 100)
+    }, [note]);
 
     const initializeEditedItem = () => {
         setInitialState();
@@ -131,45 +178,6 @@ const NoteComp = () => {
         }
     }
 
-    useEffect(() => {
-        if(isEncrypted) {
-            if(!secret) {
-                giveMeSecret("", "");
-                setIsDirty(false); // no ideal since we loose eventual not saved changes to edited doc
-                // might address it in the future
-            } else {
-                dismissSecret();
-                decryptData();
-            }
-        }
-    }, [secret]);
-
-    useEffect(() => {
-        // console.log('changed edited item path', editedItem)
-        initializeEditedItem();
-    }, [editedItem.path]);
-
-    useEffect(() => {
-        // NJ to check if there is something open to ask if we should save first
-        // console.log('changed editedItemCandidate item candidate', editedItemCandidate)
-        if(isDirty) {
-            setShowUnsaved(true);
-        } else {
-            if(secret && forgetSecretMode === "IMMEDIATE") {
-                mainDispatch({type: MAIN_ACTIONS.CLEAR_SECRET})     
-            }
-            if(editedItemCandidate?.item) {
-                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate}) 
-            }
-        }
-    }, [editedItemCandidate.item]);
-
-    useEffect(() => {
-        // console.log('changed note', note)
-        validateButtonsState();
-        setTimeout(() => {noteRef.current?.view?.focus()}, 100)
-    }, [note]);
-
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.ctrlKey && e.key.toLowerCase() === "f") {
             if(noteRef?.current?.view) {
@@ -190,12 +198,13 @@ const NoteComp = () => {
     }
 
     useEffect(() => {
-        window.addEventListener("keydown", onKeyDown);
+        if(editedItem.isActive) {
+            window.addEventListener("keydown", onKeyDown);
+        }
         return () => {
             window.removeEventListener("keydown", onKeyDown);
         }
-    }, []);
-
+    }, [editedItem.isActive]);
 
     const rememberScrollPosition = () => {
         if(scrollNoteHandle) {
@@ -203,7 +212,7 @@ const NoteComp = () => {
         }
         scrollNoteHandle = setTimeout(function() {
             let currentTabs = tabs.map((tab) => {
-                if(tab.active === true) {
+                if(tab.isActive === true) {
                     return {...tab, scrollTop: scrollableRef.current?.scrollTop}
                 }
                 return {...tab}
@@ -288,7 +297,7 @@ const NoteComp = () => {
                 saveLocalStorage('privthing.files', privThingLSFiles);
                 mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
                 var currTab = tabs.find((tab) => {
-                    return tab.path === filePath && tab.active === true
+                    return tab.path === filePath && tab.isActive === true
                 })
                 if(currTab) {
                     mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: {}, tab: currTab, action: 'REMOVE_TAB'}});   
@@ -302,6 +311,13 @@ const NoteComp = () => {
     const handleAcceptIntroduction = () => {
         setIsIntroduced(true);
         saveLocalStorage("privthing.isIntroduced", true);
+    }
+
+    const handleActiveItemFocus = () => {
+        if(editedItem.isActive) {
+            return
+        }
+        mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: editedItem})
     }
 
     const saveEncrypted = (saveResults: SaveAsResults) => {
@@ -478,7 +494,7 @@ const NoteComp = () => {
         if(data && data.length) {
             setNote(data);
             orgNote.current = data;
-            let currentTab = tabs.find((tab) => tab.active === true);
+            let currentTab = tabs.find((tab) => tab.isActive === true);
             if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
                 setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})}, 100);
             }
@@ -563,16 +579,17 @@ const NoteComp = () => {
                                     })
                                 ]} 
                                 onChange={onCMChange}
+                                onClick={handleActiveItemFocus}
                                 />
                                 </div>
                         </Form.Group>
                     </div>
-                    { !isIntroduced && 
+                    { !isIntroduced && editedItem.isActive &&
                     <Alert className='privThingIntroduction' onClose={handleAcceptIntroduction} severity="info">
                         {t('privThingIntroduction')}
                     </Alert>
                     }
-                    <div style={{display: "flex"}} className='formGroupContainer'>
+                    { editedItem.isActive && <div style={{display: "flex"}} className='formGroupContainer'>
                         {
                             canUpdateFileDom && 
                             <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' 
@@ -605,7 +622,7 @@ const NoteComp = () => {
                             setNote(orgNote.current);
                         }}
                         title={t("rollbackItemChanges")}>{t("cancel")}</Button>
-                    </div>
+                    </div>}
                 </div>
             }
             {   

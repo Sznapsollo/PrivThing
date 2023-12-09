@@ -93,3 +93,59 @@ export function getNewItem() {
         rawNote: undefined
     };
 }
+
+export function manageEditItemTabs(stateEditedItemTabs, editItemPayload) {
+    let editedItemTabs = stateEditedItemTabs || [];
+    if(!editedItemTabs.length) {
+        editedItemTabs = [{...getNewItem(), isActive: true}]
+    }
+    let activeEditedItemTabIndex = editedItemTabs.findIndex((editedItemTab) => editedItemTab.isActive);
+    if(activeEditedItemTabIndex < 0) {activeEditedItemTabIndex = 0;}
+    editedItemTabs = editedItemTabs.map((editedItemTabItem, editedItemTabItemIndex) => {
+        if(editedItemTabItemIndex === activeEditedItemTabIndex) {
+            return {...editItemPayload, isActive: true};
+        }
+        return {...editedItemTabItem, isActive: false};
+    })
+    return editedItemTabs
+}
+
+export function manageHeaderTabs(tabs, itemPayload, tabPayLoad, mode) {
+    let activeTabIndex = -1;
+
+    if(mode === 'CHANGE_ACTIVE' && !tabPayLoad) {
+        tabPayLoad = {
+            ...itemPayload,
+            isNew: true
+        }
+    }
+
+    if(!tabs.length) {
+        tabs.push({...itemPayload, tabId: makeId(10)});
+        activeTabIndex = tabs.length - 1;
+    } else if(tabPayLoad) {
+        if(tabPayLoad.isNew) {
+            if(tabPayLoad.path != null) {
+                activeTabIndex = tabs.findIndex((tab) => tab.path === tabPayLoad?.path);
+            }
+            if(activeTabIndex < 0) {
+                tabs.push({...itemPayload, tabId: makeId(10)});
+                activeTabIndex = tabs.length - 1;
+            }
+        } else if(tabPayLoad?.tabId) {
+            activeTabIndex = tabs.findIndex((tab) => tab.tabId === tabPayLoad?.tabId);
+        }
+    } else {
+        // NJ when adding new for example
+        activeTabIndex = tabs.findIndex((tab) => tab.isActive === true);
+    }
+
+    if(activeTabIndex < 0) {activeTabIndex = 0;}
+    tabs = tabs.map((tabItem, tabItemIndex) => {
+        if(tabItemIndex === activeTabIndex) {
+            return {...itemPayload, tabId: tabItem.tabId, scrollTop: tabItem.scrollTop, isActive: true};
+        }
+        return {...tabItem, isActive: false};
+    })
+    return tabs
+}

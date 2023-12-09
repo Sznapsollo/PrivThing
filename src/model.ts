@@ -31,11 +31,11 @@ export interface Item {
 export interface MainContextType {
     // data for modal alert
     alertData?: AlertData
+    activeEditedItemPath?: string,
     // current edit item edited / viewed by user
-    // editedItems: Item[],
-    editedItem: Item,
+    editedItemTabs: EditItem[],
     // initial item to be open. exists so if user has some unsaved data, there will be prompt to save it first before loading edited item
-    editedItemCandidate: NavigationItem,
+    editedItemCandidate?: NavigationItem,
     // unique items folders calculated after items load
     folders: Folder[],
     // all items
@@ -59,6 +59,7 @@ export interface MainContextType {
 }
 
 export interface NavigationItem {
+    id?: string,
     item: Item,
     tab?: Tab,
     action?: string
@@ -97,12 +98,16 @@ export interface SettingsContextType {
 }
 
 export interface Tab extends Item {
-    active?: boolean,
+    isActive?: boolean,
     isDragged?: boolean,
     isNew?: boolean,
     remove?: boolean,
     scrollTop?: number,
     tabId: string
+}
+
+export interface EditItem extends Item {
+    isActive?: boolean
 }
 
 export interface TabContextMenu extends ContextMenu {

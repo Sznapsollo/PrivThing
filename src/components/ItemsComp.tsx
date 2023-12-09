@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { Button, Form, InputGroup } from "react-bootstrap";
 import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context'
@@ -16,12 +16,11 @@ const ItemsComp = () => {
 
     const { t } = useTranslation();
 
-    const {mainState, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer}} = AppState();
+    const {mainState: {folders, items, itemsListRefreshTrigger, activeEditedItemPath}, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer}} = AppState();
     const { searchState: {currentFolder, sort, searchQuery} } = AppState()
     const [foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [scrollTop, setScrollTop] = useState<number>(0);
-    const [transformedItems, setTransformedItems] = useState<Item[]>([]);
     const itemsContainerRef = useRef(null);
     const [serverMode, setServerMode] = useState('unknown');
 
@@ -62,7 +61,7 @@ const ItemsComp = () => {
         // console.log('refreshing items')
       
         if(enableFileServer === true) {
-            if(!mainState.items?.length) {
+            if(!items?.length) {
                 setIsLoading(true);
             }
             axios.post('actions', 
@@ -102,10 +101,10 @@ const ItemsComp = () => {
             mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: []});
         }
 
-    }, [mainState.itemsListRefreshTrigger]);
+    }, [itemsListRefreshTrigger]);
 
-    const transformItems = () => {
-        let transformedItemsLocal = mainState.items
+    const transformedItems = useMemo(() => {
+        let transformedItemsLocal = items
 
         if(currentFolder) {
             transformedItemsLocal = transformedItemsLocal.filter((item) => item.folder?.toLowerCase() === currentFolder.toLowerCase());
@@ -130,13 +129,9 @@ const ItemsComp = () => {
             transformedItemsLocal = transformedItemsLocal.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
 
-        return setTransformedItems(transformedItemsLocal);
-    }
-
-    useEffect(() => {
-        transformItems();
-    }, [mainState.items, searchState])
-
+        return transformedItemsLocal;
+    }, [items, searchState])
+    
     const handleScroll = (e: React.UIEvent<HTMLElement>) => {
         setScrollTop(e.currentTarget.scrollTop);
     };
@@ -211,7 +206,7 @@ const ItemsComp = () => {
                     </Form.Control>
                 </Form.Group>
             </div>}
-            {!isLoading && foldersLoaded === true && mainState.folders.length >= 1 && <div className='formGroupContainer'>
+            {!isLoading && foldersLoaded === true && folders.length >= 1 && <div className='formGroupContainer'>
                 <label className='upperLabel'>{t("folders")}</label>
                 <Form.Group className='formGroup'>
                     <Form.Control 
@@ -224,7 +219,7 @@ const ItemsComp = () => {
                     >
                         <option value="">{t("allFolders")}</option>
                         {
-                            mainState.folders.map((folder, folderIndex) => {
+                            folders.map((folder, folderIndex) => {
                                 return <option key={folderIndex} value={folder.name}>{folder.name}&nbsp;({folder.itemsCount})</option>
                             })
                         }
@@ -235,7 +230,7 @@ const ItemsComp = () => {
                 !isLoading && serverMode === "offline" && <div style={{wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}}>{t("storageNotConfigured")}</div>
             }
             {
-                !isLoading && foldersLoaded === true && !!mainState.items?.length &&
+                !isLoading && foldersLoaded === true && !!items?.length &&
                     <div style={{display: 'flex'}}>
                         <div style={{flex: 1, wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}} >{t("filesLoaded")} ({transformedItems.length})</div>
                         <div><Button className='btn-success' onClick={handleNewItem}>{t('new')}&nbsp;<FiPlusCircle style={{marginBottom: -1}} className='h2'/></Button></div>
@@ -243,7 +238,7 @@ const ItemsComp = () => {
             }
             <div className='itemsContainer' ref={itemsContainerRef} onScroll={handleScroll}>
             {
-                !isLoading && foldersLoaded === true && !mainState.items?.length &&  
+                !isLoading && foldersLoaded === true && !items?.length &&  
                 <div className='parentFiller' onClick={handleNewItem}>
                     <div className='childCenter newBig'>
                         <FiPlusCircle style={{marginBottom: -1, width: 50, height: 50}}/>
@@ -256,7 +251,7 @@ const ItemsComp = () => {
             }
             {
                 !isLoading && foldersLoaded === true && transformedItems.map((item, itemIndex) => {
-                    return <LisItem key={itemIndex} keyProp={itemIndex} item={item}/>
+                    return <LisItem key={itemIndex} keyProp={itemIndex} item={item} editedItemPath={activeEditedItemPath}/>
                 })
             }
             {

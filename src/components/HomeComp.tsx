@@ -1,12 +1,12 @@
 import {useState, useEffect, useRef} from 'react'
 import ItemsComp from './ItemsComp';
-import NoteComp from './NoteComp';
 import { AppState } from '../context/Context'
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 import { BsArrowLeftRight } from 'react-icons/bs';
 import '../styles.css'
 import TabsComp from './TabsComp';
 import { MAIN_ACTIONS } from '../context/Reducers';
+import NotesTabComp from './NotesTabComp';
 
 
 let isItemsResizing: boolean = false;
@@ -98,7 +98,7 @@ const HomeComp = () => {
             </div>
             <div className={'homeContainer ' + (mainState.fullItems === true ? 'dontDisplay' : '')}>
                 <TabsComp />
-                <NoteComp />
+                <NotesTabComp />
             </div>
         </div>
     )

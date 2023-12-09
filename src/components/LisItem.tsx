@@ -10,30 +10,27 @@ import { MAIN_ACTIONS } from '../context/Reducers';
 
 interface Props {
     item: Item,
-    keyProp: number
+    keyProp: number,
+    editedItemPath?: string
 }
 
-const LisItem = ({item, keyProp}: Props) => {
+const LisItem = ({item, keyProp, editedItemPath}: Props) => {
 
     const { t } = useTranslation();
 
-    const { mainState: {editedItem}, mainDispatch } = AppState();
+    const { mainDispatch } = AppState();
     const [ itemCss, setItemCss ] = useState('');
 
     useEffect(() => {
         updateItemCss();
-    }, [editedItem.path]);
-
-    useEffect(() => {
-        updateItemCss();
-    }, [item]);
+    }, [item, editedItemPath]);
 
     const updateItemCss = () => {
         let itemsCsses: string[] = []
         if(keyProp % 2 === 0) {
             itemsCsses.push('evenRow')
         }
-        if(editedItem.path === item.path) {
+        if(editedItemPath === item.path) {
             itemsCsses.push('selected');
         }
         if(itemsCsses) {
