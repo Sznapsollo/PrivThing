@@ -32,6 +32,7 @@ export interface MainContextType {
     // data for modal alert
     alertData?: AlertData
     // current edit item edited / viewed by user
+    // editedItems: Item[],
     editedItem: Item,
     // initial item to be open. exists so if user has some unsaved data, there will be prompt to save it first before loading edited item
     editedItemCandidate: NavigationItem,
@@ -41,12 +42,13 @@ export interface MainContextType {
     items: Item[],
     // user tabs
     tabs: Tab[],
-    // to operate full screen items for smaller screens
+    // to operate full screen items for smaller screens - flag for layout to resize items list full screen
     fullItems: boolean,
     // just a number to trigger items list rerender
     itemsListRefreshTrigger: number,
     // data for showed notification
     notificationData?: NotificationData,
+    // we store temporarity only one secret that user decrypted until user forgets it/ its auto dismissed/ usere opens doc with other secret/ page is refreshed
     secret: string,
     // show settings
     showSettings: boolean,

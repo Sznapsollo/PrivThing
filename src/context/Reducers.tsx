@@ -23,7 +23,7 @@ export enum MAIN_ACTIONS {
 type HideItemsBar = {type: MAIN_ACTIONS.HIDE_ITEMS_BAR};
 type HideSettings = {type: MAIN_ACTIONS.HIDE_SETTINGS};
 type LoadFromPickedFile = {type: MAIN_ACTIONS.LOAD_FROM_PICKED_FILE, payload: any};
-type SetEditedItemCandidatel = {type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: NavigationItem};
+type SetEditedItemCandidate = {type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: NavigationItem};
 type SetEditedItem = {type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: NavigationItem};
 type ClearEditedItem = {type: MAIN_ACTIONS.CLEAR_EDITED_ITEM};
 type ClearSecret = {type: MAIN_ACTIONS.CLEAR_SECRET};
@@ -41,7 +41,7 @@ export type MainActions = ClearEditedItem |
     HideItemsBar | 
     HideSettings |
     LoadFromPickedFile | 
-    SetEditedItemCandidatel | 
+    SetEditedItemCandidate | 
     SetEditedItem | 
     SetItems | 
     ShowAlertModal | 
