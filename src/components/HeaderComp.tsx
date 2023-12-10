@@ -196,7 +196,7 @@ const HeaderComp = () => {
                                 <div style={{paddingTop: 3}}><i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="imageRotateHorizontal d-inline-block align-top" alt="" /></i></div>
                                 <div className='navbarTitle'>
                                     <div>{t("privThing")}</div>
-                                    <div style={{fontSize: 10, color: '#ffffff80', margin: '-4px 0 0 0'}}>ONLINE NOTEPAD</div>
+                                    <div style={{fontSize: 10, color: '#ffffff80', margin: '-4px 0 0 0'}}>NOTES & DOCS ORGANIZER</div>
                                 </div>
                             </div>
                         </Link>

@@ -20,6 +20,8 @@ todo:
 - sidenotes
 - drawable edit item tabs
 - close all edit item tabs
+- opean header tab in new edit item tab menu option
+- click on header to make edit item tab active
 
 done:
 - splitter few tabs opened at the same time

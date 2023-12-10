@@ -16,7 +16,11 @@ const NotesTabComp = () => {
                 editedItemTabs.map((editedItemTab, index) => (
                     <div key={index} style={{flex: 1, display: 'flex', flexDirection: 'column', width: '100%'}}>
                         <div style={{textAlign: 'center'}}>
-                            <div style={{padding: 10}} className={'editItemTab ' + (editedItemTab.isActive ? 'isActive' : '')}>
+                            <div style={{padding: 10}} className={'editItemTab ' + (editedItemTab.isActive ? 'isActive' : '')}
+                                onClick={() => {
+                                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: editedItemTab})
+                                }}
+                            >
                                 {editedItemTab.name ? editedItemTab.name : '---'}
                             </div>
                             { 

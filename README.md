@@ -14,7 +14,7 @@ This repository does not contain server for following additional folders - more 
 
 ### How it looks - DEMO Time!
 
-- go to  **<a href="https://privthing.com/" target="_blank">privthing.com/</a>** - open for anyone who wants to have some notes online
+- go to  **<a href="https://privthing.com/" target="_blank">privthing.com/</a>** - open for anyone who wants to have some notes organizer online
 
 ### What it does
 
