@@ -21,9 +21,13 @@ todo:
 - drawable edit item tabs
 - close all edit item tabs
 - opean header tab in new edit item tab menu option
-- click on header to make edit item tab active
+- remember edit item tabs
+- better file search
+- notifications different not to cover bar with search 
 
 done:
+- click on header to make edit item tab active
+- password protected focus on click
 - splitter few tabs opened at the same time
 - better add new note button when nothing
 - switch to axios

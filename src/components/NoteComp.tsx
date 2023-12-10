@@ -520,7 +520,7 @@ const NoteComp = ({editedItem}: Props) => {
             }
             {
                 needSecret && <>
-                    <SecretComp confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
+                    <SecretComp globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
                     <div style={{display: "flex"}} className='formGroupContainer'>
                         {
                             isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {

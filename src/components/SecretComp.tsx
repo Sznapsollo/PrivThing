@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
@@ -7,16 +7,19 @@ interface Props {
     warning?: string, 
     info?: string,
     handleSubmit: (secret: string) => any,
-    confirm: boolean
+    confirm: boolean,
+    globalClick?: () => any
 }
 
-const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
+const SecretComp = ({confirm, info, globalClick, handleSubmit, warning} : Props) => {
 
     const { t } = useTranslation();
 
     const [ secret, setSecret ] = useState('');
     const [ secretConfirm, setSecretConfirm ] = useState('');
     const [ isValid, setIsValid ] = useState<boolean>(true);
+
+    const mainField = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         checkValidity();
@@ -45,8 +48,15 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
         }
     }
 
+    const handleGlobalClick = () => {
+        mainField.current?.focus();
+        if(globalClick) {
+            globalClick()
+        }
+    }
+
     return (
-        <div style={{width: "100%", height: "100%", display: "table"}}>
+        <div onClick={handleGlobalClick} style={{width: "100%", height: "100%", display: "table"}}>
             <div style={{display: "table-cell", verticalAlign: "middle"}}>
                 <div style={{margin: "auto", display: "table"}}>
                     {warning && <div style={{textAlign: "center", color: "red", width: 300, padding: 10}}>{warning}</div>}
@@ -76,6 +86,7 @@ const SecretComp = ({confirm, info, handleSubmit, warning} : Props) => {
                                 name="secretValue"
                                 className={'form-control-lg'}
                                 placeholder=''
+                                ref={mainField}
                                 autoFocus={true}
                                 value={secret}
                                 draggable={false}
