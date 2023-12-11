@@ -1,14 +1,25 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import NoteComp from './NoteComp'
 import { AppState } from '../context/Context';
 import { Item } from '../model';
 import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi';
 import { MAIN_ACTIONS } from '../context/Reducers';
-import { getNewItem } from '../utils/utils';
+import { getNewItem, saveLocalStorage } from '../utils/utils';
 
 const NotesTabComp = () => {
 
     const { mainState: { editedItemTabs }, mainDispatch} = AppState();
+
+    useEffect(() => {
+        if(!!editedItemTabs) {
+            const copiedEditedItems = editedItemTabs.map((editedItemTab) => {
+                return  {...editedItemTab}
+            })
+            if(!!copiedEditedItems) {
+                saveLocalStorage("privthing.pmEditedItemTabs", copiedEditedItems);
+            }
+        }
+    }, [editedItemTabs])
 
     return (
         <div className='notesTabContainer'>

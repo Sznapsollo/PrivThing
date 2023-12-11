@@ -55,7 +55,6 @@ const NoteComp = ({editedItem}: Props) => {
 
     const orgNote = useRef<string>('');
     const rawNote = useRef<string>('');
-    const initializeEditedItemId = useRef<string | undefined>('')
 
     const setRawNote = (rawNoteData: string): void => {
         rawNote.current = rawNoteData;
@@ -521,14 +520,16 @@ const NoteComp = ({editedItem}: Props) => {
             {
                 needSecret && <>
                     <SecretComp globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
-                    <div style={{display: "flex"}} className='formGroupContainer'>
-                        {
-                            isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
-                                setAskDelete(true);
-                            }}
-                            title={t("delete")}>{t("delete")}</Button>
-                        }
-                    </div>
+                    { 
+                        editedItem.isActive && <div style={{display: "flex"}} className='formGroupContainer'>
+                            {
+                                isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
+                                    setAskDelete(true);
+                                }}
+                                title={t("delete")}>{t("delete")}</Button>
+                            }
+                        </div>
+                    }
                 </>
             }
             {

@@ -1,12 +1,12 @@
 import React, {createContext, useContext, useReducer} from 'react'
-import { MainContextType, Item, NavigationItem, SearchContextType, SettingsContextType, Tab, EditItem } from '../model';
+import { MainContextType, NavigationItem, SearchContextType, SettingsContextType, Tab, EditItem } from '../model';
 import { mainReducer, searchReducer, settingsReducer } from './Reducers'
 import { retrieveLocalStorage, cloneProps, makeId } from '../utils/utils'
 
 const appInitialState: MainContextType = {
   secret: '',
   editedItemCandidate: {} as NavigationItem,
-  editedItemTabs: [{isActive: true}] as EditItem[],
+  editedItemTabs: [] as EditItem[],
   items: [],
   tabs: [],
   folders: [],
@@ -65,23 +65,56 @@ const Context = ({children}: Props) => {
         }
 
         let pmTabs = retrieveLocalStorage("privthing.pmTabs");
-        let activeTab = null;
+        // let activeTab = null;
         if(pmTabs && Array.isArray(pmTabs)) {
-            appInitialState.tabs = pmTabs.map((pmTab) => {
+            appInitialState.tabs = pmTabs.map((pmTab:Tab) => {
                 if(!pmTab.tabId) {
                     pmTab.tabId = makeId(10);
                 }
-                if(pmTab.isActive) {
-                    activeTab = pmTab;
-                }
+                // if(pmTab.isActive) {
+                //     activeTab = pmTab;
+                // }
                 // pmTab.isActive = false;
                 return pmTab
             })
+            let pmEditedItemTabs = retrieveLocalStorage("privthing.pmEditedItemTabs");
+            if(pmEditedItemTabs && Array.isArray(pmEditedItemTabs)) {
+
+                // add only those that are in tabs. 
+                // allow only one active just on case
+
+                let activeEditedItemPath: string | undefined;
+                pmEditedItemTabs = pmEditedItemTabs.filter((pmEditedItem) => {
+                    const tabExists = pmTabs.findIndex((pmTab:EditItem) => pmTab.path === pmEditedItem.path) >= 0
+                    if(tabExists) {
+                        if(pmEditedItem.isActive) {
+                            if(!activeEditedItemPath) {
+                                activeEditedItemPath = pmEditedItem.path;
+                            } else {
+                                pmEditedItem.isActive = false;
+                            }
+                        }
+                        return true
+                    }
+                    return false
+                })
+                if(!!pmEditedItemTabs) {
+                    appInitialState.editedItemTabs = pmEditedItemTabs;
+                    if(activeEditedItemPath) {
+                        appInitialState.activeEditedItemPath = activeEditedItemPath;
+                    }
+                }
+                
+            }
         }
-        if(activeTab) {
-            appInitialState.editedItemTabs = [{...activeTab as Item, isActive: true} as EditItem];
-            appInitialState.activeEditedItemPath = (activeTab as Item).path;
+        if(!appInitialState.editedItemTabs || !appInitialState.editedItemTabs.length) {
+            appInitialState.editedItemTabs = [{isActive: true} as EditItem];
         }
+
+        // if(activeTab) {
+        //     appInitialState.editedItemTabs = [{...activeTab as Item, isActive: true} as EditItem];
+        //     appInitialState.activeEditedItemPath = (activeTab as Item).path;
+        // }
     } catch(e) {
         console.warn("Defaults restore error", e);
     }
