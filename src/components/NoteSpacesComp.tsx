@@ -5,49 +5,52 @@ import { Item } from '../model';
 import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { getNewItem, saveLocalStorage } from '../utils/utils';
+import { useTranslation } from 'react-i18next';
 
-const NotesTabComp = () => {
+const NoteSpacesComp = () => {
 
-    const { mainState: { editedItemTabs }, mainDispatch} = AppState();
+    const { t } = useTranslation();
+
+    const { mainState: { editedItemSpaces }, mainDispatch} = AppState();
 
     useEffect(() => {
-        if(!!editedItemTabs) {
-            const copiedEditedItems = editedItemTabs.map((editedItemTab) => {
-                return  {...editedItemTab}
+        if(!!editedItemSpaces) {
+            const copiedEditedItems = editedItemSpaces.map((editedItemSpace) => {
+                return  {...editedItemSpace}
             })
             if(!!copiedEditedItems) {
-                saveLocalStorage("privthing.pmEditedItemTabs", copiedEditedItems);
+                saveLocalStorage("privthing.pmeditedItemSpaces", copiedEditedItems);
             }
         }
-    }, [editedItemTabs])
+    }, [editedItemSpaces])
 
     return (
         <div className='notesTabContainer'>
             {
-                editedItemTabs.map((editedItemTab, index) => (
+                editedItemSpaces.map((editedItemSpace, index) => (
                     <div key={index} style={{flex: 1, display: 'flex', flexDirection: 'column', width: '100%'}}>
                         <div style={{textAlign: 'center'}}>
-                            <div style={{padding: 10}} className={'editItemTab ' + (editedItemTab.isActive ? 'isActive' : '')}
+                            <div style={{padding: 10}} className={'editItemSpace ' + (editedItemSpace.isActive ? 'isActive' : '')} 
                                 onClick={() => {
-                                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: editedItemTab})
+                                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: editedItemSpace})
                                 }}
                             >
-                                {editedItemTab.name ? editedItemTab.name : '---'}
+                                {editedItemSpace.name ? editedItemSpace.name : '---'}
                             </div>
                             { 
-                                editedItemTabs.length > 1 && <FiMinusCircle className='h2 itemTabIconRemove' onClick={(e) => {
+                                editedItemSpaces.length > 1 && <FiMinusCircle title={t("closeNoteSpace")} className='h2 itemTabIconRemove' onClick={(e) => {
                                     e.preventDefault();
-                                    mainDispatch({type: MAIN_ACTIONS.REMOVE_EDITED_ITEM_TAB, payload: editedItemTab});
+                                    mainDispatch({type: MAIN_ACTIONS.REMOVE_EDITED_ITEM_TAB, payload: editedItemSpace});
                                 }}/>
                             }
                             {
-                                (index === editedItemTabs.length - 1) && <FiPlusCircle className='h2 itemTabIconAdd' onClick={() => {
+                                (index === editedItemSpaces.length - 1) && <FiPlusCircle title={t("newNoteSpace")} className='h2 itemTabIconAdd' onClick={() => {
                                     const payLoadItem: Item = getNewItem();
                                     mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}, action: 'NEW_EDIT_ITEM_TAB'}});
                                 }}/>
                             }
                         </div>
-                        <NoteComp editedItem={editedItemTab} />
+                        <NoteComp editedItem={editedItemSpace} />
                     </div>
                 ))
             }
@@ -55,4 +58,4 @@ const NotesTabComp = () => {
     )
 }
 
-export default NotesTabComp
+export default NoteSpacesComp

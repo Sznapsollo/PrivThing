@@ -18,13 +18,15 @@ todo:
 - length of document
 - compare options
 - sidenotes
-- drawable edit item tabs
-- close all edit item tabs
-- opean header tab in new edit item tab menu option
+- draggable note spaces
 - better file search
 - notifications different not to cover bar with search 
+- on mac handle different hotkeys and display different hot keys
+- close all note spaces menu option
 
 done:
+- open new note space on right click
+- opean header tab in new edit item tab menu option
 - remember edit item tabs
 - refresh on from file does not work (remembering editItem)
 - click on header to make edit item tab active

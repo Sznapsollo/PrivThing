@@ -6,7 +6,7 @@ import { retrieveLocalStorage, cloneProps, makeId } from '../utils/utils'
 const appInitialState: MainContextType = {
   secret: '',
   editedItemCandidate: {} as NavigationItem,
-  editedItemTabs: [] as EditItem[],
+  editedItemSpaces: [] as EditItem[],
   items: [],
   tabs: [],
   folders: [],
@@ -77,14 +77,14 @@ const Context = ({children}: Props) => {
                 // pmTab.isActive = false;
                 return pmTab
             })
-            let pmEditedItemTabs = retrieveLocalStorage("privthing.pmEditedItemTabs");
-            if(pmEditedItemTabs && Array.isArray(pmEditedItemTabs)) {
+            let pmeditedItemSpaces = retrieveLocalStorage("privthing.pmeditedItemSpaces");
+            if(pmeditedItemSpaces && Array.isArray(pmeditedItemSpaces)) {
 
                 // add only those that are in tabs. 
                 // allow only one active just on case
 
                 let activeEditedItemPath: string | undefined;
-                pmEditedItemTabs = pmEditedItemTabs.filter((pmEditedItem) => {
+                pmeditedItemSpaces = pmeditedItemSpaces.filter((pmEditedItem) => {
                     const tabExists = pmTabs.findIndex((pmTab:EditItem) => pmTab.path === pmEditedItem.path) >= 0
                     if(tabExists) {
                         if(pmEditedItem.isActive) {
@@ -98,8 +98,8 @@ const Context = ({children}: Props) => {
                     }
                     return false
                 })
-                if(!!pmEditedItemTabs) {
-                    appInitialState.editedItemTabs = pmEditedItemTabs;
+                if(!!pmeditedItemSpaces) {
+                    appInitialState.editedItemSpaces = pmeditedItemSpaces;
                     if(activeEditedItemPath) {
                         appInitialState.activeEditedItemPath = activeEditedItemPath;
                     }
@@ -107,12 +107,12 @@ const Context = ({children}: Props) => {
                 
             }
         }
-        if(!appInitialState.editedItemTabs || !appInitialState.editedItemTabs.length) {
-            appInitialState.editedItemTabs = [{isActive: true} as EditItem];
+        if(!appInitialState.editedItemSpaces || !appInitialState.editedItemSpaces.length) {
+            appInitialState.editedItemSpaces = [{isActive: true} as EditItem];
         }
 
         // if(activeTab) {
-        //     appInitialState.editedItemTabs = [{...activeTab as Item, isActive: true} as EditItem];
+        //     appInitialState.editedItemSpaces = [{...activeTab as Item, isActive: true} as EditItem];
         //     appInitialState.activeEditedItemPath = (activeTab as Item).path;
         // }
     } catch(e) {

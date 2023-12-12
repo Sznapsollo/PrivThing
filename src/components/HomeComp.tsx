@@ -6,7 +6,7 @@ import { BsArrowLeftRight } from 'react-icons/bs';
 import '../styles.css'
 import TabsComp from './TabsComp';
 import { MAIN_ACTIONS } from '../context/Reducers';
-import NotesTabComp from './NotesTabComp';
+import NoteSpacesComp from './NoteSpacesComp';
 
 
 let isItemsResizing: boolean = false;
@@ -98,7 +98,7 @@ const HomeComp = () => {
             </div>
             <div className={'homeContainer ' + (mainState.fullItems === true ? 'dontDisplay' : '')}>
                 <TabsComp />
-                <NotesTabComp />
+                <NoteSpacesComp />
             </div>
         </div>
     )

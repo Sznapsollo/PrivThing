@@ -94,20 +94,20 @@ export function getNewItem() {
     };
 }
 
-export function manageEditItemTabs(stateEditedItemTabs, editItemPayload) {
-    let editedItemTabs = stateEditedItemTabs || [];
-    if(!editedItemTabs.length) {
-        editedItemTabs = [{...getNewItem(), isActive: true}]
+export function manageEditItemSpaces(stateEditedItemSpace, editItemPayload) {
+    let editedItemSpaces = stateEditedItemSpace || [];
+    if(!editedItemSpaces.length) {
+        editedItemSpaces = [{...getNewItem(), isActive: true}]
     }
-    let activeEditedItemTabIndex = editedItemTabs.findIndex((editedItemTab) => editedItemTab.isActive);
-    if(activeEditedItemTabIndex < 0) {activeEditedItemTabIndex = 0;}
-    editedItemTabs = editedItemTabs.map((editedItemTabItem, editedItemTabItemIndex) => {
-        if(editedItemTabItemIndex === activeEditedItemTabIndex) {
+    let activeEditedSpaceIndex = editedItemSpaces.findIndex((editedItemSpace) => editedItemSpace.isActive);
+    if(activeEditedSpaceIndex < 0) {activeEditedSpaceIndex = 0;}
+    editedItemSpaces = editedItemSpaces.map((editedItemSpaceItem, editedItemSpaceItemIndex) => {
+        if(editedItemSpaceItemIndex === activeEditedSpaceIndex) {
             return {...editItemPayload, isActive: true};
         }
-        return {...editedItemTabItem, isActive: false};
+        return {...editedItemSpaceItem, isActive: false};
     })
-    return editedItemTabs
+    return editedItemSpaces
 }
 
 export function manageHeaderTabs(tabs, itemPayload, tabPayLoad, mode) {

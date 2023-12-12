@@ -66,7 +66,7 @@ a:not(.dropdown-item) {
     transition: all .2s ease-in-out;
 }
 
-.editItemTab {
+.editItemSpace {
     padding: 5px;
     text-align: center;
     display: inline-block;
@@ -80,7 +80,7 @@ a:not(.dropdown-item) {
     width: 80%;
 }
 
-.editItemTab.isActive {
+.editItemSpace.isActive {
     font-weight: 700;
     border-bottom: 2px solid #002f5f;
     color: #002f5f;

@@ -137,7 +137,7 @@ const TabsComp = () => {
                             onContextMenu={(e) => handleContextMenu(e, tabItem)}
                         >{tabItem.name || t("empty")} &nbsp; 
                         </div>
-                        <FiMinusCircle className='h2 itemTabIconRemove' onClick={(e) => {
+                        <FiMinusCircle title={t("closeTab")} className='h2 itemTabIconRemove' onClick={(e) => {
                             e.preventDefault();
                             mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: {}, tab: tabItem, action: 'REMOVE_TAB'}});
                         }}/>
@@ -145,7 +145,7 @@ const TabsComp = () => {
                         
                 ))
             }
-            <FiPlusCircle className='h2 itemTabIconAdd' onClick={() => {
+            <FiPlusCircle title={t("newTab")} className='h2 itemTabIconAdd' onClick={() => {
                 const payLoadItem: Item = getNewItem();
                 mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}/>

@@ -1,6 +1,6 @@
 
 import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult, EditItem } from '../model'
-import { getNewItem, makeId, manageEditItemTabs, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
+import { getNewItem, makeId, manageEditItemSpaces, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
 export enum MAIN_ACTIONS {
     CLEAR_EDITED_ITEM = 'CLEAR_EDITED_ITEM',
@@ -27,10 +27,10 @@ type ClearSecret = {type: MAIN_ACTIONS.CLEAR_SECRET};
 type HideItemsBar = {type: MAIN_ACTIONS.HIDE_ITEMS_BAR};
 type HideSettings = {type: MAIN_ACTIONS.HIDE_SETTINGS};
 type LoadFromPickedFile = {type: MAIN_ACTIONS.LOAD_FROM_PICKED_FILE, payload: any};
-type RemoveEditedItemTab = {type: MAIN_ACTIONS.REMOVE_EDITED_ITEM_TAB, payload: EditItem};
+type RemoveEditedSpace = {type: MAIN_ACTIONS.REMOVE_EDITED_ITEM_TAB, payload: EditItem};
 type SetEditedItemCandidate = {type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: NavigationItem};
 type SetEditedItem = {type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: NavigationItem};
-type SetEditedItemTabActive = {type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: EditItem};
+type SetEditedSpaceActive = {type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: EditItem};
 type SetItems = {type: MAIN_ACTIONS.SET_ITEMS, payload: Item[]};
 type ShowAlertModal = {type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: AlertData};
 type ShowNotification = {type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: NotificationData};
@@ -45,10 +45,10 @@ export type MainActions = ClearEditedItem |
     HideItemsBar | 
     HideSettings |
     LoadFromPickedFile | 
-    RemoveEditedItemTab |
+    RemoveEditedSpace |
     SetEditedItemCandidate | 
     SetEditedItem | 
-    SetEditedItemTabActive |
+    SetEditedSpaceActive |
     SetItems | 
     ShowAlertModal | 
     ShowNotification |
@@ -102,17 +102,17 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 }
             }
             updatedTabs = manageHeaderTabs(updatedTabs, itemPayload, tabPayLoad);
-            let editedItemTabs = state.editedItemTabs || []
+            let editedItemSpaces = state.editedItemSpaces || []
             if(action.payload.action === "NEW_EDIT_ITEM_TAB") {
-                editedItemTabs = editedItemTabs.map((editedItemTab) => { editedItemTab.isActive = false; return editedItemTab })
-                editedItemTabs = [...editedItemTabs, {...getNewItem(), isActive: true}]
+                editedItemSpaces = editedItemSpaces.map((editedItemSpace) => { editedItemSpace.isActive = false; return editedItemSpace })
+                editedItemSpaces = [...editedItemSpaces, {...itemPayload, isActive: true}]
             } else {
-                editedItemTabs = manageEditItemTabs(editedItemTabs, itemPayload);
+                editedItemSpaces = manageEditItemSpaces(editedItemSpaces, itemPayload);
             }
 
             return { 
                 ...state, 
-                editedItemTabs: editedItemTabs, 
+                editedItemSpaces: editedItemSpaces, 
                 activeEditedItemPath: itemPayload.path,
                 tabs: updatedTabs, 
                 newItemToOpen: undefined ,
@@ -127,11 +127,11 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             return {
                 ...state,
                 activeEditedItemPath: action.payload.path,
-                editedItemTabs: state.editedItemTabs.map((editedItemTab) => { 
-                    if(editedItemTab === action.payload) {
-                        return {...editedItemTab, isActive: true}
+                editedItemSpaces: state.editedItemSpaces.map((editedItemSpace) => { 
+                    if(editedItemSpace === action.payload) {
+                        return {...editedItemSpace, isActive: true}
                     }
-                    return {...editedItemTab, isActive: false}
+                    return {...editedItemSpace, isActive: false}
                 }),
                 tabs: manageHeaderTabs((state.tabs.slice() || []), action.payload, null, 'CHANGE_ACTIVE')
             }
@@ -141,33 +141,33 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 return {...state}
             }
 
-            let foundActiveEditItemTabIndex =  state.editedItemTabs.findIndex((editedItemTab) => { 
-                return (editedItemTab === action.payload)
+            let foundActiveEditItemSpaceIndex =  state.editedItemSpaces.findIndex((editedItemSpace) => { 
+                return (editedItemSpace === action.payload)
             })
 
-            if(foundActiveEditItemTabIndex < 0) {
+            if(foundActiveEditItemSpaceIndex < 0) {
                 return {...state}
             }
 
-            let newActiveEditItemTab
+            let newActiveEditItemSpace
             let activeEditedItemPath = state.activeEditedItemPath;
-            let foundActiveEditItemTab = state.editedItemTabs[foundActiveEditItemTabIndex];
-            let updatedActiveEditItemTabs = state.editedItemTabs.filter((item, index) => index !== foundActiveEditItemTabIndex)
-            if(foundActiveEditItemTab.isActive) {
+            let foundActiveEditItemSpace = state.editedItemSpaces[foundActiveEditItemSpaceIndex];
+            let updatedActiveEditItemSpaces = state.editedItemSpaces.filter((item, index) => index !== foundActiveEditItemSpaceIndex)
+            if(foundActiveEditItemSpace.isActive) {
                 let newActiveIndex = 0;
-                if(foundActiveEditItemTabIndex > 0) {
-                    newActiveIndex = foundActiveEditItemTabIndex-1;
+                if(foundActiveEditItemSpaceIndex > 0) {
+                    newActiveIndex = foundActiveEditItemSpaceIndex-1;
                 }
-                newActiveEditItemTab = updatedActiveEditItemTabs[newActiveIndex];
-                newActiveEditItemTab.isActive = true;
-                activeEditedItemPath = newActiveEditItemTab.path;
+                newActiveEditItemSpace = updatedActiveEditItemSpaces[newActiveIndex];
+                newActiveEditItemSpace.isActive = true;
+                activeEditedItemPath = newActiveEditItemSpace.path;
             }
 
             return {
                 ...state,
                 activeEditedItemPath: activeEditedItemPath,
-                editedItemTabs: updatedActiveEditItemTabs,
-                tabs: newActiveEditItemTab ? manageHeaderTabs((state.tabs.slice() || []), newActiveEditItemTab, null, 'CHANGE_ACTIVE') : state.tabs
+                editedItemSpaces: updatedActiveEditItemSpaces,
+                tabs: newActiveEditItemSpace ? manageHeaderTabs((state.tabs.slice() || []), newActiveEditItemSpace, null, 'CHANGE_ACTIVE') : state.tabs
             }
         case MAIN_ACTIONS.CLEAR_EDITED_ITEM:
             const clearedItem: Item = {
@@ -177,7 +177,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 rawNote: undefined
             };
 
-            return { ...state, editedItemTabs: manageEditItemTabs(state.editedItemTabs, clearedItem) };
+            return { ...state, editedItemSpaces: manageEditItemSpaces(state.editedItemSpaces, clearedItem) };
         case MAIN_ACTIONS.CLEAR_SECRET:
             return { ...state, secret: '' };
         case MAIN_ACTIONS.SET_ITEMS:

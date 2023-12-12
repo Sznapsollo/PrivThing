@@ -33,7 +33,7 @@ export interface MainContextType {
     alertData?: AlertData
     activeEditedItemPath?: string,
     // current edit item edited / viewed by user
-    editedItemTabs: EditItem[],
+    editedItemSpaces: EditItem[],
     // initial item to be open. exists so if user has some unsaved data, there will be prompt to save it first before loading edited item
     editedItemCandidate?: NavigationItem,
     // unique items folders calculated after items load
