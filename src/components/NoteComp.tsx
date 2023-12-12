@@ -63,6 +63,8 @@ const NoteComp = ({editedItem}: Props) => {
         }
     }
 
+    const isMac = window.navigator.userAgent.indexOf('Mac') >= 0;
+
     useEffect(() => {
         if(!newItemToOpen?.path) {
             return
@@ -178,17 +180,17 @@ const NoteComp = ({editedItem}: Props) => {
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
-        if (e.ctrlKey && e.key.toLowerCase() === "f") {
+        if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "f") {
             if(noteRef?.current?.view) {
                 openSearchPanel(noteRef.current.view);
                 e.preventDefault();
             }
-        } else if (e.ctrlKey && e.key.toLowerCase() === "s" && updateFileButtonRef.current && updateFileButtonRef.current?.disabled === false){
+        } else if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "s" && updateFileButtonRef.current && updateFileButtonRef.current?.disabled === false){
             e.preventDefault();
             if(updateFileButtonRef.current) {
                 updateFileButtonRef.current.click();
             }
-        } else if (e.ctrlKey && e.key.toLowerCase() === "s" && saveToFileButtonRef.current && saveToFileButtonRef.current?.disabled === false){
+        } else if ((isMac ? e.metaKey : e.ctrlKey) && e.key.toLowerCase() === "s" && saveToFileButtonRef.current && saveToFileButtonRef.current?.disabled === false){
             e.preventDefault();
             if(saveToFileButtonRef.current) {
                 saveToFileButtonRef.current.click();
@@ -501,6 +503,7 @@ const NoteComp = ({editedItem}: Props) => {
     };
 
     var canUpdateFileDom = canUpdateFile(editedItem);
+    var saveHotKey = isMac ? "Cmd + S" : "Ctrl + S";
 
     //https://codemirror.net/docs/ref/
     const onCMChange = useCallback((val: any, viewUpdate: any) => {
@@ -599,7 +602,7 @@ const NoteComp = ({editedItem}: Props) => {
                                 }}
                                 title={t("saveToLocation") + ' ' + editedItem.path}>
                                     {t("save")}
-                                    {canUpdateFileDom === true && isDirty === true &&  <div style={{fontSize: 10, margin: '-5px 0 -5px 0'}}>Ctrl + S</div>}
+                                    {canUpdateFileDom === true && isDirty === true &&  <div style={{fontSize: 10, margin: '-5px 0 -5px 0'}}>{saveHotKey}</div>}
                             </Button>
                         }
                         &nbsp;
@@ -616,7 +619,7 @@ const NoteComp = ({editedItem}: Props) => {
                         }}
                         title={t("saveToSelectedLocation")}>
                             {t("saveAs")}
-                            {(note?.length > 0) && (canUpdateFileDom !== true || isDirty !== true) &&  <div style={{fontSize: 10, margin: '-5px 0 -5px 0'}}>Ctrl + S</div>}
+                            {(note?.length > 0) && (canUpdateFileDom !== true || isDirty !== true) &&  <div style={{fontSize: 10, margin: '-5px 0 -5px 0'}}>{saveHotKey}</div>}
                         </Button>
                         &nbsp;
                         <Button className="btn-lg" disabled={!isDirty} variant='danger' onClick={() => {

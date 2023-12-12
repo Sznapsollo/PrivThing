@@ -272,7 +272,7 @@ const HeaderComp = () => {
                         <br/><br/>
                         <ul>
                             <li>Tabs that can be reordered, and that are remembered</li>
-                            <li>Hotkeys: ctrl+f, ctrl+s</li>
+                            <li>Hotkeys: ctrl+f, ctrl+s, cmd+s</li>
                             <li>Encrypt some more fragile notes with passwords (just dont forget it - passwords are not stored anywhere so no way to remind it)</li>
                             <li>Very nice CodeMirror editor which comes with many perks like code marking, search, line numbers etc</li>
                             <li>Slider between items and note body</li>
