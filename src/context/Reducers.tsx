@@ -4,14 +4,15 @@ import { getNewItem, makeId, manageEditItemSpaces, manageHeaderTabs, retrieveLoc
 
 export enum MAIN_ACTIONS {
     CLEAR_EDITED_ITEM = 'CLEAR_EDITED_ITEM',
+    CLEAR_OTHER_NOTE_SPACES = 'CLEAR_OTHER_NOTE_SPACES',
     CLEAR_SECRET = 'CLEAR_SECRET',
     HIDE_ITEMS_BAR = 'HIDE_ITEMS_BAR',
     HIDE_SETTINGS = 'HIDE_SETTINGS',
     LOAD_FROM_PICKED_FILE = 'LOAD_FROM_PICKED_FILE',
-    REMOVE_EDITED_ITEM_TAB = 'REMOVE_EDITED_ITEM_TAB_ACTIVE',
+    REMOVE_NOTE_SPACE = 'REMOVE_NOTE_SPACE_ACTIVE',
     SET_EDITED_ITEM_CANDIDATE = 'SET_EDITED_ITEM_CANDIDATE',
     SET_EDITED_ITEM = 'SET_EDITED_ITEM',
-    SET_EDITED_ITEM_TAB_ACTIVE = 'SET_EDITED_ITEM_TAB_ACTIVE',
+    SET_NOTE_SPACE_ACTIVE = 'SET_NOTE_SPACE_ACTIVE',
     SET_ITEMS = 'SET_ITEMS',
     SHOW_ALERT_MODAL = 'SHOW_ALERT_MODAL',
     SHOW_NOTIFICATION = 'SHOW_NOTIFICATION',
@@ -23,14 +24,15 @@ export enum MAIN_ACTIONS {
 }
 
 type ClearEditedItem = {type: MAIN_ACTIONS.CLEAR_EDITED_ITEM};
+type ClearNoteSpaces = {type: MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES, payload: EditItem};
 type ClearSecret = {type: MAIN_ACTIONS.CLEAR_SECRET};
 type HideItemsBar = {type: MAIN_ACTIONS.HIDE_ITEMS_BAR};
 type HideSettings = {type: MAIN_ACTIONS.HIDE_SETTINGS};
 type LoadFromPickedFile = {type: MAIN_ACTIONS.LOAD_FROM_PICKED_FILE, payload: any};
-type RemoveEditedSpace = {type: MAIN_ACTIONS.REMOVE_EDITED_ITEM_TAB, payload: EditItem};
+type RemoveEditedSpace = {type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: EditItem};
 type SetEditedItemCandidate = {type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: NavigationItem};
 type SetEditedItem = {type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: NavigationItem};
-type SetEditedSpaceActive = {type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: EditItem};
+type SetEditedSpaceActive = {type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: EditItem};
 type SetItems = {type: MAIN_ACTIONS.SET_ITEMS, payload: Item[]};
 type ShowAlertModal = {type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: AlertData};
 type ShowNotification = {type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: NotificationData};
@@ -41,6 +43,7 @@ type UpdateTabs = {type: MAIN_ACTIONS.UPDATE_TABS, payload: Tab[]};
 type UpdateSecret = {type: MAIN_ACTIONS.UPDATE_SECRET, payload: string};
 
 export type MainActions = ClearEditedItem |
+    ClearNoteSpaces |     
     ClearSecret | 
     HideItemsBar | 
     HideSettings |
@@ -102,10 +105,12 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 }
             }
             updatedTabs = manageHeaderTabs(updatedTabs, itemPayload, tabPayLoad);
-            let editedItemSpaces = state.editedItemSpaces || []
-            if(action.payload.action === "NEW_EDIT_ITEM_TAB") {
-                editedItemSpaces = editedItemSpaces.map((editedItemSpace) => { editedItemSpace.isActive = false; return editedItemSpace })
-                editedItemSpaces = [...editedItemSpaces, {...itemPayload, isActive: true}]
+            let editedItemSpaces = state.editedItemSpaces || [];
+            if(action.payload.action === "NEW_NOTE_SPACE") {
+                editedItemSpaces = editedItemSpaces.map((editedItemSpace) => { editedItemSpace.isActive = false; return editedItemSpace });
+                editedItemSpaces = [...editedItemSpaces, {...itemPayload, isActive: true}];
+            } else if(action.payload.action === "CLEAR_OTHER_NOTE_SPACES") {
+                editedItemSpaces = [{...itemPayload, isActive: true}];
             } else {
                 editedItemSpaces = manageEditItemSpaces(editedItemSpaces, itemPayload);
             }
@@ -118,7 +123,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 newItemToOpen: undefined ,
                 editedItemCandidate: undefined
             };
-        case MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE:
+        case MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE:
             if(!action.payload) {
                 // console.log('No item in payload')
                 return {...state}
@@ -135,7 +140,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 }),
                 tabs: manageHeaderTabs((state.tabs.slice() || []), action.payload, null, 'CHANGE_ACTIVE')
             }
-        case MAIN_ACTIONS.REMOVE_EDITED_ITEM_TAB:
+        case MAIN_ACTIONS.REMOVE_NOTE_SPACE:
             if(!action.payload) {
                 // console.log('No item in payload')
                 return {...state}
@@ -178,6 +183,8 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             };
 
             return { ...state, editedItemSpaces: manageEditItemSpaces(state.editedItemSpaces, clearedItem) };
+        case MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES:
+            return { ...state, editedItemSpaces: [{...action.payload, isActive: true}] };
         case MAIN_ACTIONS.CLEAR_SECRET:
             return { ...state, secret: '' };
         case MAIN_ACTIONS.SET_ITEMS:

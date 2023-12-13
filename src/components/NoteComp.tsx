@@ -318,7 +318,7 @@ const NoteComp = ({editedItem}: Props) => {
         if(editedItem.isActive) {
             return
         }
-        mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_TAB_ACTIVE, payload: editedItem})
+        mainDispatch({type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: editedItem})
     }
 
     const saveEncrypted = (saveResults: SaveAsResults) => {

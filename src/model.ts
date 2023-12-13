@@ -113,3 +113,7 @@ export interface EditItem extends Item {
 export interface TabContextMenu extends ContextMenu {
     tab?: Tab
 }
+
+export interface NoteSpaceContextMenu extends ContextMenu {
+    noteSpaceItem?: EditItem
+}

@@ -121,6 +121,7 @@ a:not(.dropdown-item) {
     border: 1px solid #cecece;
     border-radius: 5px;
     position: absolute;
+    z-index: 999;
 }
 
 .contextMenuItem {

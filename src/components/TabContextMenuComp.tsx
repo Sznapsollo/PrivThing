@@ -25,7 +25,7 @@ const TabContextMenuComp = ({x, y, tabItem, closeContextMenu}: Props) => {
         <div ref={contextMenuRef} style={{top: y, left: x}} className='contextMenu'>
             <div className='contextMenuItem' onClick={() => {
                 closeContextMenu();
-                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: tabItem, tab: tabItem, action: 'NEW_EDIT_ITEM_TAB'}});
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: tabItem, tab: tabItem, action: 'NEW_NOTE_SPACE'}});
             }}>
                 {t("openInNewNoteSpace")}
             </div>

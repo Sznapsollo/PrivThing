@@ -61,7 +61,7 @@ const LisItem = ({item, keyProp, editedItemPath}: Props) => {
                     fetchData: item.folder === 'localStorage' ? false : true,
                     rawNote: undefined
                 };
-                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}, action: 'NEW_EDIT_ITEM_TAB'}});
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}, action: 'NEW_NOTE_SPACE'}});
             }}
             >
             <div className='listItemIcon'>
