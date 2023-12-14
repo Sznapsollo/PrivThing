@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import {Alert} from '@mui/material'
+import {Alert, Snackbar} from '@mui/material'
 import { AppState } from '../context/Context';
 import { NotificationData } from '../model';
 import { MAIN_ACTIONS } from '../context/Reducers';
@@ -31,7 +31,12 @@ const handleClose = () => {
 
 return (
     <div style={{position: 'absolute', width: '100%', zIndex: 100}}>
-        { show && <Alert onClose={handleClose} className='notificationText' variant="filled" severity={mainState.notificationData?.type || 'success'}>{mainState.notificationData?.message || ''}</Alert> }
+        { 
+            show && 
+            <Snackbar open={true} onClose={handleClose}>
+                <Alert onClose={handleClose} className='notificationText' variant="filled" severity={mainState.notificationData?.type || 'success'}>{mainState.notificationData?.message || ''}</Alert>
+            </Snackbar>
+        }
     </div>
 )
 }

@@ -613,6 +613,12 @@ const NoteComp = ({editedItem}: Props) => {
                             title={t("delete")}>{t("delete")}</Button>
                         }
                         <div style={{flex: 1}}>&nbsp;</div>
+                        <div style={{margin: "auto", color: "#666666", fontSize: 10}}>
+                            {
+                                `${t('size')}: ${note.length}`
+                            }
+                        </div>
+                        <div style={{flex: 1}}>&nbsp;</div>
                         &nbsp;
                         <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!note?.length} variant='success' onClick={ () => {
                             setIsSavingAs(true);

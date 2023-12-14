@@ -15,14 +15,14 @@ todo:
 - contact info
 - disable save passwords prompts
 - google analytics
-- length of document
 - compare options
 - sidenotes
 - draggable note spaces
 - better file search
-- notifications different not to cover bar with search 
 
 done:
+- length of document
+- notifications different not to cover bar with search 
 - close all note spaces menu option
 - close current note menu option
 - on mac handle different hotkeys and display different hot keys
