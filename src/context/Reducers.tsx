@@ -17,6 +17,8 @@ export enum MAIN_ACTIONS {
     SHOW_ALERT_MODAL = 'SHOW_ALERT_MODAL',
     SHOW_NOTIFICATION = 'SHOW_NOTIFICATION',
     SHOW_SETTINGS = 'SHOW_SETTINGS',
+    SHRINK_NOTE_SPACE = 'SHRINK_NOTE_SPACE',
+    STRETCH_NOTE_SPACE = 'STRETCH_NOTE_SPACE',
     TOGGLE_ITEMS_BAR = 'TOGGLE_ITEMS_BAR',
     UPDATE_ITEMS_LIST = 'UPDATE_ITEMS_LIST',
     UPDATE_TABS = 'UPDATE_TABS',
@@ -37,6 +39,8 @@ type SetItems = {type: MAIN_ACTIONS.SET_ITEMS, payload: Item[]};
 type ShowAlertModal = {type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: AlertData};
 type ShowNotification = {type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: NotificationData};
 type ShowSettings = {type: MAIN_ACTIONS.SHOW_SETTINGS};
+type ShrinkNoteSpace = {type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: EditItem};
+type StretchNoteSpace = {type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: EditItem};
 type ToggleItemsBar = {type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR};
 type UpdateItemsList = {type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: string};
 type UpdateTabs = {type: MAIN_ACTIONS.UPDATE_TABS, payload: Tab[]};
@@ -55,7 +59,9 @@ export type MainActions = ClearEditedItem |
     SetItems | 
     ShowAlertModal | 
     ShowNotification |
+    ShrinkNoteSpace |
     ShowSettings |
+    StretchNoteSpace |
     ToggleItemsBar | 
     UpdateItemsList | 
     UpdateTabs |
@@ -233,6 +239,23 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             return { ...state, notificationData: action.payload };
         case MAIN_ACTIONS.SHOW_SETTINGS:
             return { ...state, showSettings: true };
+        case MAIN_ACTIONS.SHRINK_NOTE_SPACE:
+            return {
+                ...state,
+                editedItemSpaces: state.editedItemSpaces.map((editedItemSpace) => { 
+                    return {...editedItemSpace, flex: 1}
+                })
+            }
+        case MAIN_ACTIONS.STRETCH_NOTE_SPACE:
+            return {
+                ...state,
+                editedItemSpaces: state.editedItemSpaces.map((editedItemSpace) => { 
+                    if(editedItemSpace === action.payload) {
+                        return {...editedItemSpace, flex: 2}
+                    }
+                    return {...editedItemSpace, flex: 1}
+                })
+            }
         case MAIN_ACTIONS.TOGGLE_ITEMS_BAR:
             return { ...state, fullItems: !state.fullItems };
         case MAIN_ACTIONS.UPDATE_ITEMS_LIST:

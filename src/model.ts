@@ -107,7 +107,8 @@ export interface Tab extends Item {
 }
 
 export interface EditItem extends Item {
-    isActive?: boolean
+    isActive?: boolean,
+    flex?: number
 }
 
 export interface TabContextMenu extends ContextMenu {

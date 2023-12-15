@@ -167,6 +167,11 @@ a:not(.dropdown-item) {
     margin: 0px 5px 0px -25px !important;
 }
 
+.itemTabIconResize {
+    margin: 5px 0px 0px 0px !important;
+}
+
+.itemTabIconResize:hover,
 .itemTabIconAdd:hover {
     color: #427843;
 }

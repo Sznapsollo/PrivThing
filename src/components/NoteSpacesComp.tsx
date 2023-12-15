@@ -3,6 +3,8 @@ import NoteComp from './NoteComp'
 import { AppState } from '../context/Context';
 import { EditItem, Item, NoteSpaceContextMenu } from '../model';
 import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi';
+import { PiArrowsInLineHorizontalFill } from "react-icons/pi";
+import { PiArrowsOutLineHorizontalFill } from "react-icons/pi";
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { getNewItem, saveLocalStorage } from '../utils/utils';
 import { useTranslation } from 'react-i18next';
@@ -45,8 +47,20 @@ const NoteSpacesComp = () => {
             {noteSpaceContextMenu.show === true && <NoteSpaceContextMenuComp x={noteSpaceContextMenu.x} y={noteSpaceContextMenu.y} allItems={editedItemSpaces} noteSpaceItem={noteSpaceContextMenu.noteSpaceItem} closeContextMenu={handleContextMenuClose}/>}
             {
                 editedItemSpaces.map((editedItemSpace, index) => (
-                    <div key={index} style={{flex: 1, display: 'flex', flexDirection: 'column', width: '100%'}}>
+                    <div key={index} style={{flex: editedItemSpace.flex || 1, display: 'flex', flexDirection: 'column', width: '100%'}}>
                         <div style={{textAlign: 'center'}}>
+                            {
+                                editedItemSpaces.length > 1 && (!editedItemSpace.flex || editedItemSpace.flex < 2) && <PiArrowsOutLineHorizontalFill className='h4 itemTabIconResize' onClick={(e) => {
+                                    e.preventDefault();
+                                    mainDispatch({type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: editedItemSpace});
+                                }}/>
+                            }
+                            {
+                                editedItemSpaces.length > 1 && (editedItemSpace.flex && editedItemSpace.flex >= 2) && <PiArrowsInLineHorizontalFill className='h4 itemTabIconResize' onClick={(e) => {
+                                    e.preventDefault();
+                                    mainDispatch({type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: editedItemSpace});
+                                }}/>
+                            }
                             <div style={{padding: 10}} className={'editItemSpace ' + (editedItemSpace.isActive ? 'isActive' : '')} 
                                 onClick={() => {
                                     mainDispatch({type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: editedItemSpace})
