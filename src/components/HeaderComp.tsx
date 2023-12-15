@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { Navbar, Container, Nav, Dropdown, Button, Form, InputGroup } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next'
+import i18n from '../i18n';
 import { Link } from 'react-router-dom'
 import { AppState } from '../context/Context'
 import { LiaFilterSolid } from 'react-icons/lia';
@@ -27,6 +28,13 @@ const HeaderComp = () => {
         "scroll",
         "keypress",
     ];
+
+    let currentLanguageFlag
+    if(i18n?.language?.startsWith('pl')) {
+        currentLanguageFlag = 'pl.png';
+    } else {
+        currentLanguageFlag = 'en.png';
+    }
 
     const { t } = useTranslation();
     const { searchState, mainState, mainDispatch, searchDispatch, settingsState: {forgetSecretMode, forgetSecretTime} } = AppState();
@@ -186,6 +194,11 @@ const HeaderComp = () => {
         }
     }
 
+    const handleLanguageChange = (language: string) => {
+        i18n.changeLanguage(language);
+        saveLocalStorage("privthing.userLanguage", language);
+    }
+
     return (
         <>
             <Navbar bg="dark" variant="dark" style={{height: 50}}>
@@ -196,7 +209,7 @@ const HeaderComp = () => {
                                 <div style={{paddingTop: 3}}><i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="imageRotateHorizontal d-inline-block align-top" alt="" /></i></div>
                                 <div className='navbarTitle'>
                                     <div>{t("privThing")}</div>
-                                    <div style={{fontSize: 10, color: '#ffffff80', margin: '-4px 0 0 0'}}>NOTES & DOCS ORGANIZER</div>
+                                    <div style={{fontSize: 10, color: '#ffffff80', margin: '-4px 0 0 0'}}>{t('privThingMemo')}</div>
                                 </div>
                             </div>
                         </Link>
@@ -232,7 +245,22 @@ const HeaderComp = () => {
                     <div className='navLink' onClick={handleForgetSecret} ref={centerLabelref}></div>
                     <Nav>
                         <Dropdown>
-                            <Dropdown.Toggle variant="light">
+                            <Dropdown.Toggle variant="dark">
+                            <img src={process.env.PUBLIC_URL + "/images/flags/" + currentLanguageFlag} className="" alt={currentLanguageFlag} />
+                            </Dropdown.Toggle>
+                            <Dropdown.Menu className='dropdown-menu-end'>
+                                <Dropdown.Item style={{textAlign: 'center'}} onClick={() => handleLanguageChange('pl')}>
+                                    <img src={process.env.PUBLIC_URL + "/images/flags/pl.png"} className="" alt="pl flag" />&nbsp;&nbsp;-&nbsp;&nbsp;pl
+                                </Dropdown.Item>
+                                <Dropdown.Item style={{textAlign: 'center'}} onClick={() => handleLanguageChange('en')}>
+                                    <img src={process.env.PUBLIC_URL + "/images/flags/en.png"} className="" alt="en flag" />&nbsp;&nbsp;-&nbsp;&nbsp;en
+                                </Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Nav>
+                    <Nav>
+                        <Dropdown>
+                            <Dropdown.Toggle variant="dark">
                                 <FiMenu fontSize="25px" />
                             </Dropdown.Toggle>
                             <Dropdown.Menu className='dropdown-menu-end'>

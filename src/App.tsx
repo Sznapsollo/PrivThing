@@ -7,12 +7,20 @@ import HeaderComp from './components/HeaderComp'
 import HomeComp from './components/HomeComp';
 import SettingsComp from './components/SettingsComp';
 import NotificationComp from './components/NotificationComp';
+import { retrieveLocalStorage } from './utils/utils';
 
 function App() {
 
     useEffect(() => {
-        i18n.changeLanguage('en');
+        let localLanguage = retrieveLocalStorage("privthing.userLanguage") || window.navigator.language;
+        if(localLanguage) {
+            i18n.changeLanguage(localLanguage);
+        } else {
+            i18n.changeLanguage('en');
+        }
+        
     }, []);
+    
 
     return (
         <div className="App">

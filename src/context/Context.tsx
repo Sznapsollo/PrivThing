@@ -71,6 +71,9 @@ const Context = ({children}: Props) => {
                 if(!pmTab.tabId) {
                     pmTab.tabId = makeId(10);
                 }
+                if(pmTab.isDragged) {
+                    delete pmTab.isDragged // just in case
+                }
                 // if(pmTab.isActive) {
                 //     activeTab = pmTab;
                 // }

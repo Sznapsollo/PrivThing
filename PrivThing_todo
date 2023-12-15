@@ -1,9 +1,4 @@
 todo:
-- PL translation + other translations
-- auto language
-- language selectable from settings
-- export localStorage items
-- import items to localStorage
 - do something when there are many many tabs (maybe dropdown?)
 - file path do not display for local storage
 - manual pick file elsewhere
@@ -21,6 +16,11 @@ todo:
 - better file search
 
 done:
+- PL translation + other translations
+- auto language
+- language selectable from settings
+- export localStorage items
+- import items to localStorage
 - length of document
 - notifications different not to cover bar with search 
 - close all note spaces menu option
