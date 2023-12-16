@@ -300,11 +300,18 @@ a:not(.dropdown-item) {
     height: 100%;
 }
 
-.notesTabContainer {
+.notesSpacesContainer {
     display: flex;
     flex-flow: row;
     height: 100%;
 } 
+
+.noteSpaceContainer {
+    display: 'flex';
+    flexDirection: 'column';
+    width: '100%';
+    transition: all .2s ease-in-out;
+}
 
 .noteContainer {
     display: flex;

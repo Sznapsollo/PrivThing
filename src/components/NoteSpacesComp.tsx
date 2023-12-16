@@ -43,11 +43,11 @@ const NoteSpacesComp = () => {
     const handleContextMenuClose = () => setNoteSpaceContextMenu(initialNoteSpaceContextMenu)
 
     return (
-        <div className='notesTabContainer'>
+        <div className='notesSpacesContainer'>
             {noteSpaceContextMenu.show === true && <NoteSpaceContextMenuComp x={noteSpaceContextMenu.x} y={noteSpaceContextMenu.y} allItems={editedItemSpaces} noteSpaceItem={noteSpaceContextMenu.noteSpaceItem} closeContextMenu={handleContextMenuClose}/>}
             {
                 editedItemSpaces.map((editedItemSpace, index) => (
-                    <div key={index} style={{flex: editedItemSpace.flex || 1, display: 'flex', flexDirection: 'column', width: '100%'}}>
+                    <div key={index} style={{flex: editedItemSpace.flex || 1}} className='noteSpaceContainer'>
                         <div style={{textAlign: 'center'}}>
                             {
                                 editedItemSpaces.length > 1 && (!editedItemSpace.flex || editedItemSpace.flex < 2) && <PiArrowsOutLineHorizontalFill className='h4 itemTabIconResize' onClick={(e) => {
