@@ -169,6 +169,8 @@ a:not(.dropdown-item) {
 
 .itemTabIconResize {
     margin: 5px 0px 0px 0px !important;
+    cursor: pointer;
+
 }
 
 .itemTabIconResize:hover,

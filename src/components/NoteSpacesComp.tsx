@@ -50,13 +50,13 @@ const NoteSpacesComp = () => {
                     <div key={index} style={{flex: editedItemSpace.flex || 1}} className='noteSpaceContainer'>
                         <div style={{textAlign: 'center'}}>
                             {
-                                editedItemSpaces.length > 1 && (!editedItemSpace.flex || editedItemSpace.flex < 2) && <PiArrowsOutLineHorizontalFill className='h4 itemTabIconResize' onClick={(e) => {
+                                editedItemSpaces.length > 1 && (!editedItemSpace.flex || editedItemSpace.flex < 2) && <PiArrowsOutLineHorizontalFill title={t("stretch")} className='h4 itemTabIconResize' onClick={(e) => {
                                     e.preventDefault();
                                     mainDispatch({type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: editedItemSpace});
                                 }}/>
                             }
                             {
-                                editedItemSpaces.length > 1 && (editedItemSpace.flex && editedItemSpace.flex >= 2) && <PiArrowsInLineHorizontalFill className='h4 itemTabIconResize' onClick={(e) => {
+                                editedItemSpaces.length > 1 && (editedItemSpace.flex && editedItemSpace.flex >= 2) && <PiArrowsInLineHorizontalFill title={t("schrink")} className='h4 itemTabIconResize' onClick={(e) => {
                                     e.preventDefault();
                                     mainDispatch({type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: editedItemSpace});
                                 }}/>
