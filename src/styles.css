@@ -307,9 +307,9 @@ a:not(.dropdown-item) {
 } 
 
 .noteSpaceContainer {
-    display: 'flex';
-    flexDirection: 'column';
-    width: '100%';
+    display: flex;
+    flex-direction: column;
+    width: 100%;
     transition: all .2s ease-in-out;
 }
 
