@@ -451,6 +451,11 @@ label.upperLabel {
       font-size: 10px;
     }
 
+    .itemTab {
+        font-size: 10px;
+        padding: 3px 25px 3px 3px;
+    }
+
     .homeContainer {
         width: 58%;
         padding: 0;

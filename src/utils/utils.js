@@ -103,7 +103,7 @@ export function manageEditItemSpaces(stateEditedItemSpace, editItemPayload) {
     if(activeEditedSpaceIndex < 0) {activeEditedSpaceIndex = 0;}
     editedItemSpaces = editedItemSpaces.map((editedItemSpaceItem, editedItemSpaceItemIndex) => {
         if(editedItemSpaceItemIndex === activeEditedSpaceIndex) {
-            return {...editItemPayload, isActive: true};
+            return {...editItemPayload, flex: editedItemSpaceItem.flex,isActive: true};
         }
         return {...editedItemSpaceItem, isActive: false};
     })
