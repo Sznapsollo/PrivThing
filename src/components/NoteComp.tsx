@@ -218,7 +218,7 @@ const NoteComp = ({editedItem}: Props) => {
                 }
                 return {...tab}
             });
-            mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs});
+            mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: currentTabs});
         }, 200)
     }
 

@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { AppState } from '../context/Context'
 import { useTranslation } from 'react-i18next'
 import { Item, Tab, TabContextMenu } from '../model';
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
-import { getNewItem, saveLocalStorage } from '../utils/utils'
+import { getNewItem } from '../utils/utils'
 import TabContextMenuComp from './TabContextMenuComp';
 import { MAIN_ACTIONS } from '../context/Reducers';
 
@@ -19,11 +19,6 @@ const TabsComp = () => {
     const { t } = useTranslation();
     const [ tabContextMenu, setTabContextMenu ] = useState<TabContextMenu>(initialTabContextMenu)
 
-    useEffect(() => {
-        if(mainState.tabs) {
-            saveLocalStorage("privthing.pmTabs", mainState.tabs);
-        }
-    }, [mainState.tabs])
 
     const dragItem = useRef<number | null>();
     const dragOverItem = useRef<number | null>();

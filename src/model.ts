@@ -118,3 +118,7 @@ export interface TabContextMenu extends ContextMenu {
 export interface NoteSpaceContextMenu extends ContextMenu {
     noteSpaceItem?: EditItem
 }
+
+export interface LooseObject {
+    [key: string]: any
+}

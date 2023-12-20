@@ -135,7 +135,14 @@ const Context = ({children}: Props) => {
     const [settingsState, settingsDispatch] = useReducer(settingsReducer, settingsInitialState);
 
     return (
-        <AppContext.Provider value={{mainState, mainDispatch, searchState, searchDispatch, settingsState, settingsDispatch}}> {children} </AppContext.Provider>
+        <AppContext.Provider value={{
+            mainState, 
+            mainDispatch, 
+            searchState, 
+            searchDispatch, 
+            settingsState, 
+            settingsDispatch
+        }}> {children} </AppContext.Provider>
     )
 }
 

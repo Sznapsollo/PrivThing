@@ -1,6 +1,6 @@
 
-import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult, EditItem } from '../model'
-import { getNewItem, makeId, manageEditItemSpaces, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
+import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult, EditItem, LooseObject } from '../model'
+import { makeId, manageEditItemSpaces, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
 export enum MAIN_ACTIONS {
     CLEAR_EDITED_ITEM = 'CLEAR_EDITED_ITEM',
@@ -22,6 +22,7 @@ export enum MAIN_ACTIONS {
     TOGGLE_ITEMS_BAR = 'TOGGLE_ITEMS_BAR',
     UPDATE_ITEMS_LIST = 'UPDATE_ITEMS_LIST',
     UPDATE_TABS = 'UPDATE_TABS',
+    UPDATE_TABS_SILENT = 'UPDATE_TABS_SILENT',
     UPDATE_SECRET = 'UPDATE_SECRET'
 }
 
@@ -44,6 +45,7 @@ type StretchNoteSpace = {type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: EditIte
 type ToggleItemsBar = {type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR};
 type UpdateItemsList = {type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: string};
 type UpdateTabs = {type: MAIN_ACTIONS.UPDATE_TABS, payload: Tab[]};
+type UpdateTabsSilent = {type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: Tab[]};
 type UpdateSecret = {type: MAIN_ACTIONS.UPDATE_SECRET, payload: string};
 
 export type MainActions = ClearEditedItem |
@@ -65,6 +67,7 @@ export type MainActions = ClearEditedItem |
     ToggleItemsBar | 
     UpdateItemsList | 
     UpdateTabs |
+    UpdateTabsSilent |
     UpdateSecret;
 
 export const mainReducer = (state: MainContextType, action: MainActions) => {
@@ -263,7 +266,28 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
         case MAIN_ACTIONS.UPDATE_SECRET:
             return { ...state, secret: action.payload};
         case MAIN_ACTIONS.UPDATE_TABS:
+            if(state.tabs) {
+                if(timeoutUpdatesHandles["privthing.pmTabs"] != null) {
+                    clearTimeout(timeoutUpdatesHandles["privthing.pmTabs"]);
+                    timeoutUpdatesHandles["privthing.pmTabs"] = null;
+                }
+                timeoutUpdatesHandles["privthing.pmTabs"] = setTimeout(() => {
+                    saveLocalStorage("privthing.pmTabs", state.tabs);
+                }, 100)
+            }
             return { ...state, tabs: action.payload};
+        case MAIN_ACTIONS.UPDATE_TABS_SILENT:
+            if(state.tabs) {
+                if(timeoutUpdatesHandles["privthing.pmTabs"] != null) {
+                    clearTimeout(timeoutUpdatesHandles["privthing.pmTabs"]);
+                    timeoutUpdatesHandles["privthing.pmTabs"] = null;
+                }
+                timeoutUpdatesHandles["privthing.pmTabs"] = setTimeout(() => {
+                    saveLocalStorage("privthing.pmTabs", state.tabs);
+                }, 100)
+            }
+            state.tabs = [...action.payload]
+            return state
         default:
             return state;
     }
@@ -327,3 +351,5 @@ export const settingsReducer = (state: SettingsContextType, action: SettingsActi
             return state;
     }
 };
+
+var timeoutUpdatesHandles: LooseObject = {}
