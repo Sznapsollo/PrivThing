@@ -48,8 +48,10 @@ const SecretComp = ({confirm, info, globalClick, handleSubmit, warning} : Props)
         }
     }
 
-    const handleGlobalClick = () => {
-        mainField.current?.focus();
+    const handleGlobalClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        if(!confirm) {
+            mainField.current?.focus();
+        }
         if(globalClick) {
             globalClick()
         }
