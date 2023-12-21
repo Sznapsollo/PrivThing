@@ -218,7 +218,23 @@ const NoteComp = ({editedItem}: Props) => {
                 }
                 return {...tab}
             });
+            
             mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: currentTabs});
+            if(!editedItem.isActive) {
+                if(!window.globalLastActiveCheckOnScrollSwitch) {
+                    window.globalLastActiveCheckOnScrollSwitch = new Date().getTime();
+                }
+                let currMillis = new Date().getTime();
+                if((currMillis - window.globalLastActiveCheckOnScrollSwitch) > 2000)  {
+                    window.globalLastActiveCheckOnScrollSwitch = new Date().getTime();
+                    handleActiveItemFocus();
+                } else {
+                    // it might happen that for few spaces deactivated old tab will move scroll which would put it on back as active
+                    // dissapearing buttons would grow this old space and it can cause scroll move - especially when it is scrolled down
+                    // this little ugly hack prevents it
+                    // console.log('too soon junior!')
+                }
+            }
         }, 200)
     }
 
