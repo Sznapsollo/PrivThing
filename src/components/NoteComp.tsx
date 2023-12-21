@@ -225,7 +225,8 @@ const NoteComp = ({editedItem}: Props) => {
                     window.globalLastActiveCheckOnScrollSwitch = new Date().getTime();
                 }
                 let currMillis = new Date().getTime();
-                if((currMillis - window.globalLastActiveCheckOnScrollSwitch) > 2000)  {
+                console.log((currMillis - window.globalLastActiveCheckOnScrollSwitch)) 
+                if((currMillis - window.globalLastActiveCheckOnScrollSwitch) > 1000)  {
                     window.globalLastActiveCheckOnScrollSwitch = new Date().getTime();
                     handleActiveItemFocus();
                 } else {
