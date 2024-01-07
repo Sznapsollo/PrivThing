@@ -527,7 +527,7 @@ const NoteComp = ({editedItem}: Props) => {
             {
                 needSecret && <>
                     <SecretComp globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
-                    <div style={{display: "flex"}} className='formGroupContainer'>
+                    <div style={{display: "flex", height: '55px'}} className='formGroupContainer'>
                         {
                             editedItem.isActive && isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
                                 setAskDelete(true);
