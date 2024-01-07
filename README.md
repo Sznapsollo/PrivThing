@@ -10,6 +10,9 @@ You can also save notes as files on your drive and also open notes from files fr
 
 Optionally it can follow files from different folders using small local server.
 
+Its original intent (and how i use it personally) is to host some kind of server which serves privthing locally and also opens up APIs that allow to read content of some local folders files on this computer (of course such server should not allow this access from outside your computer).
+This way i have my local privthing on the computer and it lists me files not only from localStorage but also from selected folders on my computer.
+
 This repository does not contain server for following additional folders - more info below.
 
 ### How it looks - DEMO Time!
