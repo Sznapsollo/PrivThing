@@ -221,19 +221,7 @@ const NoteComp = ({editedItem}: Props) => {
             
             mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: currentTabs});
             if(!editedItem.isActive) {
-                if(!window.globalLastActiveCheckOnScrollSwitch) {
-                    window.globalLastActiveCheckOnScrollSwitch = new Date().getTime();
-                }
-                let currMillis = new Date().getTime();
-                if((currMillis - window.globalLastActiveCheckOnScrollSwitch) > 500)  {
-                    window.globalLastActiveCheckOnScrollSwitch = new Date().getTime();
-                    handleActiveItemFocus();
-                } else {
-                    // it might happen that for few spaces deactivated old tab will move scroll which would put it on back as active
-                    // dissapearing buttons would grow this old space and it can cause scroll move - especially when it is scrolled down
-                    // this little ugly hack prevents it
-                    // console.log('too soon junior!')
-                }
+                handleActiveItemFocus();
             }
         }, 200)
     }
@@ -539,16 +527,14 @@ const NoteComp = ({editedItem}: Props) => {
             {
                 needSecret && <>
                     <SecretComp globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
-                    { 
-                        editedItem.isActive && <div style={{display: "flex"}} className='formGroupContainer'>
-                            {
-                                isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
-                                    setAskDelete(true);
-                                }}
-                                title={t("delete")}>{t("delete")}</Button>
-                            }
-                        </div>
-                    }
+                    <div style={{display: "flex"}} className='formGroupContainer'>
+                        {
+                            editedItem.isActive && isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
+                                setAskDelete(true);
+                            }}
+                            title={t("delete")}>{t("delete")}</Button>
+                        }
+                    </div>
                 </>
             }
             {
@@ -609,9 +595,9 @@ const NoteComp = ({editedItem}: Props) => {
                         {t('privThingIntroduction')}
                     </Alert>
                     }
-                    { editedItem.isActive && <div style={{display: "flex"}} className='formGroupContainer'>
+                    <div style={{display: "flex", height: '55px'}} className='formGroupContainer'>
                         {
-                            canUpdateFileDom && 
+                            editedItem.isActive && canUpdateFileDom && 
                             <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' 
                                 onClick={ () => {
                                     updateFile();
@@ -623,7 +609,7 @@ const NoteComp = ({editedItem}: Props) => {
                         }
                         &nbsp;
                         {
-                            isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
+                            editedItem.isActive && isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
                                 setAskDelete(true);
                             }}
                             title={t("delete")}>{t("delete")}</Button>
@@ -636,19 +622,23 @@ const NoteComp = ({editedItem}: Props) => {
                         </div>
                         <div style={{flex: 1}}>&nbsp;</div>
                         &nbsp;
-                        <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!note?.length} variant='success' onClick={ () => {
-                            setIsSavingAs(true);
-                        }}
-                        title={t("saveToSelectedLocation")}>
-                            {t("saveAs")}
-                            {(note?.length > 0) && (canUpdateFileDom !== true || isDirty !== true) &&  <div style={{fontSize: 10, margin: '-5px 0 -5px 0'}}>{saveHotKey}</div>}
-                        </Button>
+                        {
+                            editedItem.isActive && <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!note?.length} variant='success' onClick={ () => {
+                                setIsSavingAs(true);
+                            }}
+                            title={t("saveToSelectedLocation")}>
+                                {t("saveAs")}
+                                {(note?.length > 0) && (canUpdateFileDom !== true || isDirty !== true) &&  <div style={{fontSize: 10, margin: '-5px 0 -5px 0'}}>{saveHotKey}</div>}
+                            </Button>
+                        }
                         &nbsp;
-                        <Button className="btn-lg" disabled={!isDirty} variant='danger' onClick={() => {
-                            setNote(orgNote.current);
-                        }}
-                        title={t("rollbackItemChanges")}>{t("cancel")}</Button>
-                    </div>}
+                        {
+                            editedItem.isActive && <Button className="btn-lg" disabled={!isDirty} variant='danger' onClick={() => {
+                                setNote(orgNote.current);
+                            }}
+                            title={t("rollbackItemChanges")}>{t("cancel")}</Button>
+                        }
+                    </div>
                 </div>
             }
             {   
