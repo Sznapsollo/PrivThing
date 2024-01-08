@@ -32,6 +32,8 @@ const HeaderComp = () => {
     let currentLanguageFlag
     if(i18n?.language?.startsWith('pl')) {
         currentLanguageFlag = 'pl.png';
+    } else if(i18n?.language?.startsWith('de')) {
+        currentLanguageFlag = 'de.png';
     } else {
         currentLanguageFlag = 'en.png';
     }
@@ -251,6 +253,9 @@ const HeaderComp = () => {
                             <Dropdown.Menu className='dropdown-menu-end'>
                                 <Dropdown.Item style={{textAlign: 'center'}} onClick={() => handleLanguageChange('pl')}>
                                     <img src={process.env.PUBLIC_URL + "/images/flags/pl.png"} className="" alt="pl flag" />&nbsp;&nbsp;-&nbsp;&nbsp;pl
+                                </Dropdown.Item>
+                                <Dropdown.Item style={{textAlign: 'center'}} onClick={() => handleLanguageChange('de')}>
+                                    <img src={process.env.PUBLIC_URL + "/images/flags/de.png"} className="" alt="de flag" />&nbsp;&nbsp;-&nbsp;&nbsp;de
                                 </Dropdown.Item>
                                 <Dropdown.Item style={{textAlign: 'center'}} onClick={() => handleLanguageChange('en')}>
                                     <img src={process.env.PUBLIC_URL + "/images/flags/en.png"} className="" alt="en flag" />&nbsp;&nbsp;-&nbsp;&nbsp;en
