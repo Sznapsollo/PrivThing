@@ -55,6 +55,7 @@ const NoteComp = ({editedItem}: Props) => {
 
     const orgNote = useRef<string>('');
     const rawNote = useRef<string>('');
+    const deactivatedTime = useRef(0);
 
     const setRawNote = (rawNoteData: string): void => {
         rawNote.current = rawNoteData;
@@ -201,6 +202,8 @@ const NoteComp = ({editedItem}: Props) => {
     useEffect(() => {
         if(editedItem.isActive) {
             window.addEventListener("keydown", onKeyDown);
+        } else {
+            deactivatedTime.current = new Date().getTime();
         }
         return () => {
             window.removeEventListener("keydown", onKeyDown);
@@ -212,15 +215,30 @@ const NoteComp = ({editedItem}: Props) => {
             clearTimeout(scrollNoteHandle);
         }
         scrollNoteHandle = setTimeout(function() {
-            let currentTabs = tabs.map((tab) => {
-                if(tab.isActive === true) {
-                    return {...tab, scrollTop: scrollableRef.current?.scrollTop}
-                }
-                return {...tab}
-            });
+            if(editedItem.isActive) {
+                let currentTabs = tabs.map((tab) => {
+                    if(tab.isActive === true) {
+                        return {...tab, scrollTop: scrollableRef.current?.scrollTop}
+                    }
+                    return {...tab}
+                });
+                
+                mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: currentTabs});
+            }
             
-            mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: currentTabs});
-            if(!editedItem.isActive) {
+            // to prevent debounce from stretching of elements that causes scroll
+            // if it wants to get back to focus but it was deactivated just moment ago - dont do it
+            let shouldActiveItemFocus = (!editedItem.isActive);
+            if(shouldActiveItemFocus && deactivatedTime.current) {
+                let currentTime = new Date().getTime();
+                // console.log(editedItem.name, currentTime - deactivatedTime.current)
+                if((currentTime - deactivatedTime.current) < 1000) {
+                    // pass
+                    shouldActiveItemFocus = false;
+                }
+            }
+            
+            if(shouldActiveItemFocus) {
                 handleActiveItemFocus();
             }
         }, 200)
