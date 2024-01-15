@@ -70,7 +70,7 @@ const NoteSpacesComp = () => {
                                 {editedItemSpace.name ? editedItemSpace.name : '---'}
                             </div>
                             { 
-                                editedItemSpaces.length > 1 && <FiMinusCircle title={t("closeNoteSpace")} className='h2 itemTabIconRemove' onClick={(e) => {
+                                editedItemSpaces.length > 1 && <FiMinusCircle title={t("closeNoteSpace")} color={editedItemSpace.isActive ? '#ffffff' : '#000000'} className='h2 itemTabIconRemove' onClick={(e) => {
                                     e.preventDefault();
                                     mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: editedItemSpace});
                                 }}/>

@@ -14,8 +14,10 @@ todo:
 - sidenotes
 - draggable note spaces
 - better file search
+- sometimes after save screen is blanke
 
 done:
+- buffout active notepad si we know which is active better
 - possibility to stretch note space
 - PL translation + other translations
 - auto language
