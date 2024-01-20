@@ -301,7 +301,7 @@ a:not(.dropdown-item) {
 }
 
 .notepadInactive {
-    border: 2px solid #cecece;
+    border: 2px solid #f2f2f2;
     border-radius: 5px;
 }
 
