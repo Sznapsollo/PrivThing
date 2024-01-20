@@ -112,7 +112,7 @@ const HomeComp = () => {
             <div className={'homeContainer ' + (mainState.fullItems === true ? 'dontDisplay' : '')}>
                 <TabsComp />
                 <NoteSpacesComp />
-                {showHint && <HintsComp hint={hint} closeHint={() => {setShowHint(false)}}/>}
+                {showHint && <HintsComp hint={hint} closeHint={() => {setShowHint(false)}} onAnotherHint={() => {setHint(t(getRandomHint()))}}/>}
             </div>
         </div>
     )
