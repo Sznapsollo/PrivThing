@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
 
 interface Props {
+    cssClass?: string,
     warning?: string, 
     info?: string,
     handleSubmit: (secret: string) => any,
@@ -11,7 +12,7 @@ interface Props {
     globalClick?: () => any
 }
 
-const SecretComp = ({confirm, info, globalClick, handleSubmit, warning} : Props) => {
+const SecretComp = ({confirm, info, globalClick, handleSubmit, warning, cssClass} : Props) => {
 
     const { t } = useTranslation();
 
@@ -58,7 +59,7 @@ const SecretComp = ({confirm, info, globalClick, handleSubmit, warning} : Props)
     }
 
     return (
-        <div onClick={handleGlobalClick} style={{width: "100%", height: "100%", display: "table"}}>
+        <div onClick={handleGlobalClick} style={{width: "100%", height: "100%", display: "table"}} className={cssClass}>
             <div style={{display: "table-cell", verticalAlign: "middle"}}>
                 <div style={{margin: "auto", display: "table"}}>
                     {warning && <div style={{textAlign: "center", color: "red", width: 300, padding: 10}}>{warning}</div>}

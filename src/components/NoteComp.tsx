@@ -544,8 +544,8 @@ const NoteComp = ({editedItem}: Props) => {
             }
             {
                 needSecret && <>
-                    <SecretComp globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
-                    <div style={{display: "flex", height: '55px'}} className='formGroupContainer'>
+                    <SecretComp cssClass={(editedItem.isActive ? 'notepadActive' : 'notepadInctive')} globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
+                    <div style={{display: "flex", marginTop: 3, height: '55px'}} className='formGroupContainer'>
                         {
                             editedItem.isActive && isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
                                 setAskDelete(true);
@@ -586,7 +586,7 @@ const NoteComp = ({editedItem}: Props) => {
                             </Form.Group>
                         </div>
                     </div>
-                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' formGroupContainerActive' : ' formGroupContainerInactive')}>
+                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInctive')}>
                         <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onScroll={()=> {rememberScrollPosition()}}>
                             <label className='upperLabel'>{t("note")}</label>
                             <div style={{height: 100}}>
