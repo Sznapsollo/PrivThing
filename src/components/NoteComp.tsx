@@ -586,7 +586,7 @@ const NoteComp = ({editedItem}: Props) => {
                             </Form.Group>
                         </div>
                     </div>
-                    <div className='formGroupContainer flexStretch'>
+                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' formGroupContainerActive' : ' formGroupContainerInactive')}>
                         <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onScroll={()=> {rememberScrollPosition()}}>
                             <label className='upperLabel'>{t("note")}</label>
                             <div style={{height: 100}}>
@@ -613,7 +613,7 @@ const NoteComp = ({editedItem}: Props) => {
                         {t('privThingIntroduction')}
                     </Alert>
                     }
-                    <div style={{display: "flex", height: '55px'}} className='formGroupContainer'>
+                    <div style={{display: "flex", marginTop: 3, height: '55px'}} className='formGroupContainer'>
                         {
                             editedItem.isActive && canUpdateFileDom && 
                             <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success' 
