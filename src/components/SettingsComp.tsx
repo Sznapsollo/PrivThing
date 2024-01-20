@@ -119,6 +119,25 @@ const SettingsComp = () => {
                         ></Form.Check>
                     </Form.Group>
                 </div>
+
+                <div className='formGroupContainer' style={{textAlign:'center'}}>
+                    <Form.Group className='formGroup' style={{display: 'inline-block'}}>
+                        <Form.Check
+                            id="showHintsChbx"
+                            type="checkbox"
+                            label={t("showHints")}
+                            name="showHints"
+                            checked={settings.showHints}
+                            className={'form-control-lg largeCheckbox'}
+                            onChange={(e) => {
+                                setSettings({...settings, showHints: e.target.checked});
+                            }}
+                            onClick={(e) => {
+                                console.log('onclicked', e.target)
+                            }}
+                        ></Form.Check>
+                    </Form.Group>
+                </div>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="danger" className={'btn-lg'} onClick={() => setClearSettings(true)}>{t("clearAllSettings")}</Button>

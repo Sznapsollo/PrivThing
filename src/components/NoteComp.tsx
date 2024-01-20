@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import { useState, useEffect, useRef, useCallback, PointerEvent } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
@@ -8,7 +8,7 @@ import SecretComp from './SecretComp';
 import { AlertData, EditItem, Item, SaveAsResults } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
-import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
+import CodeMirror, {EditorView, BlockInfo, ReactCodeMirrorRef, lineNumbers} from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
@@ -590,22 +590,37 @@ const NoteComp = ({editedItem}: Props) => {
                         <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onScroll={()=> {rememberScrollPosition()}}>
                             <label className='upperLabel'>{t("note")}</label>
                             <div style={{height: 100}}>
-                            <CodeMirror 
-                                value={note} 
-                                spellCheck={false}
-                                ref={noteRef}
-                                extensions={[
-                                    javascript({ jsx: true }),
-                                    EditorView.lineWrapping,
-                                    EditorView.theme({
-                                        '.cm-gutter,.cm-content': { borderBottom: "nonde", minHeight: '1000px' },
-                                        '.cm-scroller': { overflow: 'auto' },
-                                    })
-                                ]} 
-                                onChange={onCMChange}
-                                onClick={handleActiveItemFocus}
+                                <CodeMirror 
+                                    value={note} 
+                                    spellCheck={false}
+                                    ref={noteRef}
+                                    extensions={[
+                                        javascript({ jsx: true }),
+                                        lineNumbers({
+                                            domEventHandlers: {
+                                                click(view: EditorView, line: BlockInfo, event: any) {
+                                                    let clickedNumber = event?.srcElement?.innerText;
+                                                    if(clickedNumber) {
+                                                        let rowNumber = parseInt(clickedNumber);
+                                                        if(!isNaN(rowNumber)) {
+                                                            navigator.clipboard.writeText(view.state.doc.line(rowNumber).text);
+                                                            mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 5000, message: t('lineCopiedToClipboard')} as AlertData})
+                                                        }
+                                                    }
+                                                    return true
+                                                }
+                                            }
+                                        }),
+                                        EditorView.lineWrapping,
+                                        EditorView.theme({
+                                            '.cm-gutter,.cm-content': { borderBottom: "nonde", minHeight: '1000px' },
+                                            '.cm-scroller': { overflow: 'auto' },
+                                        })
+                                    ]} 
+                                    onChange={onCMChange}
+                                    onClick={handleActiveItemFocus}
                                 />
-                                </div>
+                            </div>
                         </Form.Group>
                     </div>
                     { !isIntroduced && editedItem.isActive &&

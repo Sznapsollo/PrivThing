@@ -1,12 +1,15 @@
 import {useState, useEffect, useRef} from 'react'
 import ItemsComp from './ItemsComp';
 import { AppState } from '../context/Context'
-import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
+import { getRandomHint, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 import { BsArrowLeftRight } from 'react-icons/bs';
+import i18n from '../i18n';
 import '../styles.css'
 import TabsComp from './TabsComp';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import NoteSpacesComp from './NoteSpacesComp';
+import HintsComp from './HintsComp';
+import { useTranslation } from 'react-i18next';
 
 
 let isItemsResizing: boolean = false;
@@ -15,9 +18,13 @@ let defaultItemsWidth: string = retrieveLocalStorage("privthing.pmItemsWidth");
 
 const HomeComp = () => {
 
-    const { mainState, mainDispatch } = AppState();
+    const { mainState, settingsState: {showHints}, mainDispatch } = AppState();
+    const [hint, setHint] = useState('');
+    const [showHint, setShowHint] = useState(showHints)
     const [itemsWidth, setItemsWidth] = useState(typeof defaultItemsWidth === 'number' ? defaultItemsWidth : 25);
     const itewsWrapperRef = useRef(null);
+
+    const { t } = useTranslation();
 
     const mouseUpListener = () => {
         cleanListeners();
@@ -53,10 +60,16 @@ const HomeComp = () => {
         window.removeEventListener('resize', handleWindowResize);
         window.addEventListener('resize', handleWindowResize);
 
+        setHint(t(getRandomHint()));
+
         return () => {
             window.removeEventListener('resize', handleWindowResize);
         }
     }, [])
+
+    useEffect(() => {
+        setHint(t(getRandomHint()));
+    }, [i18n?.language])
 
     const resizingOfColumns = (e:MouseEvent) => {
         if(!isItemsResizing) {
@@ -99,6 +112,7 @@ const HomeComp = () => {
             <div className={'homeContainer ' + (mainState.fullItems === true ? 'dontDisplay' : '')}>
                 <TabsComp />
                 <NoteSpacesComp />
+                {showHint && <HintsComp hint={hint} closeHint={() => {setShowHint(false)}}/>}
             </div>
         </div>
     )

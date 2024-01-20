@@ -94,6 +94,19 @@ export function getNewItem() {
     };
 }
 
+export function getRandomHint() {
+    let hints = [
+        "hintCtrlS",
+        "hintDisable",
+        "hintExportImport",
+        "hintPassword",
+        "hintRowClick",
+        "hintRightClickList"
+    ]
+    var randomHint = Math.floor(Math.random()*hints.length);
+    return hints[randomHint];
+}
+
 export function manageEditItemSpaces(stateEditedItemSpace, editItemPayload) {
     let editedItemSpaces = stateEditedItemSpace || [];
     if(!editedItemSpaces.length) {

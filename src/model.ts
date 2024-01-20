@@ -94,7 +94,8 @@ export interface SearchContextType {
 export interface SettingsContextType {
     forgetSecretMode: string, // IMMEDIATE, AFTER_TIME, NEVER
     forgetSecretTime: number,
-    enableFileServer?: boolean
+    enableFileServer?: boolean,
+    showHints?: boolean
 }
 
 export interface Tab extends Item {
