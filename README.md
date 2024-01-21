@@ -57,13 +57,16 @@ I will upload small example server in separate git. I use vertx based server whi
 
 #### PrivThing features which make it nice to use it for notes
 
+- multi note spaces (note spaces next to each other)
+- rown numbers - clicking on row number puts whole row into clipboard
 - tabs
   - reordable
   - remember scroll for each note
   - remembered
-- draggable vertical resizer between items list and note - it position is remembered
-- search of notes titles
-- different folders (by default)
+- possibility to password secure individual notes
 - hotkeys
   - ctr + s
   - ctr + f triggers CodeMirror search instead of web search
+- draggable vertical resizer between items list and note - its position is remembered
+- search of notes titles
+- different folders (by default)
