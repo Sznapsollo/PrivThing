@@ -605,6 +605,14 @@ const NoteComp = ({editedItem}: Props) => {
                                                         if(!isNaN(rowNumber)) {
                                                             navigator.clipboard.writeText(view.state.doc.line(rowNumber).text);
                                                             mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 5000, message: t('lineCopiedToClipboard')} as AlertData})
+
+                                                            view.dispatch({
+                                                                // Set selection to that entire line.
+                                                                // selection: { head: line.from, anchor: line.to },
+                                                                selection: { head: line.from, anchor: line.from },
+                                                                // Ensure the selection is shown in viewport
+                                                                scrollIntoView: true
+                                                              });
                                                         }
                                                     }
                                                     return true
