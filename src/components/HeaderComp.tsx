@@ -229,6 +229,7 @@ const HeaderComp = () => {
                                 <Form.Control 
                                     placeholder={t("startTypingToFilterFiles")} 
                                     value={searchState.searchQuery}
+                                    onFocus={(event) => event.target.select()}
                                     className={'form-control-lg m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
                                     onChange={(e) =>
                                         {
