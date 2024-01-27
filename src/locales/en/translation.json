@@ -91,6 +91,7 @@
     "startTypingToFilterFiles": "Start typing to filter files (by title)",
     "storageNotConfigured": "Files storage folder and service not configured. You can only work with manual pick and save and localStorage files",
     "stretch": "Stretch",
+    "stretchNoteSpaceOnActive": "Auto stretch active note space",
     "question": "Question",
     "unsavedChanges": "There are unsaved changes. Do you want to continue?",
     "warning": "Warning",

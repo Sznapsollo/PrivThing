@@ -33,7 +33,7 @@ const NoteComp = ({editedItem}: Props) => {
         warning?: string
     }
 
-    const { mainState: {editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode} } = AppState();
+    const { mainState: {editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode, stretchNoteSpaceOnActive} } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
     const [note, setNote] = useState<string>('');
@@ -202,6 +202,9 @@ const NoteComp = ({editedItem}: Props) => {
     useEffect(() => {
         if(editedItem.isActive) {
             window.addEventListener("keydown", onKeyDown);
+            if(stretchNoteSpaceOnActive) {
+                mainDispatch({type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: editedItem});
+            }
         } else {
             deactivatedTime.current = new Date().getTime();
         }

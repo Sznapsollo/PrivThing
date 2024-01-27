@@ -91,6 +91,7 @@
     "startTypingToFilterFiles": "Zacznij pisać aby filtrować notatki (po tytule)",
     "storageNotConfigured": "Serwer plikowy nie jest skonfigurowany. Możesz pracować z notatkami z pamięci podręcznej lub plikowymi wybieranymi ręcznie.",
     "stretch": "Rozszerz",
+    "stretchNoteSpaceOnActive": "Auto rozszerz aktywny notatnik",
     "question": "Pytanie",
     "unsavedChanges": "Wykryto niezapiane zmiany. Czy chcesz kontynuować?",
     "warning": "Ostrzeżenie",

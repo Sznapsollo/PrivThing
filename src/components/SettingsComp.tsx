@@ -138,6 +138,25 @@ const SettingsComp = () => {
                         ></Form.Check>
                     </Form.Group>
                 </div>
+
+                <div className='formGroupContainer' style={{textAlign:'center'}}>
+                    <Form.Group className='formGroup' style={{display: 'inline-block'}}>
+                        <Form.Check
+                            id="stretchNoteSpaceOnActiveChbx"
+                            type="checkbox"
+                            label={t("stretchNoteSpaceOnActive")}
+                            name="stretchNoteSpaceOnActive"
+                            checked={settings.stretchNoteSpaceOnActive}
+                            className={'form-control-lg largeCheckbox'}
+                            onChange={(e) => {
+                                setSettings({...settings, stretchNoteSpaceOnActive: e.target.checked});
+                            }}
+                            onClick={(e) => {
+                                console.log('onclicked', e.target)
+                            }}
+                        ></Form.Check>
+                    </Form.Group>
+                </div>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="danger" className={'btn-lg'} onClick={() => setClearSettings(true)}>{t("clearAllSettings")}</Button>

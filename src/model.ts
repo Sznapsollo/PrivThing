@@ -95,7 +95,8 @@ export interface SettingsContextType {
     forgetSecretMode: string, // IMMEDIATE, AFTER_TIME, NEVER
     forgetSecretTime: number,
     enableFileServer?: boolean,
-    showHints?: boolean
+    showHints?: boolean,
+    stretchNoteSpaceOnActive?: boolean
 }
 
 export interface Tab extends Item {

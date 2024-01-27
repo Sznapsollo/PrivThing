@@ -24,7 +24,8 @@ export const settingsInitialStateBaseline = {
   forgetSecretTime: 300000, 
   forgetSecretMode: "AFTER_TIME",
   enableFileServer: false,
-  showHints: true
+  showHints: true,
+  stretchNoteSpaceOnActive: false
 }
 
 var settingsInitialState = {...settingsInitialStateBaseline}

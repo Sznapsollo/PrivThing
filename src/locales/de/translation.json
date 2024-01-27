@@ -91,6 +91,7 @@
     "startTypingToFilterFiles": "Mit der Eingabe beginnen, um Dateien (nach Titel) zu filtern",
     "storageNotConfigured": "Dateispeicherordner und -dienst nicht konfiguriert. Sie können nur mit manueller Auswahl und Speicherung sowie mit localStorage-Dateien arbeiten",
     "stretch": "Strecken",
+    "stretchNoteSpaceOnActive": "Aktiven Notenraum automatisch dehnen",
     "question": "Frage",
     "unsavedChanges": "Es liegen ungespeicherte Änderungen vor. Möchten Sie fortfahren?",
     "Warnung": "Warnung",
