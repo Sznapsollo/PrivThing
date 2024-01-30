@@ -1,5 +1,4 @@
 todo:
-- do something when there are many many tabs (maybe dropdown?)
 - file path do not display for local storage
 - manual pick file elsewhere
 - local storage files add folder structure
@@ -14,10 +13,11 @@ todo:
 - sidenotes
 - draggable note spaces
 - better file search
-- sometimes after save screen is blanke
+- sometimes after save screen is blank
 - pin note to top
 
 done:
+- singleline tabs - rememberable - do something when there are many many tabs (maybe dropdown?)
 - click on row to copy row
 - hints
 - buffout active notepad si we know which is active better

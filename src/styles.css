@@ -184,6 +184,15 @@ a:not(.dropdown-item) {
     color: red;
 }
 
+.tabBarShrinkIcon {
+    cursor: pointer;
+}
+
+.singleLineTabs {
+    height: 40px;
+    overflow: auto;
+}
+
 /* 
 .items:hover {
     width: 50%;

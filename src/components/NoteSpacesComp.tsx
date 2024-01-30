@@ -56,7 +56,7 @@ const NoteSpacesComp = () => {
                                 }}/>
                             }
                             {
-                                editedItemSpaces.length > 1 && (editedItemSpace.flex && editedItemSpace.flex >= 2) && <PiArrowsInLineHorizontalFill title={t("schrink")} className='h4 itemTabIconResize' onClick={(e) => {
+                                editedItemSpaces.length > 1 && (editedItemSpace.flex && editedItemSpace.flex >= 2) && <PiArrowsInLineHorizontalFill title={t("shrink")} className='h4 itemTabIconResize' onClick={(e) => {
                                     e.preventDefault();
                                     mainDispatch({type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: editedItemSpace});
                                 }}/>

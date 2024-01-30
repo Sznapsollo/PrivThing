@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState } from '../context/Context'
 import { useTranslation } from 'react-i18next'
 import { Item, Tab, TabContextMenu } from '../model';
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
-import { getNewItem } from '../utils/utils'
+import { PiArrowsInLineVertical, PiArrowsOutLineVertical } from 'react-icons/pi';
+import { getNewItem, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 import TabContextMenuComp from './TabContextMenuComp';
 import { MAIN_ACTIONS } from '../context/Reducers';
 
@@ -17,14 +18,22 @@ const TabsComp = () => {
 
     const { mainState, mainDispatch } = AppState();
     const { t } = useTranslation();
-    const [ tabContextMenu, setTabContextMenu ] = useState<TabContextMenu>(initialTabContextMenu)
-
+    const [ tabContextMenu, setTabContextMenu ] = useState<TabContextMenu>(initialTabContextMenu);
+    const [ tabsDisplayMode, setTabsDisplayMode ] = useState<string>('MULTILINE');
 
     const dragItem = useRef<number | null>();
     const dragOverItem = useRef<number | null>();
     const dragItemPrev = useRef<number | null>();
     const dragOverItemPrev = useRef<number | null>();
    
+    useEffect(() => {
+        let defaultTabDisplayMode = retrieveLocalStorage('privthing.pmTabsDisplayMode')
+        if(defaultTabDisplayMode && defaultTabDisplayMode !== tabsDisplayMode && ['MULTILINE', 'SINGLELINE'].indexOf(defaultTabDisplayMode) >= 0) {
+            console.log('switching display mode to', defaultTabDisplayMode)
+            setTabsDisplayMode(defaultTabDisplayMode);
+        }
+    }, [])
+
     const showPassFieldHack = (show: boolean) => {
         let secretPassField = document.getElementById('secretPass');
         let secretPassFieldDummy = document.getElementById('secretPassDummy');
@@ -112,8 +121,27 @@ const TabsComp = () => {
     const handleContextMenuClose = () => setTabContextMenu(initialTabContextMenu)
     // context menu things end
 
+    const handleChangeTabsDisplayMode = (newMode: string) => {
+        setTabsDisplayMode(newMode);
+        saveLocalStorage("privthing.pmTabsDisplayMode", newMode);
+    }
+
     return (
-        <div>
+        <div className={tabsDisplayMode === 'SINGLELINE' ? 'singleLineTabs': ''}>
+            <span>
+                {
+                    (tabsDisplayMode !== 'SINGLELINE') &&
+                    <PiArrowsInLineVertical title={t("singleLineTabs")} className='h2 tabBarShrinkIcon' onClick={(e) => {
+                        handleChangeTabsDisplayMode('SINGLELINE');
+                    }}/>
+                }
+                {
+                    (tabsDisplayMode === 'SINGLELINE') &&
+                    <PiArrowsOutLineVertical title={t("multiLineTabs")} className='h2 tabBarShrinkIcon' onClick={(e) => {
+                        handleChangeTabsDisplayMode('MULTILINE');
+                    }}/>
+                }
+            </span>
             {
                 mainState.tabs.map((tabItem, tabItemIndex) => (
                     <span key={tabItemIndex}
