@@ -94,6 +94,7 @@ export interface SearchContextType {
 export interface SettingsContextType {
     forgetSecretMode: string, // IMMEDIATE, AFTER_TIME, NEVER
     forgetSecretTime: number,
+    codeMirrorTheme?: string,
     enableFileServer?: boolean,
     showHints?: boolean,
     stretchNoteSpaceOnActive?: boolean

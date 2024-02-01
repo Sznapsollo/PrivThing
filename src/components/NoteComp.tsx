@@ -8,7 +8,7 @@ import SecretComp from './SecretComp';
 import { AlertData, EditItem, Item, SaveAsResults } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import '../styles.css'
-import CodeMirror, {EditorView, BlockInfo, ReactCodeMirrorRef, lineNumbers} from '@uiw/react-codemirror';
+import CodeMirror, {EditorView, BlockInfo, ReactCodeMirrorRef, lineNumbers, Extension} from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
@@ -17,6 +17,7 @@ import moment from 'moment';
 import { Alert } from '@mui/material';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import axios from 'axios';
+import { amy, ayuLight, barf, bespin, birdsOfParadise, boysAndGirls, clouds, cobalt, coolGlow, dracula, espresso, noctisLilac, rosePineDawn, smoothy, solarizedLight, tomorrow } from 'thememirror';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
@@ -33,7 +34,7 @@ const NoteComp = ({editedItem}: Props) => {
         warning?: string
     }
 
-    const { mainState: {editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode, stretchNoteSpaceOnActive} } = AppState();
+    const { mainState: {editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode, stretchNoteSpaceOnActive, codeMirrorTheme} } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
     const [note, setNote] = useState<string>('');
@@ -535,6 +536,41 @@ const NoteComp = ({editedItem}: Props) => {
         setNote(val);
     }, []);
 
+    let cdmrrorTheme: 'none' | Extension = 'none'
+    if(codeMirrorTheme === 'amy') {
+        cdmrrorTheme = amy
+    } else if(codeMirrorTheme === 'ayuLight') {
+        cdmrrorTheme = ayuLight
+    } else if(codeMirrorTheme === 'barf') {
+        cdmrrorTheme = barf
+    } else if(codeMirrorTheme === 'bespin') {
+        cdmrrorTheme = bespin
+    } else if(codeMirrorTheme === 'birdsOfParadise') {
+        cdmrrorTheme = birdsOfParadise
+    } else if(codeMirrorTheme === 'boysAndGirls') {
+        cdmrrorTheme = boysAndGirls
+    } else if(codeMirrorTheme === 'clouds') {
+        cdmrrorTheme = clouds
+    } else if(codeMirrorTheme === 'cobalt') {
+        cdmrrorTheme = cobalt
+    } else if(codeMirrorTheme === 'coolGlow') {
+        cdmrrorTheme = coolGlow
+    } else if(codeMirrorTheme === 'dracula') {
+        cdmrrorTheme = dracula
+    } else if(codeMirrorTheme === 'espresso') {
+        cdmrrorTheme = espresso
+    } else if(codeMirrorTheme === 'noctisLilac') {
+        cdmrrorTheme = noctisLilac
+    } else if(codeMirrorTheme === 'rosePineDawn') {
+        cdmrrorTheme = rosePineDawn
+    } else if(codeMirrorTheme === 'smoothy') {
+        cdmrrorTheme = smoothy
+    } else if(codeMirrorTheme === 'solarizedLight') {
+        cdmrrorTheme = solarizedLight
+    } else if(codeMirrorTheme === 'tomorrow') {
+        cdmrrorTheme = tomorrow
+    }
+
     return (
         <div className='noteContainer'>
             {
@@ -597,6 +633,7 @@ const NoteComp = ({editedItem}: Props) => {
                                     value={note} 
                                     spellCheck={false}
                                     ref={noteRef}
+                                    theme={cdmrrorTheme}
                                     extensions={[
                                         javascript({ jsx: true }),
                                         lineNumbers({

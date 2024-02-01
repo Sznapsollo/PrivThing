@@ -25,7 +25,8 @@ export const settingsInitialStateBaseline = {
   forgetSecretMode: "AFTER_TIME",
   enableFileServer: false,
   showHints: true,
-  stretchNoteSpaceOnActive: false
+  stretchNoteSpaceOnActive: false,
+  codeMirrorTheme: 'none'
 }
 
 var settingsInitialState = {...settingsInitialStateBaseline}

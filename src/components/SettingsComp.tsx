@@ -101,6 +101,39 @@ const SettingsComp = () => {
                         <div style={{padding: 10, textAlign: "center"}}>{moment.utc(settings.forgetSecretTime).format("HH:mm:ss")}</div>
                     </Form.Group>}
                 </div>
+
+                <div className='formSection'>
+                    <Form.Group className='formGroup'>
+                        <label className='upperLabel'>{t("codeMirrorTheme")}</label>
+                        <Form.Control 
+                            as="select" 
+                            name="codeMirrorTheme"
+                            value={settings.codeMirrorTheme}
+                            className='form-control-lg'
+                        onChange={(e) => {
+                                setSettings({...settings, codeMirrorTheme: e.target.value});
+                            }}
+                        >
+                            <option value="none">{'Standard'}</option>
+                            <option value="amy">{'Amy'}</option>
+                            <option value="ayuLight">{'Ayu Light'}</option>
+                            <option value="barf">{'Barf'}</option>
+                            <option value="bespin">{'Bespin'}</option>
+                            <option value="birdsOfParadise">{'Birds of Paradise'}</option>
+                            <option value="boysAndGirls">{'Boys and Girls'}</option>
+                            <option value="clouds">{'Clouds'}</option>
+                            <option value="cobalt">{'Cobalt'}</option>
+                            <option value="coolGlow">{'Cool Glow'}</option>
+                            <option value="dracula">{'Dracula'}</option>
+                            <option value="espresso">{'Espresso'}</option>
+                            <option value="noctisLilac">{'Noctis Lilac'}</option>
+                            <option value="rosePineDawn">{'Rosé Pine Dawn'}</option>
+                            <option value="smoothy">{'Smoothy'}</option>
+                            <option value="solarizedLight">{'Solarized Light'}</option>
+                            <option value="tomorrow">{'Tomorrow'}</option>
+                        </Form.Control>
+                    </Form.Group>
+                </div>
                 
                 <div className='formGroupContainer' style={{textAlign:'center'}}>
                     <Form.Group className='formGroup' style={{display: 'inline-block'}}>

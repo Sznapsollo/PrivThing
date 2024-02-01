@@ -11,6 +11,7 @@
     "closeNoteSpacesButThis": "Zamknij pozostałe zeszyty",
     "closeTab": "Zamknij zakładkę",
     "closeAllTabs": "Zamknij wszystkie zakładki",
+    "codeMirrorTheme": "Styl notatnika",
     "confirmDelete": "Czy chcesz skasować tą pozycję {{item}}?",
     "confirmRefresh": "Czy chcesz odświeżyć?",
     "dataSaved": "Dane zostały zapisane",
