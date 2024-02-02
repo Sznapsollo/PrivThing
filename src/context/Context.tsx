@@ -26,7 +26,31 @@ export const settingsInitialStateBaseline = {
   enableFileServer: false,
   showHints: true,
   stretchNoteSpaceOnActive: false,
-  codeMirrorTheme: 'none'
+  codeMirrorTheme: 'none',
+  customThemeColors: {
+        variant: 'light',
+        background: '#282a36',
+        foreground: '#f0a4f5',
+        caret: '#7c3aed',
+        selection: 'ffffff1A', // does not seem to work
+        lineHighlight: '#ffffff1A',
+        gutterBackground: '#282a36',
+        gutterForeground: '#6461c9',
+        comment: '#ffc800',
+        variableName: '#ffffff',
+        brace: '#eaff00',
+        numberType: '#bd93f9',
+        boolType: '#50fa76',
+        nullType: '#8be9fd',
+        keyWordType: '#ff79c6',
+        operatorType: '#ff79c6',
+        classNameType: '#8be9fd',
+        typeName: '#85e9fd',
+        typeName2: '#8be9fd',
+        angleBracket: '#ffffff',
+        tagName: '#ff79c6',
+        attributeName: '#50fa76'
+    }
 }
 
 var settingsInitialState = {...settingsInitialStateBaseline}

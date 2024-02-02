@@ -115,6 +115,7 @@ const SettingsComp = () => {
                             }}
                         >
                             <option value="none">{'Standard'}</option>
+                            <option value="customTheme">{t('customTheme')}</option>
                             <option value="amy">{'Amy'}</option>
                             <option value="ayuLight">{'Ayu Light'}</option>
                             <option value="barf">{'Barf'}</option>
@@ -134,6 +135,204 @@ const SettingsComp = () => {
                         </Form.Control>
                     </Form.Group>
                 </div>
+
+                {
+                settings.codeMirrorTheme === 'customTheme' &&
+                <div className='formGroupContainer' style={{textAlign:'center', display: 'flex', flexDirection: 'row'}}>
+                    <div style={{flex: 1}}>
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeBackground')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, background: e.target.value}});
+                                }} value={settings.customThemeColors.background}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeForeground')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, foreground: e.target.value}});
+                                }} value={settings.customThemeColors.foreground}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeCaret')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, caret: e.target.value}});
+                                }} value={settings.customThemeColors.caret}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeSelection')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, selection: e.target.value}});
+                                }} value={settings.customThemeColors.selection}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeLineHighlight')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, lineHighlight: e.target.value}});
+                                }} value={settings.customThemeColors.lineHighlight}></input>
+                            </div>
+                        </div>
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeAttributeName')}</div>
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, attributeName: e.target.value}});
+                                }} value={settings.customThemeColors.attributeName}></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{flex: 1}}>
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeGutterBackground')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, gutterBackground: e.target.value}});
+                                }} value={settings.customThemeColors.gutterBackground}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeGutterForeground')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, gutterForeground: e.target.value}});
+                                }} value={settings.customThemeColors.gutterForeground}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeComment')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, comment: e.target.value}});
+                                }} value={settings.customThemeColors.comment}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeVariableName')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, variableName: e.target.value}});
+                                }} value={settings.customThemeColors.variableName}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeBrace')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, brace: e.target.value}});
+                                }} value={settings.customThemeColors.brace}></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{flex: 1}}>
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeKeyWordType')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, keyWordType: e.target.value}});
+                                }} value={settings.customThemeColors.keyWordType}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeOperatorType')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, operatorType: e.target.value}});
+                                }} value={settings.customThemeColors.operatorType}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeClassNameType')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, classNameType: e.target.value}});
+                                }} value={settings.customThemeColors.classNameType}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeTypeName')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, typeName: e.target.value}});
+                                }} value={settings.customThemeColors.typeName}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeTypeName2')}</div>
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, typeName2: e.target.value}});
+                                }} value={settings.customThemeColors.typeName2}></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{flex: 1}}>
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeTagName')}</div>
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, tagName: e.target.value}});
+                                }} value={settings.customThemeColors.tagName}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeBoolType')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, boolType: e.target.value}});
+                                }} value={settings.customThemeColors.boolType}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeNullType')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, nullType: e.target.value}});
+                                }} value={settings.customThemeColors.nullType}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeNumberType')}</div>    
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, numberType: e.target.value}});
+                                }} value={settings.customThemeColors.numberType}></input>
+                            </div>
+                        </div>
+
+                        <div className='customThemeColorSettingContainer'>
+                            <div className='customThemeColorSettingLabel'>{t('customThemeAngleBracket')}</div>
+                            <div className='customThemeColorSettingInput'>
+                                <input type="color" id="html5colorpicker" onChange={(e) => {
+                                    setSettings({...settings, customThemeColors: {...settings.customThemeColors, angleBracket: e.target.value}});
+                                }} value={settings.customThemeColors.angleBracket}></input>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+                }
                 
                 <div className='formGroupContainer' style={{textAlign:'center'}}>
                     <Form.Group className='formGroup' style={{display: 'inline-block'}}>

@@ -97,7 +97,8 @@ export interface SettingsContextType {
     codeMirrorTheme?: string,
     enableFileServer?: boolean,
     showHints?: boolean,
-    stretchNoteSpaceOnActive?: boolean
+    stretchNoteSpaceOnActive?: boolean,
+    customThemeColors: LooseObject
 }
 
 export interface Tab extends Item {

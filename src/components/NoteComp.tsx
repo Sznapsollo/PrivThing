@@ -18,6 +18,7 @@ import { Alert } from '@mui/material';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import axios from 'axios';
 import { amy, ayuLight, barf, bespin, birdsOfParadise, boysAndGirls, clouds, cobalt, coolGlow, dracula, espresso, noctisLilac, rosePineDawn, smoothy, solarizedLight, tomorrow } from 'thememirror';
+import { createCustomTheme } from '../utils/customTheme'
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
@@ -34,7 +35,7 @@ const NoteComp = ({editedItem}: Props) => {
         warning?: string
     }
 
-    const { mainState: {editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode, stretchNoteSpaceOnActive, codeMirrorTheme} } = AppState();
+    const { mainState: {editedItemCandidate, tabs, secret, newItemToOpen, items}, mainDispatch, settingsState: {forgetSecretMode, stretchNoteSpaceOnActive, codeMirrorTheme, customThemeColors} } = AppState();
     const [filePath, setFilePath] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
     const [note, setNote] = useState<string>('');
@@ -569,8 +570,9 @@ const NoteComp = ({editedItem}: Props) => {
         cdmrrorTheme = solarizedLight
     } else if(codeMirrorTheme === 'tomorrow') {
         cdmrrorTheme = tomorrow
+    } else if(codeMirrorTheme === 'customTheme') {
+        cdmrrorTheme = createCustomTheme(customThemeColors)
     }
-
     return (
         <div className='noteContainer'>
             {
