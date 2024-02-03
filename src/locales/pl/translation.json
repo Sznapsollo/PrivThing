@@ -62,6 +62,7 @@
     "hintPassword": "Możesz zabezpieczyć notatkę hasłem - wybierz opcję zabezpieczenia podczas Zapisz jako",
     "hintRowClick": "Podpowiedź: Kliknij numer wiersza by skopiować go do schowka",
     "hintRightClickList": "Podpowiedź: Kliknij prawym przyciskiem na pozycji na liście oby otworzyć ją w nowym notatniku",
+    "hintThemes": "Podpowiedź: Możesz zmieniać wygląd(kolorystykę) notatki. Są dostępne gotowe szablony w ustawieniach lub możesz zastosować własny.",
     "ignoreUnsaved": "Nie zapisuj danych.",
     "importLocalStorageItems": "Importuj pozycje",
     "incorrectPassword": "Niepoprawne hasło. Spróbuj ponownie.",

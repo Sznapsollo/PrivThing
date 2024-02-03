@@ -62,6 +62,7 @@
     "hintPassword": "Hinweis: Sie können Notizen mit einem Passwort verschlüsseln – verwenden Sie die Passwortoption, wenn Sie sie speichern unter …",
     "hintRowClick": "Hinweis: Klicken Sie auf die Zeilennummer, um sie in die Zwischenablage zu kopieren",
     "hintRightClickList": "Hinweis: Klicken Sie mit der rechten Maustaste auf die Liste, um sie in einem neuen Notizblock zu öffnen",
+    "hintThemes": "Hinweis: Sie können das Erscheinungsbild (Farbe) der Notiz ändern. In den Einstellungen stehen Ihnen vorgefertigte Vorlagen zur Verfügung oder Sie können Ihre eigenen verwenden",
     "ignoreUnsaved": "Änderungen nicht speichern.",
     "importLocalStorageItems": "Elemente importieren",
     "incorrectPassword": "Falsches Passwort. Versuchen Sie es erneut.",

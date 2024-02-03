@@ -62,6 +62,7 @@
     "hintPassword": "Hint: You can encrypt note with password - use password option when saving as ..",
     "hintRowClick": "Hint: Click row number to copy it to clipboard",
     "hintRightClickList": "Hint: Click with right button on list to open in new notepad",
+    "hintThemes": "Hint: You can change color theme of note spaces. There are ready templates in settings or you can make your own custom theme",
     "ignoreUnsaved": "Do not save changes.",
     "importLocalStorageItems": "Import items",
     "incorrectPassword": "Incorrect Password. Try again.",

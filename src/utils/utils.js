@@ -101,7 +101,8 @@ export function getRandomHint() {
         "hintExportImport",
         "hintPassword",
         "hintRowClick",
-        "hintRightClickList"
+        "hintRightClickList",
+        "hintThemes"
     ]
     var randomHint = Math.floor(Math.random()*hints.length);
     return hints[randomHint];
