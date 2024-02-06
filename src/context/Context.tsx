@@ -120,6 +120,9 @@ const Context = ({children}: Props) => {
                         if(pmEditedItem.isActive) {
                             if(!activeEditedItemPath) {
                                 activeEditedItemPath = pmEditedItem.path;
+                                if(pmSettings.stretchNoteSpaceOnActive === true) {
+                                    pmEditedItem.flex = 2;
+                                }
                             } else {
                                 pmEditedItem.isActive = false;
                             }

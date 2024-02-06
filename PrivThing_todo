@@ -15,9 +15,9 @@ todo:
 - better file search
 - sometimes after save screen is blank
 - pin note to top
-- focus and stretch seems not to be remembered
 
 done:
+- stretch on remembered values after refresh
 - custom theme colors
 - themes for code mirror
 - singleline tabs - rememberable - do something when there are many many tabs (maybe dropdown?)

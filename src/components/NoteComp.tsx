@@ -204,7 +204,7 @@ const NoteComp = ({editedItem}: Props) => {
     useEffect(() => {
         if(editedItem.isActive) {
             window.addEventListener("keydown", onKeyDown);
-            if(stretchNoteSpaceOnActive) {
+            if(stretchNoteSpaceOnActive && (!editedItem.flex || editedItem.flex === 1)) {
                 mainDispatch({type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: editedItem});
             }
         } else {
