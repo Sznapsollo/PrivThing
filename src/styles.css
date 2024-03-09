@@ -40,6 +40,14 @@ a:not(.dropdown-item) {
     color: #83c127;
 }
 
+.blinkNotepadBorder {
+    -moz-animation: blinkGreen .3s infinite linear;
+    -o-animation: blinkGreen .3s infinite linear;    
+    -webkit-animation: blinkGreen .3s infinite linear;
+    animation: blinkGreen .3s infinite linear;
+    animation-iteration-count: 1;
+}
+
 .brandContainer {
     width: 20% !important;
     padding: 0 20px 0 20px !important;
@@ -467,6 +475,8 @@ label.upperLabel {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(360deg); }
 }
+
+@keyframes blinkGreen { 50% { background-color:#42784380; }  }
 
  /* Media Queries */
  @media (max-width: 771px) {

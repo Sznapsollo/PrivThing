@@ -537,6 +537,19 @@ const NoteComp = ({editedItem}: Props) => {
         setNote(val);
     }, []);
 
+    const onTriggerBlinkingBorder = () => {
+        if(!noteRef.current || !noteRef.current.view?.contentDOM.classList) {
+            return
+        }
+        const borderName = 'blinkNotepadBorder';
+        if(noteRef.current.view.contentDOM.classList.contains(borderName)) {
+            noteRef.current.view.contentDOM.classList.remove(borderName);
+            setTimeout(onTriggerBlinkingBorder, 100);
+        } else {
+            noteRef.current.view.contentDOM.classList.add(borderName);
+        }
+    }
+
     let cdmrrorTheme: 'none' | Extension = 'none'
     if(codeMirrorTheme === 'amy') {
         cdmrrorTheme = amy
@@ -645,6 +658,8 @@ const NoteComp = ({editedItem}: Props) => {
                                                     if(clickedNumber) {
                                                         let rowNumber = parseInt(clickedNumber);
                                                         if(!isNaN(rowNumber)) {
+
+                                                            onTriggerBlinkingBorder();
                                                             navigator.clipboard.writeText(view.state.doc.line(rowNumber).text);
                                                             mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 5000, message: t('lineCopiedToClipboard')} as AlertData})
 
