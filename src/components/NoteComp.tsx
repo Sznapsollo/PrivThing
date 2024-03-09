@@ -598,7 +598,7 @@ const NoteComp = ({editedItem}: Props) => {
             }
             {
                 needSecret && <>
-                    <SecretComp cssClass={(editedItem.isActive ? 'notepadActive' : 'notepadInactive')} globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
+                    <SecretComp cssClass={(editedItem.isActive ? 'notepadActive' : 'notepadInactive') + ' secretPane'} globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
                     <div style={{display: "flex", marginTop: 3, height: '55px'}} className='formGroupContainer'>
                         {
                             editedItem.isActive && isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={ () => {
