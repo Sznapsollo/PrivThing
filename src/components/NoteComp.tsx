@@ -546,9 +546,9 @@ const NoteComp = ({editedItem}: Props) => {
                 }
             }
             
+            orgNote.current = data;
             if(updateNoteElements) {
                 setNote(data);
-                orgNote.current = data;
                 let currentTab = tabs.find((tab) => tab.isActive === true);
                 // console.log('currentTab?.scrollTop', currentTab?.scrollTop)
                 if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
