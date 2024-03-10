@@ -62,8 +62,8 @@ const SecretComp = ({confirm, info, globalClick, handleSubmit, warning, cssClass
         <div onClick={handleGlobalClick} style={{width: "100%", height: "100%", display: "table"}} className={cssClass}>
             <div style={{display: "table-cell", verticalAlign: "middle"}}>
                 <div style={{margin: "auto", display: "table"}}>
-                    {warning && <div style={{textAlign: "center", color: "red", width: 300, padding: 10}}>{warning}</div>}
-                    {info && <div style={{textAlign: "center",width: 300, padding: 10}}>{info}</div>}
+                    {warning && <div style={{textAlign: "center", color: "red", width: '100%', maxWidth: 300, padding: 10}}>{warning}</div>}
+                    {info && <div style={{textAlign: "center", width: '100%', maxWidth: 300, padding: 10}}>{info}</div>}
                     <Form onSubmit={(e) => {
                         submitSecret(e);
                     }}>
@@ -74,7 +74,6 @@ const SecretComp = ({confirm, info, globalClick, handleSubmit, warning, cssClass
                             {/* Hope there will be better solution in the future */}
                             {/* Hack start */}
                             <Form.Control
-                                id='secretPassDummy'
                                 type="text"
                                 name="secretPassDummy"
                                 placeholder=''
@@ -84,7 +83,6 @@ const SecretComp = ({confirm, info, globalClick, handleSubmit, warning, cssClass
                             ></Form.Control>
                             {/* Hack end */}
                             <Form.Control
-                                id='secretPass'
                                 type="password"
                                 name="secretValue"
                                 className={'form-control-lg'}
@@ -93,6 +91,7 @@ const SecretComp = ({confirm, info, globalClick, handleSubmit, warning, cssClass
                                 autoFocus={true}
                                 value={secret}
                                 draggable={false}
+                                autoComplete='off'
                                 onChange={(e) => {
                                     setSecret(e.target.value);
                                     if(!confirm) {

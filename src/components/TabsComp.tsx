@@ -35,17 +35,23 @@ const TabsComp = () => {
     }, [])
 
     const showPassFieldHack = (show: boolean) => {
-        let secretPassField = document.getElementById('secretPass');
-        let secretPassFieldDummy = document.getElementById('secretPassDummy');
-        if(!secretPassField || !secretPassFieldDummy) {
-            return
-        }
+        let secretPassFields = document.getElementsByName('secretPass');
+        let secretPassFieldsDummy = document.getElementsByName('secretPassDummy');
+        
         if(show) {
-            secretPassField.style.display = 'inherit';
-            secretPassFieldDummy.style.display = 'none';
+            if(secretPassFields) {
+                Array.from(secretPassFields).forEach((secretPassField) => { secretPassField.style.display = 'inherit';});
+            }
+            if(secretPassFieldsDummy) {
+                Array.from(secretPassFieldsDummy).forEach((secretPassFieldDummy) => { secretPassFieldDummy.style.display = 'none';});
+            }
         } else {
-            secretPassField.style.display = 'none';
-            secretPassFieldDummy.style.display = 'inherit';
+            if(secretPassFields) {
+                Array.from(secretPassFields).forEach((secretPassField) => { secretPassField.style.display = 'none';});
+            }
+            if(secretPassFieldsDummy) {
+                Array.from(secretPassFieldsDummy).forEach((secretPassFieldDummy) => { secretPassFieldDummy.style.display = 'inherit';});
+            }
         }
     }
 

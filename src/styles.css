@@ -40,7 +40,7 @@ a:not(.dropdown-item) {
     color: #83c127;
 }
 
-.blinkNotepadBorder {
+.blinkNotepad {
     -moz-animation: blinkGreen .3s infinite linear;
     -o-animation: blinkGreen .3s infinite linear;    
     -webkit-animation: blinkGreen .3s infinite linear;
@@ -336,13 +336,14 @@ a:not(.dropdown-item) {
 }
 
 .notepadInactive {
-    border: 2px solid #f2f2f2;
+    border: 2px solid #cecece;
     border-radius: 5px;
     background-color: #ffffff;
 }
 
 .secretPane {
     background-color: #cecece;
+    padding: 10px;
 }
 
 .flexStretch {

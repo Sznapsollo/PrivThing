@@ -57,7 +57,8 @@ const NoteComp = ({editedItem}: Props) => {
 
     const orgNote = useRef<string>('');
     const rawNote = useRef<string>('');
-    const deactivatedTime = useRef(0);
+    const isMouseOver = useRef(false);
+    const isUpdating = useRef(false);
 
     const setRawNote = (rawNoteData: string): void => {
         rawNote.current = rawNoteData;
@@ -113,19 +114,31 @@ const NoteComp = ({editedItem}: Props) => {
     }, [editedItemCandidate?.id]);
 
     useEffect(() => {
-        // console.log('changed note', note)
         validateButtonsState();
-        setTimeout(() => {noteRef.current?.view?.focus()}, 100)
+        setTimeout(() => {
+            let noteCMView = noteRef.current?.view;
+            if(!noteCMView) {
+                return
+            }
+            noteCMView?.focus()
+        }, 100)
+
     }, [note]);
 
     const initializeEditedItem = () => {
-        setInitialState();
+        if(isUpdating.current !== true) {
+            setInitialState();
+        }
+
         let defaultFileName = moment().format('MMMM_Do_YYYY_h_mm_ss') + '_privthing.txt';
         setFilePath(editedItem.path || '');
         setFileName(editedItem.name || defaultFileName);
 
         if(isLocalStorageItem(editedItem)) {
-            setIsLoading(true);
+            if(isUpdating.current !== true) {
+                // will cause flickker so no on update
+                setIsLoading(true);
+            }
             try {
                 let localStorageFiles = retrieveLocalStorage('privthing.files');
                 if(localStorageFiles && localStorageFiles[editedItem.name] != null && localStorageFiles[editedItem.name].data != null) {
@@ -143,7 +156,10 @@ const NoteComp = ({editedItem}: Props) => {
             setIsLoading(false);
         } else if(isExternalFileItem(editedItem)) {
             // NJ load and setEncrypted data
-            setIsLoading(true);
+            if(isUpdating.current !== true) {
+                // will cause flickker so no on update
+                setIsLoading(true);
+            }
 
             axios.post('actions', 
                 JSON.stringify({type: 'retrieveFileFromPath', data: editedItem.path}), 
@@ -207,8 +223,6 @@ const NoteComp = ({editedItem}: Props) => {
             if(stretchNoteSpaceOnActive && (!editedItem.flex || editedItem.flex === 1)) {
                 mainDispatch({type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: editedItem});
             }
-        } else {
-            deactivatedTime.current = new Date().getTime();
         }
         return () => {
             window.removeEventListener("keydown", onKeyDown);
@@ -216,11 +230,13 @@ const NoteComp = ({editedItem}: Props) => {
     }, [editedItem.isActive]);
 
     const rememberScrollPosition = () => {
+        // console.log('scrollableRef.current?.scrollTop', scrollableRef.current?.scrollTop)
         if(scrollNoteHandle) {
             clearTimeout(scrollNoteHandle);
         }
         scrollNoteHandle = setTimeout(function() {
-            if(editedItem.isActive) {
+            if(editedItem.isActive && isMouseOver.current === true) {
+                // console.log('remember', scrollableRef.current?.scrollTop)
                 let currentTabs = tabs.map((tab) => {
                     if(tab.isActive === true) {
                         return {...tab, scrollTop: scrollableRef.current?.scrollTop}
@@ -234,16 +250,8 @@ const NoteComp = ({editedItem}: Props) => {
             // to prevent debounce from stretching of elements that causes scroll
             // if it wants to get back to focus but it was deactivated just moment ago - dont do it
             let shouldActiveItemFocus = (!editedItem.isActive);
-            if(shouldActiveItemFocus && deactivatedTime.current) {
-                let currentTime = new Date().getTime();
-                // console.log(editedItem.name, currentTime - deactivatedTime.current)
-                if((currentTime - deactivatedTime.current) < 1000) {
-                    // pass
-                    shouldActiveItemFocus = false;
-                }
-            }
             
-            if(shouldActiveItemFocus) {
+            if(shouldActiveItemFocus && isMouseOver.current === true) {
                 handleActiveItemFocus();
             }
         }, 200)
@@ -421,6 +429,20 @@ const NoteComp = ({editedItem}: Props) => {
         return false
     }
 
+    const onMouseOver = () => {
+        isMouseOver.current=true;
+        if(scrollableRef.current) {
+            // scrollableRef.current.style.overflow = 'auto';
+        }
+    }
+
+    const onMouseLeave = () => {
+        isMouseOver.current=false;
+        if(scrollableRef.current) {
+            // scrollableRef.current.style.overflow = 'hidden';
+        }
+    }
+
     const updateFile = (callback?: () => void) => {
         if(!canUpdateFile(editedItem)) {
             return
@@ -442,15 +464,10 @@ const NoteComp = ({editedItem}: Props) => {
             if(callback) {
                 callback();
             } else {
+                isUpdating.current = true;
                 initializeEditedItem();
             }
         } else if(isExternalFileItem(editedItem)) {
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({type: 'updateFileFromPath', data: fileData, path: editedItem.path}) 
-            };
-            
             axios.post('actions', 
                 JSON.stringify({type: 'updateFileFromPath', data: fileData, path: editedItem.path}),
                 {
@@ -472,6 +489,7 @@ const NoteComp = ({editedItem}: Props) => {
                 if(callback) {
                     callback();
                 } else {
+                    isUpdating.current = true;
                     initializeEditedItem();
                 }
             })
@@ -520,11 +538,28 @@ const NoteComp = ({editedItem}: Props) => {
             }
         }
         if(data && data.length) {
-            setNote(data);
-            orgNote.current = data;
-            let currentTab = tabs.find((tab) => tab.isActive === true);
-            if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
-                setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})}, 100);
+            let updateNoteElements = true;
+            if(isUpdating.current === true) {
+                isUpdating.current = false;
+                if(data.length === note.length) {
+                    updateNoteElements = false;
+                }
+            }
+            
+            if(updateNoteElements) {
+                setNote(data);
+                orgNote.current = data;
+                let currentTab = tabs.find((tab) => tab.isActive === true);
+                // console.log('currentTab?.scrollTop', currentTab?.scrollTop)
+                if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
+                    setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})}, 500);
+                }    
+            } else {
+                console.log('Is update and notes the same will not update note to avoid scroll & flicker')
+                if(isDirty) {
+                    setIsDirty(false);
+                }
+                onTriggerBlinkingBorder();
             }
         }
     };
@@ -541,12 +576,12 @@ const NoteComp = ({editedItem}: Props) => {
         if(!noteRef.current || !noteRef.current.view?.contentDOM.classList) {
             return
         }
-        const borderName = 'blinkNotepadBorder';
-        if(noteRef.current.view.contentDOM.classList.contains(borderName)) {
-            noteRef.current.view.contentDOM.classList.remove(borderName);
+        const blinkingCss = 'blinkNotepad';
+        if(noteRef.current.view.contentDOM.classList.contains(blinkingCss)) {
+            noteRef.current.view.contentDOM.classList.remove(blinkingCss);
             setTimeout(onTriggerBlinkingBorder, 100);
         } else {
-            noteRef.current.view.contentDOM.classList.add(borderName);
+            noteRef.current.view.contentDOM.classList.add(blinkingCss);
         }
     }
 
@@ -640,8 +675,8 @@ const NoteComp = ({editedItem}: Props) => {
                             </Form.Group>
                         </div>
                     </div>
-                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive')}>
-                        <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onScroll={()=> {rememberScrollPosition()}}>
+                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive')} >
+                        <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} onScroll={()=> {rememberScrollPosition()}}>
                             <label className='upperLabel'>{t("note")}</label>
                             <div style={{height: 100}}>
                                 <CodeMirror 
