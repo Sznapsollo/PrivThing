@@ -4,6 +4,7 @@
     "allFolders": "Alle Ordner",
     "cancel": "Abbrechen",
     "cantSaveWithoutPassword": "Kann {{name}} nicht ohne Passwort speichern",
+    "changeSecret": "Kennwort ändern",
     "clearAllSettings": "Alle Einstellungen löschen",
     "clearAllSettingsConfirm": "Dadurch werden alle Einstellungen gelöscht. Möchten Sie fortfahren?",
     "close": "Schließen",

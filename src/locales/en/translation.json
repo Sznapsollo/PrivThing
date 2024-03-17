@@ -4,6 +4,7 @@
     "allFolders": "All folders",
     "cancel": "Cancel",
     "cantSaveWithoutPassword": "Can't save {{name}} without password",
+    "changeSecret": "Change password",
     "clearAllSettings": "Clear all settings",
     "clearAllSettingsConfirm": "This will clear all settings. Do you want to continue?",
     "close": "Close",

@@ -7,6 +7,8 @@ import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
 import { AlertData, EditItem, Item, SaveAsResults } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
+import { RiMenuUnfoldFill } from "react-icons/ri";
+import Dropdown from 'react-bootstrap/Dropdown';
 import '../styles.css'
 import CodeMirror, {EditorView, BlockInfo, ReactCodeMirrorRef, lineNumbers, Extension} from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
@@ -45,6 +47,7 @@ const NoteComp = ({editedItem}: Props) => {
     const [isIntroduced, setIsIntroduced] = useState<boolean>(isIntroducedGlb);
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
     const [needSecret, setNeedSecret] = useState<boolean>(false);
+    const [updateSecret, setUpdateSecret] = useState<boolean>(false);
     const [askRefresh, setAskRefresh] = useState<boolean>(false);
     const [askDelete, setAskDelete] = useState<boolean>(false);
     const [needSecretMeta, setNeedSecretMeta] = useState<SecretMeta>({});
@@ -54,6 +57,7 @@ const NoteComp = ({editedItem}: Props) => {
     const saveToFileButtonRef = useRef<HTMLButtonElement>(null);
     const scrollableRef = useRef<HTMLDivElement>(null);
     const noteRef = useRef<ReactCodeMirrorRef>(null);
+    const secretUpdateRef = useRef<string>('');
 
     const orgNote = useRef<string>('');
     const rawNote = useRef<string>('');
@@ -79,6 +83,9 @@ const NoteComp = ({editedItem}: Props) => {
 
     useEffect(() => {
         if(isEncrypted) {
+            if(updateSecret) {
+                setUpdateSecret(false);
+            }
             if(!secret) {
                 giveMeSecret("", "");
                 setIsDirty(false); // no ideal since we loose eventual not saved changes to edited doc
@@ -282,10 +289,22 @@ const NoteComp = ({editedItem}: Props) => {
         orgNote.current = '';
         setRawNote('');
         setShowUnsaved(false);
+        setUpdateSecret(false);
     }
 
     const handleSecretSubmit = (secret: string) => {
         mainDispatch({type: MAIN_ACTIONS.UPDATE_SECRET, payload: secret});
+    }
+
+    const handleSecretUpdate = (passedSecret: string) => {
+        if(isEncrypted && !needSecret && passedSecret && canUpdateFile(editedItem)) {
+            secretUpdateRef.current = passedSecret;
+            updateFile(function() {
+                initializeEditedItem();
+                mainDispatch({type: MAIN_ACTIONS.UPDATE_SECRET, payload: passedSecret});
+            });
+        }
+        setUpdateSecret(false);
     }
 
     const handleSaveAs = (saveResults: SaveAsResults): void => {
@@ -453,7 +472,13 @@ const NoteComp = ({editedItem}: Props) => {
             return
         }
 
-        const fileData = isEncrypted ? encryptData(secret) : note;
+        let secretLoc = secret
+        if(updateSecret === true && secretUpdateRef.current && secretUpdateRef.current.length && isEncrypted && secret && secret.length && !needSecret) {
+            secretLoc = secretUpdateRef.current
+            secretUpdateRef.current = '';
+        }
+
+        const fileData = isEncrypted ? encryptData(secretLoc) : note;
 
         if(isLocalStorageItem(editedItem)) {
             saveToLocalStorage(editedItem.name, fileData);
@@ -645,7 +670,20 @@ const NoteComp = ({editedItem}: Props) => {
                 </>
             }
             {
-                !isLoading && !needSecret && !isSavingAs && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
+                updateSecret && <>
+                    <SecretComp cssClass={(editedItem.isActive ? 'notepadActive' : 'notepadInactive') + ' secretPane'} globalClick={handleActiveItemFocus} confirm={true} info={t("changeSecret")} handleSubmit={handleSecretUpdate} />
+                    <div style={{display: "flex", marginTop: 3, height: '55px'}} className='formGroupContainer'>
+                        {
+                            editedItem.isActive && updateSecret && <Button className="btn-lg" variant='danger' onClick={ () => {
+                                setUpdateSecret(false);
+                            }}
+                            title={t("cancel")}>{t("cancel")}</Button>
+                        }
+                    </div>
+                </>
+            }
+            {
+                !isLoading && !needSecret && !updateSecret && !isSavingAs && <div style={{display: 'flex', flexDirection: 'column', flex: 1}}>
                     <div className='noteInputFields'>
                         <div className='formGroupContainer' style={{flex: 1}}>
                             <Form.Group className='formGroup'>
@@ -746,6 +784,20 @@ const NoteComp = ({editedItem}: Props) => {
                                 setAskDelete(true);
                             }}
                             title={t("delete")}>{t("delete")}</Button>
+                        } &nbsp;
+                        {
+                            editedItem.isActive && isEncrypted && <Dropdown>
+                            <Dropdown.Toggle variant="default" id="dropdown-basic" className="btn-lg">
+                                <RiMenuUnfoldFill className='h2' />
+                            </Dropdown.Toggle>
+                      
+                            <Dropdown.Menu>
+                              { isEncrypted && !needSecret && <Dropdown.Item href="#/action-1" onClick={() => {
+                                setUpdateSecret(true);
+                              }}
+                              >{t("changeSecret")}</Dropdown.Item> }
+                            </Dropdown.Menu>
+                          </Dropdown>
                         }
                         <div style={{flex: 1}}>&nbsp;</div>
                         <div style={{margin: "auto", color: "#666666", fontSize: 10}}>
