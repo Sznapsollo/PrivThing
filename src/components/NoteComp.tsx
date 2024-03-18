@@ -132,6 +132,13 @@ const NoteComp = ({editedItem}: Props) => {
 
     }, [note]);
 
+    const initializeCompleted = () => {
+        if(secretUpdateRef.current && secretUpdateRef.current.length) {
+            mainDispatch({type: MAIN_ACTIONS.UPDATE_SECRET, payload: secretUpdateRef.current});
+            secretUpdateRef.current = '';
+        }
+    }
+
     const initializeEditedItem = () => {
         if(isUpdating.current !== true) {
             setInitialState();
@@ -156,9 +163,11 @@ const NoteComp = ({editedItem}: Props) => {
                     let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
                     mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs});
                 }
+                initializeCompleted();
             } catch(e) {
                 console.warn('localStorage read operation error: ', e);
                 mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
+                initializeCompleted();
             }
             setIsLoading(false);
         } else if(isExternalFileItem(editedItem)) {
@@ -192,16 +201,19 @@ const NoteComp = ({editedItem}: Props) => {
                 if(typeof data.data === "string") {
                     setRawNote(data.data);
                 }
+                initializeCompleted();
             })
             .catch(function(error) {
                 setIsLoading(false);
                 console.warn('Fetch operation error: ', error.message);
                 mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '')} as AlertData})
+                initializeCompleted();
             });
         } else {
             setIsLoading(true);
             setRawNote(editedItem.rawNote || '');
             setIsLoading(false);
+            initializeCompleted();
         }
     }
 
@@ -301,7 +313,6 @@ const NoteComp = ({editedItem}: Props) => {
             secretUpdateRef.current = passedSecret;
             updateFile(function() {
                 initializeEditedItem();
-                mainDispatch({type: MAIN_ACTIONS.UPDATE_SECRET, payload: passedSecret});
             });
         }
         setUpdateSecret(false);
@@ -474,8 +485,7 @@ const NoteComp = ({editedItem}: Props) => {
 
         let secretLoc = secret
         if(updateSecret === true && secretUpdateRef.current && secretUpdateRef.current.length && isEncrypted && secret && secret.length && !needSecret) {
-            secretLoc = secretUpdateRef.current
-            secretUpdateRef.current = '';
+            secretLoc = secretUpdateRef.current;
         }
 
         const fileData = isEncrypted ? encryptData(secretLoc) : note;
