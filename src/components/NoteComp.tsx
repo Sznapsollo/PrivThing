@@ -8,6 +8,7 @@ import SecretComp from './SecretComp';
 import { AlertData, EditItem, Item, SaveAsResults } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import { RiMenuUnfoldFill } from "react-icons/ri";
+import { RiArrowUpCircleLine } from "react-icons/ri";
 import Dropdown from 'react-bootstrap/Dropdown';
 import '../styles.css'
 import CodeMirror, {EditorView, BlockInfo, ReactCodeMirrorRef, lineNumbers, Extension} from '@uiw/react-codemirror';
@@ -63,6 +64,7 @@ const NoteComp = ({editedItem}: Props) => {
     const rawNote = useRef<string>('');
     const isMouseOver = useRef(false);
     const isUpdating = useRef(false);
+    const srollTopBtn = useRef<HTMLDivElement>(null);
 
     const setRawNote = (rawNoteData: string): void => {
         rawNote.current = rawNoteData;
@@ -127,7 +129,7 @@ const NoteComp = ({editedItem}: Props) => {
             if(!noteCMView) {
                 return
             }
-            noteCMView?.focus()
+            noteCMView?.focus();
         }, 100)
 
     }, [note]);
@@ -242,11 +244,22 @@ const NoteComp = ({editedItem}: Props) => {
             if(stretchNoteSpaceOnActive && (!editedItem.flex || editedItem.flex === 1)) {
                 mainDispatch({type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: editedItem});
             }
+            manageTopButtonVisibility();
         }
         return () => {
             window.removeEventListener("keydown", onKeyDown);
         }
     }, [editedItem.isActive]);
+
+    const manageTopButtonVisibility = () => {
+        if(srollTopBtn.current) {
+            if(scrollableRef.current?.scrollTop != null && scrollableRef.current?.scrollTop > 100) {
+                srollTopBtn.current.style.display = 'flex';
+            } else {
+                srollTopBtn.current.style.display = 'none';
+            }
+        }
+    }
 
     const rememberScrollPosition = () => {
         // console.log('scrollableRef.current?.scrollTop', scrollableRef.current?.scrollTop)
@@ -264,6 +277,9 @@ const NoteComp = ({editedItem}: Props) => {
                 });
                 
                 mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: currentTabs});
+            }
+            if(editedItem.isActive) {
+                manageTopButtonVisibility();
             }
             
             // to prevent debounce from stretching of elements that causes scroll
@@ -587,7 +603,10 @@ const NoteComp = ({editedItem}: Props) => {
                 let currentTab = tabs.find((tab) => tab.isActive === true);
                 // console.log('currentTab?.scrollTop', currentTab?.scrollTop)
                 if(currentTab?.scrollTop && currentTab.scrollTop >= 0) {
-                    setTimeout(() => {scrollableRef.current?.scrollTo({top: currentTab?.scrollTop})}, 500);
+                    setTimeout(() => {
+                        scrollableRef.current?.scrollTo({top: currentTab?.scrollTop});
+                        manageTopButtonVisibility();
+                    }, 500);
                 }    
             } else {
                 console.log('Is update and notes the same will not update note to avoid scroll & flicker')
@@ -794,6 +813,14 @@ const NoteComp = ({editedItem}: Props) => {
                                 setAskDelete(true);
                             }}
                             title={t("delete")}>{t("delete")}</Button>
+                        } &nbsp;
+                        {
+                            editedItem.isActive && 
+                            <div style={{display: 'none', alignItems: 'center', cursor: 'pointer'}} ref={srollTopBtn} onClick={() => {
+                                scrollableRef.current?.scrollTo({top: 0});
+                                rememberScrollPosition();
+                            }}><RiArrowUpCircleLine className='h1' /></div>
+
                         } &nbsp;
                         {
                             editedItem.isActive && isEncrypted && <Dropdown>
