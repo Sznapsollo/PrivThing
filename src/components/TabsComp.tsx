@@ -34,6 +34,17 @@ const TabsComp = () => {
         }
     }, [])
 
+    useEffect(() => {
+        if(!!mainState.tabs) {
+            const copiedTabs = mainState.tabs.map((tabItem) => {
+                return  {...tabItem}
+            })
+            if(!!copiedTabs) {
+                saveLocalStorage("privthing.pmTabs", copiedTabs);
+            }
+        }
+    }, [mainState.tabs])
+
     const showPassFieldHack = (show: boolean) => {
         let secretPassFields = document.getElementsByName('secretPass');
         let secretPassFieldsDummy = document.getElementsByName('secretPassDummy');

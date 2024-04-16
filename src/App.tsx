@@ -21,11 +21,16 @@ function App() {
         
     }, []);
     
+    // in package
+    // "proxy": "http://localhost:8190/listingFilesServer",
+    // "homepage": "/listingFilesServer",
+
+    // <BrowserRouter basename='/listingFilesServer'>
 
     return (
         <div className="App">
             <NotificationComp />
-            <BrowserRouter basename='/listingFilesServer'>
+            <BrowserRouter>
                 <HeaderComp />
                 <Routes>
                     <Route path='/' element={<HomeComp/>} />

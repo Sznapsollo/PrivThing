@@ -83,7 +83,7 @@ const Context = ({children}: Props) => {
     //     settingsInitialState.forgetSecretTime = 120000;
     // }
     try {
-        let pmSettings = retrieveLocalStorage("privthing.pmSettings");
+        let pmSettings = retrieveLocalStorage("privthing.pmSettings") || {};
         if(pmSettings) {
             cloneProps(pmSettings, settingsInitialState);
         } else {
