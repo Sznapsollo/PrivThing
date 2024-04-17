@@ -5,6 +5,7 @@ import { AppState } from '../context/Context'
 import LisItem from './LisItem';
 import { AiOutlineLoading } from 'react-icons/ai';
 import { CiUndo } from 'react-icons/ci';
+import { BiDownArrow, BiRightArrow } from "react-icons/bi";
 import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { Item } from '../model';
 import { FiPlusCircle } from 'react-icons/fi';
@@ -16,7 +17,7 @@ const ItemsComp = () => {
 
     const { t } = useTranslation();
 
-    const {mainState: {folders, items, itemsListRefreshTrigger, activeEditedItemPath}, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer}} = AppState();
+    const {mainState: {folders, items, itemsListRefreshTrigger, activeEditedItemPath, favourites, showFavourites}, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer}} = AppState();
     const { searchState: {currentFolder, sort, searchQuery} } = AppState()
     const [foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -235,6 +236,35 @@ const ItemsComp = () => {
                         <div style={{flex: 1, wordWrap: 'break-word', fontSize: 12, paddingTop: 10, paddingBottom: 10}} >{t("filesLoaded")} ({transformedItems.length})</div>
                         <div><Button className='btn-success' onClick={handleNewItem}>{t('new')}&nbsp;<FiPlusCircle style={{marginBottom: -1}} className='h2'/></Button></div>
                     </div>
+            }
+            {
+                favourites && favourites.length > 0 &&
+                <div>
+                    <div className='favouritesContainerHeader' onClick={(e) => {
+                        mainDispatch({type: MAIN_ACTIONS.TOGGLE_FAVOURITES});
+                    }}>
+                        <div style={{display: 'inline-block', paddingRight: 5}}>
+                            {
+                                showFavourites &&
+                                <BiDownArrow className='h5'/>
+                            }
+                            {
+                                !showFavourites &&
+                                <BiRightArrow className='h5'/>
+                            }
+                        </div>
+                        {t("favourites")} ({favourites.length})
+                    </div>
+                    {
+                        showFavourites && <div className="favouritesContainer">
+                            {
+                                favourites.map((item, itemIndex) => {
+                                    return <LisItem key={itemIndex} keyProp={itemIndex} item={item} editedItemPath={activeEditedItemPath}/>
+                                })
+                            }
+                        </div>
+                    }
+                </div>
             }
             <div className='itemsContainer' ref={itemsContainerRef} onScroll={handleScroll}>
             {

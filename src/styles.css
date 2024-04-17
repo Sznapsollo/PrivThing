@@ -288,6 +288,7 @@ a:not(.dropdown-item) {
 .listItemBody .path {
     font-size: 8pt;
     color: #ffffff80;
+    word-break: break-word;
 }
 
 .title {
@@ -478,6 +479,23 @@ label.upperLabel {
 
 .cm-focused {
     outline: none !important;
+}
+
+.favouritesContainerHeader {
+    margin: 0 -20px 0 0;
+    background-color: #393939;
+    flex: 1;
+    word-wrap: break-word;
+    font-size: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    cursor: pointer;
+}
+
+.favouritesContainer {
+    border-bottom: 5px solid #38a3bb;
+    margin: 0 -20px 0 0;
+    background: #3b3b3b;
 }
 
 @keyframes spinHorizontal {

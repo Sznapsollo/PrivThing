@@ -42,6 +42,7 @@ export interface MainContextType {
     items: Item[],
     // user tabs
     tabs: Tab[],
+    favourites: EditItem[],
     // to operate full screen items for smaller screens - flag for layout to resize items list full screen
     fullItems: boolean,
     // just a number to trigger items list rerender
@@ -52,6 +53,8 @@ export interface MainContextType {
     secret: string,
     // show settings
     showSettings: boolean,
+    // show favourites,
+    showFavourites: boolean,
     // open after list is loaded. taken from newPathToOpenCandidate and filled if exists in items after load by path
     newItemToOpen?: Item,
     // candidate to open newly added

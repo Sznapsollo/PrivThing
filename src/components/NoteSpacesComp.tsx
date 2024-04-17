@@ -3,6 +3,7 @@ import NoteComp from './NoteComp'
 import { AppState } from '../context/Context';
 import { EditItem, Item, NoteSpaceContextMenu } from '../model';
 import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi';
+import { FaRegStar, FaStar } from 'react-icons/fa';
 import { PiArrowsInLineHorizontalFill } from "react-icons/pi";
 import { PiArrowsOutLineHorizontalFill } from "react-icons/pi";
 import { MAIN_ACTIONS } from '../context/Reducers';
@@ -20,7 +21,7 @@ const NoteSpacesComp = () => {
 
     const { t } = useTranslation();
 
-    const { mainState: { editedItemSpaces }, mainDispatch} = AppState();
+    const { mainState: { editedItemSpaces, favourites }, mainDispatch} = AppState();
     const [ noteSpaceContextMenu, setNoteSpaceContextMenu ] = useState<NoteSpaceContextMenu>(initialNoteSpaceContextMenu)
 
     useEffect(() => {
@@ -34,6 +35,17 @@ const NoteSpacesComp = () => {
         }
     }, [editedItemSpaces])
 
+    useEffect(() => {
+        if(!!favourites) {
+            const copiedFavourites = favourites.map((favItem) => {
+                return  {...favItem}
+            })
+            if(!!copiedFavourites) {
+                saveLocalStorage("privthing.pmfavourites", copiedFavourites);
+            }
+        }
+    }, [favourites])
+
     const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>, noteSpaceItem: EditItem): void => {
         e.preventDefault();
         const {pageX, pageY} = e;
@@ -42,12 +54,16 @@ const NoteSpacesComp = () => {
 
     const handleContextMenuClose = () => setNoteSpaceContextMenu(initialNoteSpaceContextMenu)
 
+    const isFavourite = (item: EditItem): boolean => {
+        return favourites && !!favourites.find((favItem) => favItem.path === item.path);
+    }
+
     return (
         <div className='notesSpacesContainer'>
             {noteSpaceContextMenu.show === true && <NoteSpaceContextMenuComp x={noteSpaceContextMenu.x} y={noteSpaceContextMenu.y} allItems={editedItemSpaces} noteSpaceItem={noteSpaceContextMenu.noteSpaceItem} closeContextMenu={handleContextMenuClose}/>}
             {
                 editedItemSpaces.map((editedItemSpace, index) => (
-                    <div key={index} style={{flex: editedItemSpace.flex || 1}} className='noteSpaceContainer'>
+                    <div key={index} style={{flex: editedItemSpace.flex || 1, display: 'flex'}} className='noteSpaceContainer'>
                         <div style={{textAlign: 'center'}}>
                             {
                                 editedItemSpaces.length > 1 && (!editedItemSpace.flex || editedItemSpace.flex < 2) && <PiArrowsOutLineHorizontalFill title={t("stretch")} className='h4 itemTabIconResize' onClick={(e) => {
@@ -67,7 +83,23 @@ const NoteSpacesComp = () => {
                                 }}
                                 onContextMenu={(e) => handleContextMenu(e, editedItemSpace)}
                             >
-                                {editedItemSpace.name ? editedItemSpace.name : '---'}
+                                <div>
+                                    {
+                                        isFavourite(editedItemSpace) &&
+                                        <FaStar title={t("shrink")} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
+                                            e.preventDefault();
+                                            mainDispatch({type: MAIN_ACTIONS.REMOVE_FROM_FAVOURITES, payload: editedItemSpace})
+                                        }}/>
+                                    }
+                                    {
+                                        !isFavourite(editedItemSpace) &&
+                                        <FaRegStar title={t("shrink")} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
+                                            e.preventDefault();
+                                            mainDispatch({type: MAIN_ACTIONS.ADD_TO_FAVOURITES, payload: editedItemSpace})
+                                        }}/>
+                                    }
+                                    {editedItemSpace.name ? editedItemSpace.name : '---'}
+                                </div>
                             </div>
                             { 
                                 editedItemSpaces.length > 1 && <FiMinusCircle title={t("closeNoteSpace")} color={editedItemSpace.isActive ? '#ffffff' : '#000000'} className='h2 itemTabIconRemove' onClick={(e) => {

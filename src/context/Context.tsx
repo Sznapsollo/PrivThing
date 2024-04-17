@@ -10,9 +10,11 @@ const appInitialState: MainContextType = {
   items: [],
   tabs: [],
   folders: [],
+  favourites: [],
   itemsListRefreshTrigger: 0,
   fullItems: false,
-  showSettings: false
+  showSettings: false,
+  showFavourites: false
 }
 const searchInitialState = {
   sort: 'lastModifiedHighToLow', 
@@ -136,6 +138,14 @@ const Context = ({children}: Props) => {
                     if(activeEditedItemPath) {
                         appInitialState.activeEditedItemPath = activeEditedItemPath;
                     }
+                }
+                
+            }
+
+            let pmfavourites = retrieveLocalStorage("privthing.pmfavourites");
+            if(pmfavourites && Array.isArray(pmfavourites)) {
+                if(!!pmfavourites) {
+                    appInitialState.favourites = pmfavourites;
                 }
                 
             }

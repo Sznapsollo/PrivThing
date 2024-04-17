@@ -3,6 +3,7 @@ import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData
 import { makeId, manageEditItemSpaces, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
 export enum MAIN_ACTIONS {
+    ADD_TO_FAVOURITES = 'ADD_TO_FAVOURITES',
     CLEAR_EDITED_ITEM = 'CLEAR_EDITED_ITEM',
     CLEAR_OTHER_NOTE_SPACES = 'CLEAR_OTHER_NOTE_SPACES',
     CLEAR_SECRET = 'CLEAR_SECRET',
@@ -10,6 +11,7 @@ export enum MAIN_ACTIONS {
     HIDE_SETTINGS = 'HIDE_SETTINGS',
     LOAD_FROM_PICKED_FILE = 'LOAD_FROM_PICKED_FILE',
     REMOVE_NOTE_SPACE = 'REMOVE_NOTE_SPACE_ACTIVE',
+    REMOVE_FROM_FAVOURITES = 'REMOVE_FROM_FAVOURITES',
     SET_EDITED_ITEM_CANDIDATE = 'SET_EDITED_ITEM_CANDIDATE',
     SET_EDITED_ITEM = 'SET_EDITED_ITEM',
     SET_NOTE_SPACE_ACTIVE = 'SET_NOTE_SPACE_ACTIVE',
@@ -19,6 +21,7 @@ export enum MAIN_ACTIONS {
     SHOW_SETTINGS = 'SHOW_SETTINGS',
     SHRINK_NOTE_SPACE = 'SHRINK_NOTE_SPACE',
     STRETCH_NOTE_SPACE = 'STRETCH_NOTE_SPACE',
+    TOGGLE_FAVOURITES = 'TOGGLE_FAVOURITES',
     TOGGLE_ITEMS_BAR = 'TOGGLE_ITEMS_BAR',
     UPDATE_ITEMS_LIST = 'UPDATE_ITEMS_LIST',
     UPDATE_TABS = 'UPDATE_TABS',
@@ -26,6 +29,7 @@ export enum MAIN_ACTIONS {
     UPDATE_SECRET = 'UPDATE_SECRET'
 }
 
+type AddToFavourites = {type: MAIN_ACTIONS.ADD_TO_FAVOURITES, payload: EditItem};
 type ClearEditedItem = {type: MAIN_ACTIONS.CLEAR_EDITED_ITEM};
 type ClearNoteSpaces = {type: MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES, payload: EditItem};
 type ClearSecret = {type: MAIN_ACTIONS.CLEAR_SECRET};
@@ -33,6 +37,7 @@ type HideItemsBar = {type: MAIN_ACTIONS.HIDE_ITEMS_BAR};
 type HideSettings = {type: MAIN_ACTIONS.HIDE_SETTINGS};
 type LoadFromPickedFile = {type: MAIN_ACTIONS.LOAD_FROM_PICKED_FILE, payload: any};
 type RemoveEditedSpace = {type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: EditItem};
+type RemoveFromFavourites = {type: MAIN_ACTIONS.REMOVE_FROM_FAVOURITES, payload: EditItem};
 type SetEditedItemCandidate = {type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: NavigationItem};
 type SetEditedItem = {type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: NavigationItem};
 type SetEditedSpaceActive = {type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: EditItem};
@@ -42,19 +47,22 @@ type ShowNotification = {type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: Notifica
 type ShowSettings = {type: MAIN_ACTIONS.SHOW_SETTINGS};
 type ShrinkNoteSpace = {type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: EditItem};
 type StretchNoteSpace = {type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: EditItem};
+type ToggleFavourites = {type: MAIN_ACTIONS.TOGGLE_FAVOURITES};
 type ToggleItemsBar = {type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR};
 type UpdateItemsList = {type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: string};
 type UpdateTabs = {type: MAIN_ACTIONS.UPDATE_TABS, payload: Tab[]};
 type UpdateTabsSilent = {type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: Tab[]};
 type UpdateSecret = {type: MAIN_ACTIONS.UPDATE_SECRET, payload: string};
 
-export type MainActions = ClearEditedItem |
+export type MainActions = AddToFavourites | 
+    ClearEditedItem |
     ClearNoteSpaces |     
     ClearSecret | 
     HideItemsBar | 
     HideSettings |
     LoadFromPickedFile | 
     RemoveEditedSpace |
+    RemoveFromFavourites |
     SetEditedItemCandidate | 
     SetEditedItem | 
     SetEditedSpaceActive |
@@ -64,6 +72,7 @@ export type MainActions = ClearEditedItem |
     ShrinkNoteSpace |
     ShowSettings |
     StretchNoteSpace |
+    ToggleFavourites | 
     ToggleItemsBar | 
     UpdateItemsList | 
     UpdateTabs |
@@ -73,6 +82,11 @@ export type MainActions = ClearEditedItem |
 export const mainReducer = (state: MainContextType, action: MainActions) => {
     // console.log('mainReducer', action.type)
     switch (action.type) {
+        case MAIN_ACTIONS.ADD_TO_FAVOURITES:
+            return { 
+                ...state, 
+                favourites: [...state.favourites.filter((item, index) => item.path !== action.payload.path), {...action.payload}]
+            };
         case MAIN_ACTIONS.HIDE_ITEMS_BAR:
             return { ...state, fullItems: false};
         case MAIN_ACTIONS.HIDE_SETTINGS:
@@ -183,6 +197,11 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 editedItemSpaces: updatedActiveEditItemSpaces,
                 tabs: newActiveEditItemSpace ? manageHeaderTabs((state.tabs.slice() || []), newActiveEditItemSpace, null, 'CHANGE_ACTIVE') : state.tabs
             }
+        case MAIN_ACTIONS.REMOVE_FROM_FAVOURITES:
+            return { 
+                ...state, 
+                favourites: state.favourites.filter((item, index) => item.path !== action.payload.path)
+            };
         case MAIN_ACTIONS.CLEAR_EDITED_ITEM:
             const clearedItem: Item = {
                 name: '',
@@ -259,6 +278,8 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                     return {...editedItemSpace, flex: 1}
                 })
             }
+        case MAIN_ACTIONS.TOGGLE_FAVOURITES:
+                return { ...state, showFavourites: !state.showFavourites };
         case MAIN_ACTIONS.TOGGLE_ITEMS_BAR:
             return { ...state, fullItems: !state.fullItems };
         case MAIN_ACTIONS.UPDATE_ITEMS_LIST:
