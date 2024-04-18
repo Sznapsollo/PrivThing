@@ -23,6 +23,7 @@ export enum MAIN_ACTIONS {
     STRETCH_NOTE_SPACE = 'STRETCH_NOTE_SPACE',
     TOGGLE_FAVOURITES = 'TOGGLE_FAVOURITES',
     TOGGLE_ITEMS_BAR = 'TOGGLE_ITEMS_BAR',
+    UPDATE_FAVOURITES = 'UPDATE_FAVOURITES',
     UPDATE_ITEMS_LIST = 'UPDATE_ITEMS_LIST',
     UPDATE_TABS = 'UPDATE_TABS',
     UPDATE_TABS_SILENT = 'UPDATE_TABS_SILENT',
@@ -49,6 +50,7 @@ type ShrinkNoteSpace = {type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: EditItem}
 type StretchNoteSpace = {type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: EditItem};
 type ToggleFavourites = {type: MAIN_ACTIONS.TOGGLE_FAVOURITES};
 type ToggleItemsBar = {type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR};
+type UpdateFavourites = {type: MAIN_ACTIONS.UPDATE_FAVOURITES, payload: EditItem[]};
 type UpdateItemsList = {type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: string};
 type UpdateTabs = {type: MAIN_ACTIONS.UPDATE_TABS, payload: Tab[]};
 type UpdateTabsSilent = {type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: Tab[]};
@@ -74,6 +76,7 @@ export type MainActions = AddToFavourites |
     StretchNoteSpace |
     ToggleFavourites | 
     ToggleItemsBar | 
+    UpdateFavourites | 
     UpdateItemsList | 
     UpdateTabs |
     UpdateTabsSilent |
@@ -282,20 +285,13 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 return { ...state, showFavourites: !state.showFavourites };
         case MAIN_ACTIONS.TOGGLE_ITEMS_BAR:
             return { ...state, fullItems: !state.fullItems };
+        case MAIN_ACTIONS.UPDATE_FAVOURITES:
+            return { ...state, favourites: action.payload};
         case MAIN_ACTIONS.UPDATE_ITEMS_LIST:
             return { ...state, itemsListRefreshTrigger: new Date().getTime(), newItemToOpen: undefined, newPathToOpenCandidate: action.payload };
         case MAIN_ACTIONS.UPDATE_SECRET:
             return { ...state, secret: action.payload};
         case MAIN_ACTIONS.UPDATE_TABS:
-            if(state.tabs) {
-                if(timeoutUpdatesHandles["privthing.pmTabs"] != null) {
-                    clearTimeout(timeoutUpdatesHandles["privthing.pmTabs"]);
-                    timeoutUpdatesHandles["privthing.pmTabs"] = null;
-                }
-                timeoutUpdatesHandles["privthing.pmTabs"] = setTimeout(() => {
-                    saveLocalStorage("privthing.pmTabs", state.tabs);
-                }, 100)
-            }
             return { ...state, tabs: action.payload};
         case MAIN_ACTIONS.UPDATE_TABS_SILENT:
             if(state.tabs) {

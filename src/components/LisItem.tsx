@@ -11,10 +11,13 @@ import { MAIN_ACTIONS } from '../context/Reducers';
 interface Props {
     item: Item,
     keyProp: number,
-    editedItemPath?: string
+    editedItemPath?: string,
+    onDragStart?: (item: HTMLSpanElement, position:number) => void,
+    onDragEnter?: (e: HTMLSpanElement, position:number) => void,
+    onDrop?: <T,>(e: T) => void
 }
 
-const LisItem = ({item, keyProp, editedItemPath}: Props) => {
+const LisItem = ({item, keyProp, editedItemPath, onDragStart, onDragEnter, onDrop}: Props) => {
 
     const { t } = useTranslation();
 
@@ -37,6 +40,8 @@ const LisItem = ({item, keyProp, editedItemPath}: Props) => {
             setItemCss(itemsCsses.join(' '))
         }
     }
+
+    let canDrag = onDragStart !== null;
 
     return (
         <div className={"listItem " + itemCss} 
@@ -63,6 +68,10 @@ const LisItem = ({item, keyProp, editedItemPath}: Props) => {
                 };
                 mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}, action: 'NEW_NOTE_SPACE'}});
             }}
+            onDragStart={(e) => onDragStart && onDragStart(e.currentTarget, keyProp)}
+            onDragEnter={(e) => onDragEnter && onDragEnter(e.currentTarget, keyProp)}
+            onDragEnd={onDrop}
+            draggable={canDrag}
             >
             <div className='listItemIcon'>
                 {item.name?.endsWith('.prvthng') && <GiPadlock style={{margin: "1px 5px 0 -5px"}} className='h4'/>}

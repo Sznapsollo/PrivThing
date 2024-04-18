@@ -25,6 +25,11 @@ const ItemsComp = () => {
     const itemsContainerRef = useRef(null);
     const [serverMode, setServerMode] = useState('unknown');
 
+    const dragItem = useRef<number | null>();
+    const dragOverItem = useRef<number | null>();
+    const dragItemPrev = useRef<number | null>();
+    const dragOverItemPrev = useRef<number | null>();
+
     const handleNewItem = () => {
         const payLoadItem: Item = getNewItem();
         mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
@@ -144,6 +149,67 @@ const ItemsComp = () => {
         (itemsContainerRef.current as any).scrollTo({ top: 0});
     }
 
+    // favourites dndn stuff start
+
+    const dragStart = (item: HTMLSpanElement, position:number) => {
+        dragItem.current = position;
+
+        const copyListItems = [...favourites];
+        // copyListItems[position].isDragged = true;
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_FAVOURITES, payload: copyListItems});
+    };
+
+    const dragEnter = (e: HTMLSpanElement, position:number) => {
+        dragOverItem.current = position;
+
+        if(dragItem.current == null || dragOverItem.current == null) {
+            return
+        }
+
+        if((dragItemPrev.current === dragOverItem.current) && ((dragOverItemPrev.current === dragItem.current))) {
+            return
+        }
+
+        dragItemPrev.current = dragItem.current;
+        dragOverItemPrev.current = dragOverItem.current;
+
+        if(dragItem.current  === dragOverItem.current) {
+            return
+        }
+
+        const copyListItems = [...favourites];
+        const dragItemContent = copyListItems[dragItem.current];
+        copyListItems.splice(dragItem.current, 1);
+        copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+        dragItem.current = position;
+        dragOverItem.current = null;
+        
+        // copyListItems[position].isDragged = true;
+
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_FAVOURITES, payload: copyListItems});
+    };
+
+    const drop = <T,>(e: T) => {
+        const copyListItems = favourites.map((favItem) => {
+            // return {...favItem, isDragged: false};
+            return {...favItem};
+        });
+        if(dragItem.current == null || dragOverItem.current == null) {
+            mainDispatch({type: MAIN_ACTIONS.UPDATE_FAVOURITES, payload: copyListItems});
+            return
+        }
+        const dragItemContent = copyListItems[dragItem.current];
+        copyListItems.splice(dragItem.current, 1);
+        copyListItems.splice(dragOverItem.current, 0, dragItemContent);
+
+        dragItem.current = null;
+        dragOverItem.current = null;
+
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_FAVOURITES, payload: copyListItems});
+    };
+
+    // favourites dndn stuff end
+
     return (
         <div className={"items"}>
             <div className='formGroupContainer'>
@@ -256,10 +322,19 @@ const ItemsComp = () => {
                         {t("favourites")} ({favourites.length})
                     </div>
                     {
-                        showFavourites && <div className="favouritesContainer">
+                        showFavourites && 
+                        <div className="favouritesContainer">
                             {
                                 favourites.map((item, itemIndex) => {
-                                    return <LisItem key={itemIndex} keyProp={itemIndex} item={item} editedItemPath={activeEditedItemPath}/>
+                                    return <LisItem 
+                                    key={itemIndex} 
+                                    keyProp={itemIndex} 
+                                    item={item} 
+                                    editedItemPath={activeEditedItemPath}
+                                    onDragStart={dragStart}
+                                    onDragEnter={dragEnter}
+                                    onDrop={drop}
+                                    />
                                 })
                             }
                         </div>
