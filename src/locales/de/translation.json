@@ -117,7 +117,7 @@
     "somethingWentWrong": "Etwas ist schiefgelaufen ...",
     "sortBy": "Sortieren nach",
     "startTypingToFilterFiles": "Mit der Eingabe beginnen, um Dateien (nach Titel) zu filtern",
-    "storageNotConfigured": "Dateispeicherordner und -dienst nicht konfiguriert. Sie können nur mit manueller Auswahl und Speicherung sowie mit localStorage-Dateien arbeiten",
+    "storageNotConfigured": "Dateispeicherordner und -dienst nicht konfiguriert. Sie können nur mit manueller Auswahl und Speicherung sowie mit localStorage-Dateien arbeiten. Um diese Meldung zu entfernen, deaktivieren Sie den Dateiserver in den Einstellungen.",
     "stretch": "Strecken",
     "stretchNoteSpaceOnActive": "Aktiven Notenraum automatisch dehnen",
     "question": "Frage",

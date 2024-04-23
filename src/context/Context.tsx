@@ -25,7 +25,7 @@ const searchInitialState = {
 export const settingsInitialStateBaseline = {
   forgetSecretTime: 300000, 
   forgetSecretMode: "AFTER_TIME",
-  enableFileServer: false,
+  enableFileServer: true,
   showHints: true,
   stretchNoteSpaceOnActive: false,
   codeMirrorTheme: 'none',
