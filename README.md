@@ -73,6 +73,7 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
   - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d5170b5f-d947-41ef-84c1-925ec71dd8de)
 - favourites
   - reordable
+  - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/99dee3bd-2c37-4ab1-90ec-a57e7838bda4)
   - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/3a90d17d-7e01-4680-818e-afd90f0ad6d4)
 - possibility to password secure individual notes
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/906782c4-404b-4332-a36d-7d17d8744440)
