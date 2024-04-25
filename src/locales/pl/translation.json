@@ -61,6 +61,7 @@
     "hintCtrlS": "Podpowiedź: Użyj skrótu Ctrl + S aby szybko zapisać zmiany na dokumencie",
     "hintDisable": "Podpowiedź: Możesz wyłączyć podpowiedzi w ustawieniach",
     "hintExportImport": "Notatki zapisane w przeglądarce możesz eksportować / importować z opcji w ustawieniach",
+    "hintHide": "Możesz ukryć treść np. hasła poprzedzając go 'hide-->'",
     "hintPassword": "Możesz zabezpieczyć notatkę hasłem - wybierz opcję zabezpieczenia podczas Zapisz jako",
     "hintRowClick": "Podpowiedź: Kliknij numer wiersza by skopiować go do schowka",
     "hintRightClickList": "Podpowiedź: Kliknij prawym przyciskiem na pozycji na liście oby otworzyć ją w nowym notatniku",

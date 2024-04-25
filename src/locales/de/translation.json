@@ -61,6 +61,7 @@
     "hintCtrlS": "Hinweis: Verwenden Sie die Tastenkombination Strg + S, um Dokumentänderungen schnell zu speichern",
     "hintDisable": "Hinweis: Sie können Hinweise in den Einstellungen deaktivieren",
     "hintExportImport": "Hinweis: Im Browser gespeicherte Notizen können in den Einstellungen exportiert/importiert werden",
+    "hintHide": "Hinweis: Sie können Textinhalte (zum Beispiel für ein Passwort) ausblenden, indem Sie ihm Folgendes voranstellen 'hide-->'",
     "hintPassword": "Hinweis: Sie können Notizen mit einem Passwort verschlüsseln – verwenden Sie die Passwortoption, wenn Sie sie speichern unter …",
     "hintRowClick": "Hinweis: Klicken Sie auf die Zeilennummer, um sie in die Zwischenablage zu kopieren",
     "hintRightClickList": "Hinweis: Klicken Sie mit der rechten Maustaste auf die Liste, um sie in einem neuen Notizblock zu öffnen",

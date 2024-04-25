@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, PointerEvent } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
@@ -11,7 +11,8 @@ import { RiMenuUnfoldFill } from "react-icons/ri";
 import { RiArrowUpCircleLine } from "react-icons/ri";
 import Dropdown from 'react-bootstrap/Dropdown';
 import '../styles.css'
-import CodeMirror, {EditorView, BlockInfo, ReactCodeMirrorRef, lineNumbers, Extension} from '@uiw/react-codemirror';
+import CodeMirror, {BlockInfo, ReactCodeMirrorRef, lineNumbers, Extension} from '@uiw/react-codemirror';
+import {Decoration, DecorationSet, EditorView, MatchDecorator, WidgetType, ViewPlugin, ViewUpdate} from "@codemirror/view"
 import { javascript } from '@codemirror/lang-javascript';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
@@ -638,6 +639,45 @@ const NoteComp = ({editedItem}: Props) => {
             noteRef.current.view.contentDOM.classList.add(blinkingCss);
         }
     }
+    class PassHiderWidget extends WidgetType {
+        constructor(readonly element: string) { super() }
+      
+        toDOM() {
+            let wrap = document.createElement("span")
+            wrap.setAttribute("aria-hidden", "true")
+            // wrap.onclick = (e) => { 
+            //     debugger
+            // }
+            wrap.className = "cm-pass-hider"
+            wrap.innerHTML = this.element.replace(/./g,'*')
+            return wrap
+        }
+      
+        ignoreEvent() { return false }
+    }
+
+    const placeholderMatcher = new MatchDecorator({
+        // regexp: /pass\[\[(\w+)\]\]/g,
+        regexp: /hide-->(.*)/g,
+        decoration: match => Decoration.replace({
+            widget: new PassHiderWidget(match[1])
+        })
+    })
+
+    const placeholders = ViewPlugin.fromClass(class {
+        placeholders: DecorationSet
+        constructor(view: EditorView) {
+            this.placeholders = placeholderMatcher.createDeco(view)
+        }
+        update(update: ViewUpdate) {
+            this.placeholders = placeholderMatcher.updateDeco(update, this.placeholders)
+        }
+    }, {
+        decorations: instance => instance.placeholders,
+        provide: plugin => EditorView.atomicRanges.of(view => {
+            return view.plugin(plugin)?.placeholders || Decoration.none
+        })
+    })
 
     let cdmrrorTheme: 'none' | Extension = 'none'
     if(codeMirrorTheme === 'amy') {
@@ -675,6 +715,7 @@ const NoteComp = ({editedItem}: Props) => {
     } else if(codeMirrorTheme === 'customTheme') {
         cdmrrorTheme = createCustomTheme(customThemeColors)
     }
+
     return (
         <div className='noteContainer'>
             {
@@ -762,7 +803,8 @@ const NoteComp = ({editedItem}: Props) => {
                                                         if(!isNaN(rowNumber)) {
 
                                                             onTriggerBlinkingBorder();
-                                                            navigator.clipboard.writeText(view.state.doc.line(rowNumber).text);
+                                                            let markedText = (view.state.doc.line(rowNumber).text || '').replaceAll('hide-->', '');
+                                                            navigator.clipboard.writeText(markedText);
                                                             mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 5000, message: t('lineCopiedToClipboard')} as AlertData})
 
                                                             view.dispatch({
@@ -778,6 +820,7 @@ const NoteComp = ({editedItem}: Props) => {
                                                 }
                                             }
                                         }),
+                                        placeholders,
                                         EditorView.lineWrapping,
                                         EditorView.theme({
                                             '.cm-gutter,.cm-content': { borderBottom: "nonde", minHeight: '1000px' },

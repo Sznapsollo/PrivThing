@@ -99,6 +99,7 @@ export function getRandomHint() {
         "hintCtrlS",
         "hintDisable",
         "hintExportImport",
+        "hintHide",
         "hintPassword",
         "hintRowClick",
         "hintRightClickList",

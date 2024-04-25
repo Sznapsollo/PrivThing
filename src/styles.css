@@ -498,6 +498,15 @@ label.upperLabel {
     background: #3b3b3b;
 }
 
+.cm-pass-hider {
+    /* cursor: pointer; */
+    -webkit-user-select: none;  
+    -moz-user-select: none;    
+    -ms-user-select: none;      
+    user-select: none;
+    /* filter: blur(3px); */
+}
+
 @keyframes spinHorizontal {
     0% { transform: rotateY(0deg); }
     100% { transform: rotateY(360deg); }

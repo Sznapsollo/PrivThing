@@ -31,7 +31,9 @@ This repository does not contain server for following additional folders - it is
 
 - create new note in browser localStorage or save them sa files. 
 
-- notes can be encrypted
+- notes can be encrypted (set password when using Save as option)
+
+- passwords or some texts can be hidden by using **hide-->** prefix
 
 ### Passwords
 
@@ -60,7 +62,8 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
 #### PrivThing features which make it nice to use it for notes
 
 - multi note spaces (note spaces next to each other)
-- rown numbers - clicking on row number puts whole row into clipboard
+- row numbers - clicking on row number puts whole row into clipboard
+- you can hide/mask text in your notes (for example of passwords) by preceding them with **hide-->** prefix. In such case clicking on row number will copy just hidden text without this prefix.
 - tabs
   - reordable
   - remember scroll for each note
