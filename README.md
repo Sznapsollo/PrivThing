@@ -62,6 +62,7 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
 #### PrivThing features which make it nice to use it for notes
 
 - multi note spaces (note spaces next to each other)
+- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/f5735a8a-bd86-441a-9be6-c0af59915256)
 - row numbers - clicking on row number puts whole row into clipboard
 - you can hide/mask text in your notes (for example of passwords) by preceding them with **hide-->** prefix. In such case clicking on row number will copy just hidden text without this prefix. In example below pass is hidden behing hide--> and clicking on row number 2 will copy pass to clipboard
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d1e1c80d-77bc-4fdc-930a-7c31b909800a)
@@ -69,8 +70,10 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
   - reordable
   - remember scroll for each note
   - remembered
+  - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d5170b5f-d947-41ef-84c1-925ec71dd8de)
 - favourites
   - reordable
+  - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/3a90d17d-7e01-4680-818e-afd90f0ad6d4)
 - possibility to password secure individual notes
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/906782c4-404b-4332-a36d-7d17d8744440)
 - hotkeys
