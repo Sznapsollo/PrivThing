@@ -63,12 +63,14 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
 
 - multi note spaces (note spaces next to each other)
 - row numbers - clicking on row number puts whole row into clipboard
-- you can hide/mask text in your notes (for example of passwords) by preceding them with **hide-->** prefix. In such case clicking on row number will copy just hidden text without this prefix.
+- you can hide/mask text in your notes (for example of passwords) by preceding them with **hide-->** prefix. In such case clicking on row number will copy just hidden text without this prefix. In example below pass is hidden behing hide--> and clicking on row number 2 will copy pass to clipboard
+- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d1e1c80d-77bc-4fdc-930a-7c31b909800a)
 - tabs
   - reordable
   - remember scroll for each note
   - remembered
 - possibility to password secure individual notes
+- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/906782c4-404b-4332-a36d-7d17d8744440)
 - hotkeys
   - ctr + s
   - ctr + f triggers CodeMirror search instead of web search
