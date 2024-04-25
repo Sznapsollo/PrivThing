@@ -69,6 +69,8 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
   - reordable
   - remember scroll for each note
   - remembered
+- favourites
+  - reordable
 - possibility to password secure individual notes
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/906782c4-404b-4332-a36d-7d17d8744440)
 - hotkeys
