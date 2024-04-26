@@ -504,7 +504,16 @@ label.upperLabel {
     -moz-user-select: none;    
     -ms-user-select: none;      
     user-select: none;
+    cursor: pointer;
     /* filter: blur(3px); */
+}
+
+.cm-pass-hider-menu {
+    display: none;
+}
+
+.cm-pass-hider-menu.showMenu {
+    display: block;
 }
 
 @keyframes spinHorizontal {

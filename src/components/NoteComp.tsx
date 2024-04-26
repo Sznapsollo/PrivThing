@@ -627,6 +627,13 @@ const NoteComp = ({editedItem}: Props) => {
         setNote(val);
     }, []);
 
+    const copyClickedValue = (copiedText: String, copyMessage: string = 'lineCopiedToClipboard') => {
+        onTriggerBlinkingBorder();
+        let markedText = (copiedText || '').toString();
+        navigator.clipboard.writeText(markedText);
+        mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 5000, message: t(copyMessage)} as AlertData})
+    }
+
     const onTriggerBlinkingBorder = () => {
         if(!noteRef.current || !noteRef.current.view?.contentDOM.classList) {
             return
@@ -645,11 +652,29 @@ const NoteComp = ({editedItem}: Props) => {
         toDOM() {
             let wrap = document.createElement("span")
             wrap.setAttribute("aria-hidden", "true")
-            // wrap.onclick = (e) => { 
-            //     debugger
-            // }
-            wrap.className = "cm-pass-hider"
-            wrap.innerHTML = this.element.replace(/./g,'*')
+            wrap.onclick = (e) => { 
+                copyClickedValue((this.element || '').replaceAll('hide-->', ''), 'copied');
+                e.preventDefault();
+            }
+            wrap.oncontextmenu = (e) => {
+                if(e && e.target) {
+                    let orgValue = (e.target as HTMLSpanElement).innerHTML;
+                    let orgCss = (e.target as HTMLSpanElement).className;
+                    if(orgCss && orgCss.includes('unveiling')) {
+                        return
+                    }
+                    (e.target as HTMLSpanElement).className = `${orgCss} unveiling`;
+                    (e.target as HTMLSpanElement).innerHTML = this.element;
+                    setTimeout(() => {
+                        (e.target as HTMLSpanElement).className = orgCss;
+                        (e.target as HTMLSpanElement).innerHTML = orgValue;
+                    }, 5000)   
+                }
+                e.preventDefault();
+            }
+            wrap.className = "cm-pass-hider";
+            wrap.innerHTML = this.element.replace(/./g,'*');
+
             return wrap
         }
       
@@ -801,11 +826,7 @@ const NoteComp = ({editedItem}: Props) => {
                                                     if(clickedNumber) {
                                                         let rowNumber = parseInt(clickedNumber);
                                                         if(!isNaN(rowNumber)) {
-
-                                                            onTriggerBlinkingBorder();
-                                                            let markedText = (view.state.doc.line(rowNumber).text || '').replaceAll('hide-->', '');
-                                                            navigator.clipboard.writeText(markedText);
-                                                            mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, closeAfter: 5000, message: t('lineCopiedToClipboard')} as AlertData})
+                                                            copyClickedValue((view.state.doc.line(rowNumber).text || '').replaceAll('hide-->', ''));
 
                                                             view.dispatch({
                                                                 // Set selection to that entire line.
