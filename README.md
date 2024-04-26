@@ -64,7 +64,10 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
 - multi note spaces (note spaces next to each other)
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/f5735a8a-bd86-441a-9be6-c0af59915256)
 - row numbers - clicking on row number puts whole row into clipboard
-- you can hide/mask text in your notes (for example of passwords) by preceding them with **hide-->** prefix. In such case clicking on row number will copy just hidden text without this prefix. In example below pass is hidden behing hide--> and clicking on row number 2 will copy pass to clipboard
+- you can hide/mask text in your notes (for example of passwords) by preceding them with **hide-->** prefix. In such case clicking on row number will copy just hidden text without this prefix. In example below pass is hidden behing hide-->
+- clicking on row number 2 will copy masked text to clipboard
+- clicking on masked text will copy it to clipboard
+- right clicking on masked text will unveil it for 5 seconds
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d1e1c80d-77bc-4fdc-930a-7c31b909800a)
 - tabs
   - reordable
