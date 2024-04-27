@@ -70,6 +70,8 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
 - right clicking on masked text will give options to unveil it for 5 seconds, unhide it permanently or do some additional actions
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d1e1c80d-77bc-4fdc-930a-7c31b909800a)
 - when right clicking on selected text (within one line) context menu will appear allowing to hide this text
+- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/a5bc326c-a0e6-46ff-831c-b18f43fefb8e)
+- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/5e7c2f3a-0b5f-48ef-880e-9101d599d685)
 - tabs
   - reordable
   - remember scroll for each note
