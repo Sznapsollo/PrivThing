@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import NoteComp from './NoteComp'
 import { AppState } from '../context/Context';
-import { EditItem, Item, NoteSpaceContextMenu } from '../model';
+import { EditItem, GenericContextMenuAction, GenericContextMenuItem, Item, NoteSpaceContextMenu } from '../model';
 import { FiMinusCircle, FiPlusCircle } from 'react-icons/fi';
 import { FaRegStar, FaStar } from 'react-icons/fa';
 import { PiArrowsInLineHorizontalFill } from "react-icons/pi";
@@ -9,10 +9,11 @@ import { PiArrowsOutLineHorizontalFill } from "react-icons/pi";
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { getNewItem, saveLocalStorage } from '../utils/utils';
 import { useTranslation } from 'react-i18next';
-import NoteSpaceContextMenuComp from './NoteSpaceContextMenuComp'
+import GenericContextMenuComp from './GenericContextMenuComp';
 
 const initialNoteSpaceContextMenu: NoteSpaceContextMenu = {
     show: false,
+    menuActions: [],
     x: 0,
     y: 0
 }
@@ -46,13 +47,45 @@ const NoteSpacesComp = () => {
         }
     }, [favourites])
 
-    const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>, noteSpaceItem: EditItem): void => {
+    const buildContextMenu = (e: React.MouseEvent<HTMLDivElement>, noteSpaceItem: EditItem): void => {
         e.preventDefault();
         const {pageX, pageY} = e;
-        setNoteSpaceContextMenu({show: true, x: pageX, y:pageY, noteSpaceItem: noteSpaceItem});
+
+        const menuItems: GenericContextMenuItem[] = []
+
+        if(editedItemSpaces.length > 1) {
+            menuItems.push({
+                action: 'closeNoteSpace',
+                title: t("closeNoteSpace")
+            });
+            menuItems.push({
+                action: 'closeNoteSpacesButThis',
+                title: t("closeNoteSpacesButThis")
+            });
+        }
+
+        setNoteSpaceContextMenu({show: true, x: pageX, y:pageY, noteSpaceItem: noteSpaceItem, menuActions: menuItems});
     }
 
-    const handleContextMenuClose = () => setNoteSpaceContextMenu(initialNoteSpaceContextMenu)
+    const handleContextMenuAction = (menuAction: GenericContextMenuAction) => {
+        switch(menuAction.action) {
+            case 'closeNoteSpace':
+                mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: noteSpaceContextMenu.noteSpaceItem});
+                break;
+            case 'closeNoteSpacesButThis':
+                if(noteSpaceContextMenu.noteSpaceItem?.isActive === true) {
+                    mainDispatch({type: MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES, payload: noteSpaceContextMenu.noteSpaceItem});
+                } else {
+                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: noteSpaceContextMenu.noteSpaceItem, tab: {...noteSpaceContextMenu.noteSpaceItem, isActive: false, isNew: true}, action: 'CLEAR_OTHER_NOTE_SPACES'}});
+                }
+                break;
+            case 'close':
+            default:
+                break;
+        }
+
+        setNoteSpaceContextMenu(initialNoteSpaceContextMenu)
+    }
 
     const isFavourite = (item: EditItem): boolean => {
         return favourites && !!favourites.find((favItem) => favItem.path === item.path);
@@ -60,7 +93,7 @@ const NoteSpacesComp = () => {
 
     return (
         <div className='notesSpacesContainer'>
-            {noteSpaceContextMenu.show === true && <NoteSpaceContextMenuComp x={noteSpaceContextMenu.x} y={noteSpaceContextMenu.y} allItems={editedItemSpaces} noteSpaceItem={noteSpaceContextMenu.noteSpaceItem} closeContextMenu={handleContextMenuClose}/>}
+            {noteSpaceContextMenu.show === true && <GenericContextMenuComp x={noteSpaceContextMenu.x} y={noteSpaceContextMenu.y} menuActions={noteSpaceContextMenu.menuActions} contextMenuAction={handleContextMenuAction}/>}
             {
                 editedItemSpaces.map((editedItemSpace, index) => (
                     <div key={index} style={{flex: editedItemSpace.flex || 1, display: 'flex'}} className='noteSpaceContainer'>
@@ -81,7 +114,7 @@ const NoteSpacesComp = () => {
                                 onClick={() => {
                                     mainDispatch({type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: editedItemSpace})
                                 }}
-                                onContextMenu={(e) => handleContextMenu(e, editedItemSpace)}
+                                onContextMenu={(e) => buildContextMenu(e, editedItemSpace)}
                             >
                                 <div>
                                     {

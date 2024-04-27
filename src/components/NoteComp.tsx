@@ -5,7 +5,7 @@ import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
-import { AlertData, EditItem, Item, SaveAsResults } from '../model';
+import { AlertData, EditItem, Item, SaveAsResults, GenericContextMenu, GenericContextMenuItem, GenericContextMenuAction, NoteContextMenu } from '../model';
 import { AiOutlineLoading } from 'react-icons/ai';
 import { RiMenuUnfoldFill } from "react-icons/ri";
 import { RiArrowUpCircleLine } from "react-icons/ri";
@@ -23,10 +23,22 @@ import { MAIN_ACTIONS } from '../context/Reducers';
 import axios from 'axios';
 import { amy, ayuLight, barf, bespin, birdsOfParadise, boysAndGirls, clouds, cobalt, coolGlow, dracula, espresso, noctisLilac, rosePineDawn, smoothy, solarizedLight, tomorrow } from 'thememirror';
 import { createCustomTheme } from '../utils/customTheme'
+import GenericContextMenuComp from './GenericContextMenuComp';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
 
+const hideRegex = /hide\[\[(.*)\]\]/g;
+
+const initialContextMenu: NoteContextMenu = {
+    show: false,
+    menuActions: [],
+    x: 0,
+    y: 0,
+    selectionStart: 0,
+    selectionEnd: 0,
+    clickEvent: null
+}
 interface Props {
     editedItem: EditItem
 }
@@ -54,6 +66,7 @@ const NoteComp = ({editedItem}: Props) => {
     const [askDelete, setAskDelete] = useState<boolean>(false);
     const [needSecretMeta, setNeedSecretMeta] = useState<SecretMeta>({});
     const [isSavingAs, setIsSavingAs] = useState<boolean>(false);
+    const [noteContextMenu, setNoteContextMenu ] = useState<NoteContextMenu>(initialContextMenu);
 
     const updateFileButtonRef = useRef<HTMLButtonElement>(null);
     const saveToFileButtonRef = useRef<HTMLButtonElement>(null);
@@ -619,6 +632,127 @@ const NoteComp = ({editedItem}: Props) => {
         }
     };
 
+    const buildContextMenu = (e: any, options?: {type: string, selectionStart?: number, selectionEnd?: number}) => {
+        e.preventDefault();
+        const {pageX, pageY} = e;
+        const menuActions: GenericContextMenuItem[] = [];
+        const noteContextMenuObj: NoteContextMenu = {
+            show: true, 
+            menuActions: menuActions,
+            x: pageX, 
+            y: pageY
+        }
+        
+        if(options?.type === 'fromMarked') {
+            if(options.selectionStart != null && options.selectionEnd != null && options.selectionEnd > options.selectionStart) {
+                let selectedText = note.substring(options.selectionStart, options.selectionEnd);
+                if(selectedText && selectedText.length && selectedText.match(hideRegex) && !selectedText.includes('\n')) {
+                    noteContextMenuObj.selectionStart = options.selectionStart;
+                    noteContextMenuObj.selectionEnd = options.selectionEnd;
+                    noteContextMenuObj.clickEvent = e;
+                    menuActions.push({
+                        action: 'copyHiddenText',
+                        title: t('copy')
+                    })
+                    menuActions.push({
+                        action: 'unveilHiddenText',
+                        title: t('unveilHiddenText')
+                    })
+                    menuActions.push({
+                        action: 'unhideHiddenText',
+                        title: t('unhideHiddenText')
+                    })
+                }
+            }
+        } else {
+            const fromChar = noteRef.current?.view?.state?.selection?.main.from;
+            const toChar = noteRef.current?.view?.state?.selection?.main.to;
+
+            if(fromChar != null && toChar != null && toChar > fromChar) {
+                console.log(fromChar, toChar)
+                // console.log(noteRef.current?.view?.state.sliceDoc(fromChar, toChar))
+                // console.log(note.substring(fromChar, toChar))
+    
+                let selectedText = note.substring(fromChar, toChar);
+                // we do not want it to contain any other decorators
+                // we do not want to have new lines either - would be nide to but decorator regexp works only withing current line content 
+                // so untill i resolve that lets limit o one line
+    
+                if(selectedText && selectedText.length && !selectedText.match(hideRegex) && !selectedText.includes('\n')) {
+                    noteContextMenuObj.selectionStart = fromChar;
+                    noteContextMenuObj.selectionEnd = toChar;
+                    menuActions.push({
+                        action: 'hideSelectedText',
+                        title: t('hideSelectedText')
+                    })
+                }
+            }
+        }
+
+        setNoteContextMenu(noteContextMenuObj);
+    }
+
+    const handleContextMenuAction = (menuAction: GenericContextMenuAction) => {
+        switch(menuAction.action) {
+            case 'hideSelectedText':
+                if(noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
+                    let selectedText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
+                    // we do not want it to contain any other decorators
+                    if(selectedText && selectedText.length && !selectedText.match(hideRegex) && !selectedText.includes('\n')) {
+                        setNote(note.substring(0, noteContextMenu.selectionStart) + `hide[[${selectedText}]]` + note.substring(noteContextMenu.selectionEnd))
+                    }
+                }
+                break;
+            case 'unveilHiddenText':
+                if(noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart && noteContextMenu.clickEvent != null && noteContextMenu.clickEvent.target != null) {
+                    const evC = noteContextMenu.clickEvent
+                    const orgValue = (evC.target as HTMLSpanElement).innerHTML;
+                    const markedNodeId = `${noteContextMenu.selectionStart}_${noteContextMenu.selectionEnd}`;
+                    const markedNode = document.getElementById(markedNodeId);
+                    
+                    if(markedNode) {
+                        const hiddenText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
+                        setTimeout(() => {
+                            const markedNode = document.getElementById(markedNodeId);
+                            if(markedNode) {
+                                markedNode.innerHTML = hiddenText.replaceAll('hide[[', '').replaceAll(']]','');
+                            }
+    
+                            setTimeout(() => {
+                                const markedNode = document.getElementById(markedNodeId);
+                                if(markedNode) {
+                                    markedNode.innerHTML = orgValue;
+                                }
+                            }, 5000)
+                        }, 200)  
+                    } 
+                }
+                break;
+            case 'unhideHiddenText':
+                if(noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
+                    let hiddenText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
+                    // we do not want it to contain any other decorators
+                    if(hiddenText && hiddenText.length && hiddenText.match(hideRegex) && !hiddenText.includes('\n')) {
+                        setNote(note.substring(0, noteContextMenu.selectionStart) + `${hiddenText.replaceAll('hide[[', '').replaceAll(']]', '')}` + note.substring(noteContextMenu.selectionEnd))
+                    }
+                }
+                break;
+            case 'copyHiddenText':
+                if(noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
+                    let hiddenText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
+                    // we do not want it to contain any other decorators
+                    if(hiddenText && hiddenText.length && hiddenText.match(hideRegex) && !hiddenText.includes('\n')) {
+                        copyClickedValue((hiddenText || '').replaceAll('hide[[', '').replaceAll(']]', ''), 'copied');
+                    }
+                }
+                break;
+            case 'close':
+            default:
+                break;
+        }
+        setNoteContextMenu(initialContextMenu);
+    }
+
     var canUpdateFileDom = canUpdateFile(editedItem);
     var saveHotKey = isMac ? "Cmd + S" : "Ctrl + S";
 
@@ -647,28 +781,21 @@ const NoteComp = ({editedItem}: Props) => {
         }
     }
     class PassHiderWidget extends WidgetType {
-        constructor(readonly element: string) { super() }
-      
+        constructor(readonly element: string, readonly view: EditorView, readonly position: number) { super() }
+        
         toDOM() {
+            const spanID = `${this.position}_${this.position + this.element.length + ('hide[[]]').length}`
             let wrap = document.createElement("span")
             wrap.setAttribute("aria-hidden", "true")
+            wrap.setAttribute("id", spanID)
             wrap.onclick = (e) => { 
-                copyClickedValue((this.element || '').replaceAll('hide-->', ''), 'copied');
+                copyClickedValue((this.element || '').replaceAll('hide[[', '').replaceAll(']]', ''), 'copied');
                 e.preventDefault();
             }
             wrap.oncontextmenu = (e) => {
                 if(e && e.target) {
-                    let orgValue = (e.target as HTMLSpanElement).innerHTML;
-                    let orgCss = (e.target as HTMLSpanElement).className;
-                    if(orgCss && orgCss.includes('unveiling')) {
-                        return
-                    }
-                    (e.target as HTMLSpanElement).className = `${orgCss} unveiling`;
-                    (e.target as HTMLSpanElement).innerHTML = this.element;
-                    setTimeout(() => {
-                        (e.target as HTMLSpanElement).className = orgCss;
-                        (e.target as HTMLSpanElement).innerHTML = orgValue;
-                    }, 5000)   
+                    // const {pageX, pageY} = e;
+                    buildContextMenu(e, {type: 'fromMarked', selectionStart: this.position, selectionEnd: this.position + this.element.length + ('hide[[]]').length});
                 }
                 e.preventDefault();
             }
@@ -683,9 +810,9 @@ const NoteComp = ({editedItem}: Props) => {
 
     const placeholderMatcher = new MatchDecorator({
         // regexp: /pass\[\[(\w+)\]\]/g,
-        regexp: /hide-->(.*)/g,
-        decoration: match => Decoration.replace({
-            widget: new PassHiderWidget(match[1])
+        regexp: hideRegex,
+        decoration: (match, view, position) => Decoration.replace({
+            widget: new PassHiderWidget(match[1], view, position)
         })
     })
 
@@ -817,6 +944,9 @@ const NoteComp = ({editedItem}: Props) => {
                                     spellCheck={false}
                                     ref={noteRef}
                                     theme={cdmrrorTheme}
+                                    onContextMenu={(e) => {
+                                        buildContextMenu(e);
+                                    }}
                                     extensions={[
                                         javascript({ jsx: true }),
                                         lineNumbers({
@@ -826,7 +956,7 @@ const NoteComp = ({editedItem}: Props) => {
                                                     if(clickedNumber) {
                                                         let rowNumber = parseInt(clickedNumber);
                                                         if(!isNaN(rowNumber)) {
-                                                            copyClickedValue((view.state.doc.line(rowNumber).text || '').replaceAll('hide-->', ''));
+                                                            copyClickedValue((view.state.doc.line(rowNumber).text || '').replaceAll('hide[[', '').replaceAll(']]', ''));
 
                                                             view.dispatch({
                                                                 // Set selection to that entire line.
@@ -992,6 +1122,10 @@ const NoteComp = ({editedItem}: Props) => {
                     handleExternalSave={handleDeleteItem}
                     handleExternalClose={() => {setAskDelete(false)}}
                 >{t("confirmDelete", {item: fileName})}</ConfirmationComp>
+            }
+            {
+                noteContextMenu.show === true && 
+                <GenericContextMenuComp x={noteContextMenu.x} y={noteContextMenu.y} menuActions={noteContextMenu.menuActions} contextMenuAction={handleContextMenuAction}/>
             }
         </div>
     )

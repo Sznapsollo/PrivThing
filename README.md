@@ -33,7 +33,7 @@ This repository does not contain server for following additional folders - it is
 
 - notes can be encrypted (set password when using Save as option)
 
-- passwords or some texts can be hidden by using **hide-->** prefix
+- passwords or some texts can be hidden by using **hide[[your text]]** or by marking text and choosing in right click menu Hide option
 
 ### Passwords
 
@@ -64,11 +64,12 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
 - multi note spaces (note spaces next to each other)
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/f5735a8a-bd86-441a-9be6-c0af59915256)
 - row numbers - clicking on row number puts whole row into clipboard
-- you can hide/mask text in your notes (for example of passwords) by preceding them with **hide-->** prefix. In such case clicking on row number will copy just hidden text without this prefix. In example below pass is hidden behing hide-->
+- you can hide/mask text in your notes (for example of passwords) by wrapping them with **hide[[your text]]** or by selecting text and choosing in right click menu 'Hide option'. Example of hiding below.
 - clicking on row number 2 will copy masked text to clipboard
 - clicking on masked text will copy it to clipboard
-- right clicking on masked text will unveil it for 5 seconds
+- right clicking on masked text will give options to unveil it for 5 seconds, unhide it permanently or do some additional actions
 - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d1e1c80d-77bc-4fdc-930a-7c31b909800a)
+- when right clicking on selected text (within one line) context menu will appear allowing to hide this text
 - tabs
   - reordable
   - remember scroll for each note

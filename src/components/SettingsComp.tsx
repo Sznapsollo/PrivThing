@@ -60,7 +60,7 @@ const SettingsComp = () => {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                {t("settings")} <span style={{fontSize: 8, color: '#cecece'}}>version: 1.0.16</span>
+                {t("settings")} <span style={{fontSize: 8, color: '#cecece'}}>version: 1.0.17</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>

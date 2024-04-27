@@ -7,10 +7,20 @@ export interface AlertData {
     show: boolean
 }
 
-export interface ContextMenu {
+export interface GenericContextMenu {
     show: boolean,
+    menuActions: GenericContextMenuItem[],
     x: number,
     y: number
+}
+
+export interface GenericContextMenuItem {
+    title: string,
+    action: string,
+}
+
+export interface GenericContextMenuAction {
+    action: string,
 }
 
 export interface Folder {
@@ -118,12 +128,18 @@ export interface EditItem extends Item {
     flex?: number
 }
 
-export interface TabContextMenu extends ContextMenu {
+export interface TabContextMenu extends GenericContextMenu {
     tab?: Tab
 }
 
-export interface NoteSpaceContextMenu extends ContextMenu {
+export interface NoteSpaceContextMenu extends GenericContextMenu {
     noteSpaceItem?: EditItem
+}
+
+export interface NoteContextMenu extends GenericContextMenu {
+    selectionStart?: number,
+    selectionEnd?: number,
+    clickEvent?: any
 }
 
 export interface LooseObject {

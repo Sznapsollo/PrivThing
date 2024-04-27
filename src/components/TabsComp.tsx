@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { AppState } from '../context/Context'
 import { useTranslation } from 'react-i18next'
-import { Item, Tab, TabContextMenu } from '../model';
+import { GenericContextMenuAction, GenericContextMenuItem, Item, Tab, TabContextMenu } from '../model';
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { PiArrowsInLineVertical, PiArrowsOutLineVertical } from 'react-icons/pi';
 import { getNewItem, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
-import TabContextMenuComp from './TabContextMenuComp';
 import { MAIN_ACTIONS } from '../context/Reducers';
+import GenericContextMenuComp from './GenericContextMenuComp';
 
 const initialTabContextMenu: TabContextMenu = {
     show: false,
+    menuActions: [],
     x: 0,
     y: 0
 }
@@ -129,13 +130,45 @@ const TabsComp = () => {
     // dndn stuff end
 
     // context menu things start
-    const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>, tab: Tab): void => {
+    const buildContextMenu = (e: React.MouseEvent<HTMLDivElement>, tab: Tab): void => {
         e.preventDefault();
         const {pageX, pageY} = e;
-        setTabContextMenu({show: true, x: pageX, y:pageY, tab: tab});
+
+        const menuItems: GenericContextMenuItem[] = [
+            {
+                action: 'openInNewNoteSpace',
+                title: t("openInNewNoteSpace")
+            },
+            {
+                action: 'closeTab',
+                title: t("closeTab")
+            },
+            {
+                action: 'closeAllTabs',
+                title: t("closeAllTabs")
+            }
+        ]
+
+        setTabContextMenu({show: true, x: pageX, y:pageY, tab: tab, menuActions: menuItems});
     }
 
-    const handleContextMenuClose = () => setTabContextMenu(initialTabContextMenu)
+    const handleContextMenuAction = (menuAction: GenericContextMenuAction) => {
+        switch(menuAction.action) {
+            case 'openInNewNoteSpace':
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: tabContextMenu.tab, tab: tabContextMenu.tab, action: 'NEW_NOTE_SPACE'}});
+                break;
+            case 'closeTab':
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: {}, tab: tabContextMenu.tab, action: 'REMOVE_TAB'}});
+                break;
+            case 'closeAllTabs':
+                mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: []});
+                break;
+            case 'close':
+            default:
+                break;
+        }
+        setTabContextMenu(initialTabContextMenu);
+    }
     // context menu things end
 
     const handleChangeTabsDisplayMode = (newMode: string) => {
@@ -174,7 +207,7 @@ const TabsComp = () => {
                                 }
                                 mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: tabItem, tab: tabItem}});
                                 }}
-                            onContextMenu={(e) => handleContextMenu(e, tabItem)}
+                            onContextMenu={(e) => buildContextMenu(e, tabItem)}
                         >{tabItem.name || t("empty")} &nbsp; 
                         </div>
                         <FiMinusCircle title={t("closeTab")} className='h2 itemTabIconRemove' onClick={(e) => {
@@ -189,7 +222,7 @@ const TabsComp = () => {
                 const payLoadItem: Item = getNewItem();
                 mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}/>
-            {tabContextMenu.show === true && <TabContextMenuComp x={tabContextMenu.x} y={tabContextMenu.y} tabItem={tabContextMenu.tab} closeContextMenu={handleContextMenuClose}/>}
+            {tabContextMenu.show === true && <GenericContextMenuComp x={tabContextMenu.x} y={tabContextMenu.y} menuActions={tabContextMenu.menuActions} contextMenuAction={handleContextMenuAction}/>}
         </div>
     )
 }
