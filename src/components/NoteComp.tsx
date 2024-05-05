@@ -642,6 +642,8 @@ const NoteComp = ({editedItem}: Props) => {
             x: pageX, 
             y: pageY
         }
+        const fromChar = noteRef.current?.view?.state?.selection?.main.from;
+        const toChar = noteRef.current?.view?.state?.selection?.main.to;
         
         if(options?.type === 'fromMarked') {
             if(options.selectionStart != null && options.selectionEnd != null && options.selectionEnd > options.selectionStart) {
@@ -665,8 +667,6 @@ const NoteComp = ({editedItem}: Props) => {
                 }
             }
         } else {
-            const fromChar = noteRef.current?.view?.state?.selection?.main.from;
-            const toChar = noteRef.current?.view?.state?.selection?.main.to;
 
             if(fromChar != null && toChar != null && toChar > fromChar) {
                 console.log(fromChar, toChar)
@@ -674,18 +674,47 @@ const NoteComp = ({editedItem}: Props) => {
                 // console.log(note.substring(fromChar, toChar))
     
                 let selectedText = note.substring(fromChar, toChar);
+
+                noteContextMenuObj.selectionStart = fromChar;
+                noteContextMenuObj.selectionEnd = toChar;
+
+                menuActions.push({
+                    action: 'copy',
+                    title: t('copy')
+                })
+
                 // we do not want it to contain any other decorators
                 // we do not want to have new lines either - would be nide to but decorator regexp works only withing current line content 
                 // so untill i resolve that lets limit o one line
-    
                 if(selectedText && selectedText.length && !selectedText.match(hideRegex) && !selectedText.includes('\n')) {
-                    noteContextMenuObj.selectionStart = fromChar;
-                    noteContextMenuObj.selectionEnd = toChar;
                     menuActions.push({
                         action: 'hideSelectedText',
                         title: t('hideSelectedText')
                     })
                 }
+            } else {
+                if(noteRef.current?.view) {
+                    let pos = noteRef.current.view.posAtCoords({ x: pageX, y: pageY });
+                    if(pos != null) {
+                        let lineNo = noteRef.current.view.state.doc.lineAt(pos).number;
+                        noteContextMenuObj.clickedLine = lineNo;
+                        menuActions.push({
+                            action: 'copyLine',
+                            title: `${t('copyLine')} ${lineNo}`
+                        })
+                        menuActions.push({
+                            action: 'deleteLine',
+                            title: `${t('deleteLine')} ${lineNo}`
+                        })
+                    }
+                }
+            }
+
+            if(fromChar != null && toChar != null && toChar > fromChar) {
+                menuActions.push({
+                    action: 'delete',
+                    title: t('delete')
+                })
             }
         }
 
@@ -694,6 +723,37 @@ const NoteComp = ({editedItem}: Props) => {
 
     const handleContextMenuAction = (menuAction: GenericContextMenuAction) => {
         switch(menuAction.action) {
+            case 'copy':
+                if(noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
+                    copyClickedValue((note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd) || '').replaceAll('hide[[', '').replaceAll(']]', ''));
+                }
+                break;
+            case 'copyLine':
+                if(noteContextMenu.clickedLine != null && noteRef.current?.view != null) {
+                    copyClickedValue((noteRef.current.view.state.doc.line(noteContextMenu.clickedLine).text || '').replaceAll('hide[[', '').replaceAll(']]', ''));
+                }
+                break;
+            case 'delete':
+                if(noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
+                    let selectedText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
+                    if(selectedText && selectedText.length) {
+                        setNote(note.substring(0, noteContextMenu.selectionStart) + note.substring(noteContextMenu.selectionEnd))
+                    }
+                }
+                break;
+            case 'deleteLine':
+                if(noteContextMenu.clickedLine != null && noteRef.current?.view != null) {
+                    let line = noteRef.current.view.state.doc.line(noteContextMenu.clickedLine); // Convert 1-based line number to 0-based index
+                    let charStart = line.from;
+                    let chartEnd = line.to;
+                    
+                    let firstPart = note.substring(0, charStart);
+                    if(firstPart.endsWith('\n')) {
+                        firstPart = firstPart.substring(0, firstPart.length - 2);
+                    }
+                    setNote(firstPart + note.substring(chartEnd));
+                }
+                break;
             case 'hideSelectedText':
                 if(noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
                     let selectedText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);

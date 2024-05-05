@@ -139,6 +139,7 @@ export interface NoteSpaceContextMenu extends GenericContextMenu {
 export interface NoteContextMenu extends GenericContextMenu {
     selectionStart?: number,
     selectionEnd?: number,
+    clickedLine?: number,
     clickEvent?: any
 }
 
