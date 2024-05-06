@@ -114,6 +114,8 @@ const ItemsComp = () => {
 
         if(currentFolder) {
             transformedItemsLocal = transformedItemsLocal.filter((item) => item.folder?.toLowerCase() === currentFolder.toLowerCase());
+        } else {
+            transformedItemsLocal = transformedItemsLocal.filter((item) => !item.excludeFromAll);
         }
 
         if(sort) {

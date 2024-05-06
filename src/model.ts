@@ -34,6 +34,7 @@ export interface Item {
     lastModified?: number,
     name: string,
     path: string,
+    excludeFromAll?: boolean,
     rawNote?: string,
     size?: number
 }
