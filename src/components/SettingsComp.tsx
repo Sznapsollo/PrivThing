@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { AppState, settingsInitialStateBaseline } from '../context/Context'
-import { Modal, Button, Form } from 'react-bootstrap'
+import { Modal, Button, Form, InputGroup } from 'react-bootstrap'
 import ConfirmationComp from './ConfirmationComp';
 import { useTranslation } from 'react-i18next'
 import { removeLocalStorage, saveLocalStorage } from '../utils/utils'
@@ -60,7 +60,7 @@ const SettingsComp = () => {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                {t("settings")} <span style={{fontSize: 8, color: '#cecece'}}>version: 1.0.19</span>
+                {t("settings")} <span style={{fontSize: 8, color: '#cecece'}}>version: 1.0.21</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -103,6 +103,20 @@ const SettingsComp = () => {
                 </div>
 
                 <div className='formSection'>
+                    <Form.Group className='formGroup'>
+                        <label className='upperLabel'>{t("excludeFromAll")}</label>
+                        <InputGroup>
+                            <Form.Control 
+                                value={settings.excludeFromAll}
+                                className='form-control-lg'
+                                placeholder={t("excludeFromAllHint")}
+                                onChange={(e) => {
+                                    setSettings({...settings, excludeFromAll: e.target.value});
+                                }}
+                            />
+                        </InputGroup>
+                    </Form.Group>
+                    <br/>
                     <Form.Group className='formGroup'>
                         <label className='upperLabel'>{t("codeMirrorTheme")}</label>
                         <Form.Control 

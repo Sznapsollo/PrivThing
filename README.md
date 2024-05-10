@@ -87,5 +87,5 @@ I share simple node server in my repositor - https://github.com/Sznapsollo/PrivT
   - ctr + s
   - ctr + f triggers CodeMirror search instead of web search
 - draggable vertical resizer between items list and note - its position is remembered
-- search of notes titles
+- search of notes titles & notes contents (this is optional and has to be checked in search field in search bar)
 - different folders (by default)

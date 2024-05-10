@@ -5,7 +5,7 @@ import i18n from '../i18n';
 import { Link } from 'react-router-dom'
 import { AppState } from '../context/Context'
 import { LiaFilterSolid } from 'react-icons/lia';
-import { CiUndo } from 'react-icons/ci';
+import { RxCross2 } from 'react-icons/rx';
 import { FiMenu } from 'react-icons/fi';
 import { AlertData, ProcessingResult } from '../model';
 import ConfirmationComp from './ConfirmationComp';
@@ -233,14 +233,42 @@ const HeaderComp = () => {
                                     className={'form-control-lg m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
                                     onChange={(e) =>
                                         {
-                                            searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: e.target.value});
+                                            searchDispatch({
+                                                type: SEARCH_ACTIONS.FILTER_BY_SEARCH, 
+                                                payload: {
+                                                    searchQuery: e.target.value,
+                                                    searchContent: searchState.searchContent === true,
+                                                }
+                                            });
                                     
                                         }
                                     }
                                 />
-                                {searchState.searchQuery && <InputGroup.Text className="clearInput" onClick={(e) => {
-                                    searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: ''});
-                                }}><CiUndo/></InputGroup.Text>}
+                                {<InputGroup.Checkbox title={t('searchContent')} 
+                                    checked={searchState.searchContent} 
+                                    className="clearInput" 
+                                    onChange={(e) => {
+                                        searchDispatch({
+                                            type: SEARCH_ACTIONS.FILTER_BY_SEARCH, 
+                                            payload: {
+                                                searchQuery: searchState.searchQuery,
+                                                searchContent: e.target.checked === true,
+                                            }
+                                        });
+                                    }
+                                }></InputGroup.Checkbox>}
+                                {
+                                    searchState.searchQuery && 
+                                    <InputGroup.Text 
+                                        className="clearInput" 
+                                        onClick={(e) => {
+                                            searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: {
+                                                searchQuery: '',
+                                                searchContent: searchState.searchContent === true,
+                                            }});
+                                        }
+                                    }><RxCross2/></InputGroup.Text>
+                                }
                             </InputGroup>
                             
                         </Form.Group>

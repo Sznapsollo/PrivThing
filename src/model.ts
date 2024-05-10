@@ -102,13 +102,20 @@ export interface SaveAsResults {
 export interface SearchContextType {
     currentFolder: string
     searchQuery: string,
+    searchContent: boolean,
     sort: string,
+}
+
+export interface SearchQueryItem {
+    searchQuery: string,
+    searchContent: boolean,
 }
 
 export interface SettingsContextType {
     forgetSecretMode: string, // IMMEDIATE, AFTER_TIME, NEVER
     forgetSecretTime: number,
     codeMirrorTheme?: string,
+    excludeFromAll?: string,
     enableFileServer?: boolean,
     showHints?: boolean,
     stretchNoteSpaceOnActive?: boolean,

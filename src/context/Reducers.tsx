@@ -1,5 +1,5 @@
 
-import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult, EditItem, LooseObject } from '../model'
+import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult, EditItem, LooseObject, SearchQueryItem } from '../model'
 import { makeId, manageEditItemSpaces, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
 
 export enum MAIN_ACTIONS {
@@ -220,25 +220,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             return { ...state, secret: '' };
         case MAIN_ACTIONS.SET_ITEMS:
             let folders:Folder[] = [];
-            let items = [];
-            try {
-                let localStorageFiles = retrieveLocalStorage('privthing.files');
-                if(localStorageFiles) {
-                    for(let localStorageFileName in localStorageFiles) {
-                        let localStorageFile = localStorageFiles[localStorageFileName]
-                        let lcItem: Item = {
-                            folder: 'localStorage',
-                            path: 'localStorage/' + localStorageFileName,
-                            name: localStorageFileName,
-                            size: localStorageFile.size,
-                            lastModified: localStorageFile.lastModified
-                        }
-                        items.push(lcItem)
-                    }
-                }
-            } catch(e) {
-                alert("Problem retrieving localStorage items")
-            }
+            let items: Item[] = [];
             if(action.payload && action.payload.length) {
                 items = items.concat(action.payload);
             }
@@ -318,7 +300,7 @@ export enum SEARCH_ACTIONS {
 }
 
 type ClearFilters = {type: SEARCH_ACTIONS.CLEAR_FILTERS, payload: boolean};
-type FilterBySearch = {type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: string};
+type FilterBySearch = {type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: SearchQueryItem};
 type SetCurrentFolder = {type: SEARCH_ACTIONS.SET_CURRENT_FOLDER, payload: string};
 type SortByPrice = {type: SEARCH_ACTIONS.SORT_BY, payload: string};
 
@@ -329,7 +311,7 @@ export const searchReducer = (state: SearchContextType, action: SearchActions) =
         case SEARCH_ACTIONS.CLEAR_FILTERS:
             return { ...state };
         case SEARCH_ACTIONS.FILTER_BY_SEARCH:
-            return { ...state, searchQuery: action.payload };
+            return { ...state, searchQuery: action.payload.searchQuery, searchContent: action.payload.searchContent === true };
         case SEARCH_ACTIONS.SET_CURRENT_FOLDER:
             try {
                 let pmSearchSettings = retrieveLocalStorage("privthing.pmSearchSettings") || {};

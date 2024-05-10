@@ -9,7 +9,7 @@ import { BiDownArrow, BiRightArrow } from "react-icons/bi";
 import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { Item } from '../model';
 import { FiPlusCircle } from 'react-icons/fi';
-import { getNewItem } from '../utils/utils';
+import { getNewItem, retrieveLocalStorage } from '../utils/utils';
 import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
 import axios from 'axios';
 
@@ -17,7 +17,7 @@ const ItemsComp = () => {
 
     const { t } = useTranslation();
 
-    const {mainState: {folders, items, itemsListRefreshTrigger, activeEditedItemPath, favourites, showFavourites}, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer}} = AppState();
+    const {mainState: {folders, items, itemsListRefreshTrigger, activeEditedItemPath, favourites, showFavourites}, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer, excludeFromAll}} = AppState();
     const { searchState: {currentFolder, sort, searchQuery} } = AppState()
     const [foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -29,6 +29,7 @@ const ItemsComp = () => {
     const dragOverItem = useRef<number | null>();
     const dragItemPrev = useRef<number | null>();
     const dragOverItemPrev = useRef<number | null>();
+    const recentSearchContent = useRef<boolean>(false);
 
     const handleNewItem = () => {
         const payLoadItem: Item = getNewItem();
@@ -64,58 +65,151 @@ const ItemsComp = () => {
     }
 
     useEffect(() => {
-        // console.log('refreshing items')
+        // console.log('updated: itemsListRefreshTrigger')
+        let itemsLoaded: Item[] = [];
       
-        if(enableFileServer === true) {
-            if(!items?.length) {
-                setIsLoading(true);
+        let loadFilesFromLocalCache = () => {
+            try {
+                let localStorageFiles = retrieveLocalStorage('privthing.files');
+                if(localStorageFiles) {
+                    for(let localStorageFileName in localStorageFiles) {
+                        let localStorageFile = localStorageFiles[localStorageFileName]
+                        let lcItem: Item = {
+                            folder: 'localStorage',
+                            path: 'localStorage/' + localStorageFileName,
+                            name: localStorageFileName,
+                            size: localStorageFile.size,
+                            lastModified: localStorageFile.lastModified
+                        }
+                        try {
+                            if(searchState.searchContent && searchState.searchQuery && searchState.searchQuery.length >= 3 && localStorageFiles[localStorageFileName].data) {
+                                if(lcItem.name.toLowerCase().includes(searchState.searchQuery.toLowerCase())) {
+                                    // its ok
+                                } else {
+                                    const regex = new RegExp(`${searchState.searchQuery}`, 'g');
+                                    if (!regex.test(localStorageFiles[localStorageFileName].data)) {
+                                        continue
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error(`Error searching item ${localStorageFileName}: ${error}`);
+                        }
+                        itemsLoaded.push(lcItem)
+                    }
+                }
+            } catch(e) {
+                alert("Problem retrieving localStorage items")
             }
-            axios.post('actions', 
-                JSON.stringify({type: 'getListOfFiles'}), 
-                {
-                    headers: {
-                    "Content-Type": 'application/json',
-                    },
-                }
-            )
-            .then(response => {
-                setIsLoading(false);
-                let data = response.data;
-                if(data?.status !== 0) {
-                    // console.warn("Actions response", data);
-                    return
-                }
-                if(data.data?.files) {
-                    // NJ will fire is service is configured and works
-                    setFoldersLoaded(true);
-                }
-                if(Array.isArray(data?.data?.files)) {
-                    // console.log('dispatching items', data.data)
-                    mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: data.data.files});
-                }
-            })
-            .catch(function(error) {
-                setIsLoading(false);
-                setFoldersLoaded(true);
-                setServerMode("offline");
-                mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: []});
-                console.warn('Fetch operation error: ', error.message);
-            });
-        } else {
-            setFoldersLoaded(true);
-            setServerMode("disabled");
-            mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: []});
         }
+
+        let loadFilesFromServer = async () => {
+            return new Promise((resolve) => {
+                if(enableFileServer === true) {
+                    if(!items?.length) {
+                        setIsLoading(true);
+                    }
+                    let searchRQBody:{type: String, searchPhrase?: string} = {type: 'getListOfFiles'};
+                    if(searchState.searchContent === true && searchState.searchQuery && searchState.searchQuery.length > 3) {
+                        searchRQBody.searchPhrase = searchQuery;
+                    }
+                    axios.post('actions', 
+                        JSON.stringify(searchRQBody), 
+                        {
+                            headers: {
+                            "Content-Type": 'application/json',
+                            },
+                        }
+                    ).then(response => {
+                        setIsLoading(false);
+                        let data = response.data;
+                        if(data?.status !== 0) {
+                            // console.warn("Actions response", data);
+                            return
+                        }
+                        if(data.data?.files) {
+                            // NJ will fire is service is configured and works
+                            setFoldersLoaded(true);
+                        }
+                        if(Array.isArray(data?.data?.files)) {
+                            itemsLoaded = itemsLoaded.concat(data.data.files)
+                        }
+                        resolve(true);
+                    }).catch(function(error) {
+                        setIsLoading(false);
+                        setFoldersLoaded(true);
+                        setServerMode("offline");
+                        console.warn('Fetch operation error: ', error.message);
+                        resolve(true);
+                    });
+                } else {
+                    setFoldersLoaded(true);
+                    setServerMode("disabled");
+                    resolve(true);
+                }
+            });
+        }
+
+        let performDataLoad = async () => {
+            try {
+                await loadFilesFromServer();
+
+                // always load all
+                loadFilesFromLocalCache();
+                mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: itemsLoaded});
+            } catch(e) {
+                let excError: String = '';
+                if (typeof e === "string") {
+                    excError = e;
+                } else if (e instanceof Error) {
+                    excError = e.message;
+                }
+                console.warn('Fetch operation error: ', excError);
+            }
+            setIsLoading(false);
+            setFoldersLoaded(true);
+            mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: itemsLoaded});
+        }
+
+        performDataLoad();
 
     }, [itemsListRefreshTrigger]);
 
+    useEffect(() => {
+        // console.log('updated: searchState')
+        // also put some debiunce here not to query server too often
+        let searchContentChanged = (recentSearchContent.current !== searchState.searchContent)
+
+        recentSearchContent.current = searchState.searchContent;
+
+        if(searchState.searchContent === true) {
+            // lets do content && filenames search
+            mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
+        } else {
+            // lets do filenames search
+            // if it was switched from content search we should also update all items
+            if(searchContentChanged) {
+                mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
+            } else {
+                // items same but reference change will trigger useMemo
+                mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: items});
+            }
+        }
+    }, [searchState]);
+
     const transformedItems = useMemo(() => {
+        // console.log('updated memo: items, searchState')
         let transformedItemsLocal = items
 
         if(currentFolder) {
             transformedItemsLocal = transformedItemsLocal.filter((item) => item.folder?.toLowerCase() === currentFolder.toLowerCase());
         } else {
-            transformedItemsLocal = transformedItemsLocal.filter((item) => !item.excludeFromAll);
+            if(excludeFromAll && excludeFromAll.length) {
+                transformedItemsLocal = transformedItemsLocal.filter((item) => {
+                    let excludeFromAllParts = excludeFromAll.split(',')
+                    return item.folder && !excludeFromAllParts.find((excludeFromAllPart) => {return item.folder?.includes(excludeFromAllPart.trim())});
+                });
+            }            
         }
 
         if(sort) {
@@ -133,12 +227,12 @@ const ItemsComp = () => {
             })
         }
 
-        if(searchQuery) {
+        if(searchQuery && !searchState.searchContent) {
             transformedItemsLocal = transformedItemsLocal.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
 
         return transformedItemsLocal;
-    }, [items, searchState])
+    }, [items])
     
     const handleScroll = (e: React.UIEvent<HTMLElement>) => {
         setScrollTop(e.currentTarget.scrollTop);
@@ -246,13 +340,31 @@ const ItemsComp = () => {
                             className={'m-auto ' + ((searchState.searchQuery.length > 0) ? 'filledInput' : '')}
                             onChange={(e) =>
                                 {
-                                    searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: e.target.value});
+                                    searchDispatch({
+                                        type: SEARCH_ACTIONS.FILTER_BY_SEARCH, 
+                                        payload: {
+                                            searchQuery: e.target.value,
+                                            searchContent: searchState.searchContent === true,
+                                        }
+                                    });
                                 }
                             }
                         />
-                        {searchState.searchQuery && <InputGroup.Text className="clearInput" onClick={(e) => {
-                            searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: ''});
-                        }}><CiUndo/></InputGroup.Text>}
+                        {
+                            searchState.searchQuery && 
+                            <InputGroup.Text 
+                                className="clearInput" 
+                                onClick={(e) => {
+                                    searchDispatch({
+                                        type: SEARCH_ACTIONS.FILTER_BY_SEARCH, 
+                                        payload: {
+                                            searchQuery: '',
+                                            searchContent: searchState.searchContent === true,
+                                        }
+                                    });
+                                }}>
+                                <CiUndo/>
+                            </InputGroup.Text>}
                     </InputGroup>
                     
                 </Form.Group>

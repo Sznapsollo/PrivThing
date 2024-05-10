@@ -19,6 +19,7 @@ const appInitialState: MainContextType = {
 const searchInitialState = {
   sort: 'lastModifiedHighToLow', 
   searchQuery: "",
+  searchContent: false,
   currentFolder: ""
 }
 
