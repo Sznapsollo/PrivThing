@@ -125,7 +125,7 @@
     "showHints": "Pokazuj podpowiedzi",
     "somethingWentWrong": "Coś poszło nie tak ...",
     "sortBy": "Sortuj po",
-    "startTypingToFilterFiles": "Zacznij pisać aby filtrować notatki (po tytule)",
+    "startTypingToFilterFiles": "Szukaj po tytule i zawartości(zaznacz checkbox ->)",
     "storageNotConfigured": "Serwer plikowy nie jest skonfigurowany. Możesz pracować z notatkami z pamięci podręcznej lub plikowymi wybieranymi ręcznie. Aby nie wyświetlać tej wiadomości wyłącz serwer plikowy w ustawieniach.",
     "stretch": "Rozszerz",
     "stretchNoteSpaceOnActive": "Auto rozszerz aktywny notatnik",

@@ -125,7 +125,7 @@
     "showHints": "Show hints",
     "somethingWentWrong": "Something went wrong ...",
     "sortBy": "Sort by",
-    "startTypingToFilterFiles": "Start typing to filter files (by title)",
+    "startTypingToFilterFiles": "Filter by title and content(mark checkbox ->)",
     "storageNotConfigured": "Files storage folder and service not configured. You can only work with manual pick and save and localStorage files. To remove this message disable file server in settings.",
     "stretch": "Stretch",
     "stretchNoteSpaceOnActive": "Auto stretch active note space",
