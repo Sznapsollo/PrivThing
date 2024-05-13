@@ -1,5 +1,8 @@
 # PrivThing
 
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/62dc426d-a544-4c84-88f8-5e5d27cee6fd)
+
+
 ## About
 
 Tool for managing notes with notes/scripts/passwords and other data. 
