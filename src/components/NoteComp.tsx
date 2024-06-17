@@ -995,7 +995,7 @@ const NoteComp = ({editedItem}: Props) => {
                             </Form.Group>
                         </div>
                     </div>
-                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive')} >
+                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive') + (isDirty ? ' notepadDirty' : '')} >
                         <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} onScroll={()=> {rememberScrollPosition()}}>
                             <label className='upperLabel'>{t("note")}</label>
                             <div style={{height: 100}}>

@@ -336,6 +336,10 @@ a:not(.dropdown-item) {
     background-color: #ffffff;
 }
 
+.notepadDirty {
+    border: 2px solid #e40000;
+}
+
 .notepadInactive {
     border: 2px solid #cecece;
     border-radius: 5px;
