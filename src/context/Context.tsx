@@ -34,7 +34,7 @@ export const settingsInitialStateBaseline = {
         variant: 'light',
         background: '#282a36',
         foreground: '#f0a4f5',
-        caret: '#7c3aed',
+        caret: '#83c127',
         selection: 'ffffff1A', // does not seem to work
         lineHighlight: '#ffffff1A',
         gutterBackground: '#282a36',

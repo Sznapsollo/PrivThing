@@ -11,8 +11,8 @@ import { RiMenuUnfoldFill } from "react-icons/ri";
 import { RiArrowUpCircleLine } from "react-icons/ri";
 import Dropdown from 'react-bootstrap/Dropdown';
 import '../styles.css'
-import CodeMirror, {BlockInfo, ReactCodeMirrorRef, lineNumbers, Extension} from '@uiw/react-codemirror';
-import {Decoration, DecorationSet, EditorView, MatchDecorator, WidgetType, ViewPlugin, ViewUpdate} from "@codemirror/view"
+import CodeMirror, {BlockInfo, ReactCodeMirrorRef, lineNumbers, Extension, SelectionRange, EditorSelection, Prec} from '@uiw/react-codemirror';
+import {Decoration, DecorationSet, EditorView, MatchDecorator, WidgetType, ViewPlugin, ViewUpdate, keymap} from "@codemirror/view"
 import { javascript } from '@codemirror/lang-javascript';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
@@ -969,7 +969,7 @@ const NoteComp = ({editedItem}: Props) => {
                     <div className='noteInputFields'>
                         <div className='formGroupContainer' style={{flex: 1}}>
                             <Form.Group className='formGroup'>
-                                <label className='upperLabel'>{t("filePath")}</label>
+                                <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '')}>{t("filePath")}</label>
                                 <Form.Control
                                     className='form-control-lg'
                                     type="text"
@@ -983,7 +983,7 @@ const NoteComp = ({editedItem}: Props) => {
                         <div style={{width: 5, height: 1}}></div>
                         <div className='formGroupContainer' style={{flex: 1}}>
                             <Form.Group className='formGroup'>
-                                <label className='upperLabel'>{t("fileName")}</label>
+                                <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '')}>{t("fileName")}</label>
                                 <Form.Control
                                     className='form-control-lg'
                                     type="text"
@@ -997,7 +997,7 @@ const NoteComp = ({editedItem}: Props) => {
                     </div>
                     <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive') + (isDirty ? ' notepadDirty' : '')} >
                         <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} onScroll={()=> {rememberScrollPosition()}}>
-                            <label className='upperLabel'>{t("note")}</label>
+                            <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '')}>{t("note")}</label>
                             <div style={{height: 100}}>
                                 <CodeMirror 
                                     value={note} 
@@ -1036,7 +1036,45 @@ const NoteComp = ({editedItem}: Props) => {
                                         EditorView.theme({
                                             '.cm-gutter,.cm-content': { borderBottom: "nonde", minHeight: '1000px' },
                                             '.cm-scroller': { overflow: 'auto' },
-                                        })
+                                        }),
+                                        // Prec.high(
+                                        //     EditorView.domEventHandlers({
+                                        //         keydown: (event, view) => {
+                                        //             console.log(`Key pressed: ${event.key}`);
+                                        //           // Return false to let CodeMirror handle the event as well
+                                        //           return false;
+                                        //         },
+                                        //     }),
+                                        // ),
+                                        // without Prec.high Enter and Backspace will not execute
+                                        Prec.high(
+                                            keymap.of([
+                                                {
+                                                    key: 'Enter',
+                                                    run: (view) => {
+                                                    const { state, dispatch } = view;
+                                                    const changes = state.changeByRange((range) => ({
+                                                        changes: { from: range.from, insert: '\n' },
+                                                        range: EditorSelection.range(range.to + 1, range.to + 1),
+                                                        // range: EditorView.range(range.from + 1),
+                                                    }));
+                                                    dispatch(state.update(changes, { scrollIntoView: true, userEvent: 'input' }));
+                                                    return true;
+                                                    },
+                                                },
+                                            ]),
+                                        ),
+                                        EditorView.theme({
+                                        // '&.cm-focused .cm-selectionLayer .cm-selectionBackground': {
+                                            '.cm-scroller .cm-selectionBackground': {
+                                            backgroundColor: '#99999940 !important', // Change the selection background color here
+                                        },
+                                        }, { dark: true })
+                                        // EditorView.theme({
+                                        //     '.cm-cursor': {
+                                        //       borderLeftColor: 'red', // Change the cursor color here
+                                        //     },
+                                        // }, { dark: true })
                                     ]} 
                                     onChange={onCMChange}
                                     onClick={handleActiveItemFocus}

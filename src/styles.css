@@ -406,6 +406,11 @@ label.upperLabel {
     z-index: 10;
 }
 
+label.upperLabel.upperLabelActive {
+    color: #ffffff;
+    background-color: #83c127;
+}
+
 .clearInput {
     cursor: pointer;
 }
