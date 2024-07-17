@@ -411,6 +411,11 @@ label.upperLabel.upperLabelActive {
     background-color: #83c127;
 }
 
+label.upperLabel.upperLabelDirty {
+    color: #ffffff;
+    background-color: #e40000;
+}
+
 .clearInput {
     cursor: pointer;
 }

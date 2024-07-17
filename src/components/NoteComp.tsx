@@ -969,7 +969,7 @@ const NoteComp = ({editedItem}: Props) => {
                     <div className='noteInputFields'>
                         <div className='formGroupContainer' style={{flex: 1}}>
                             <Form.Group className='formGroup'>
-                                <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '')}>{t("filePath")}</label>
+                                <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '') + (isDirty ? ' upperLabelDirty' : '')}>{t("filePath")}</label>
                                 <Form.Control
                                     className='form-control-lg'
                                     type="text"
@@ -983,7 +983,7 @@ const NoteComp = ({editedItem}: Props) => {
                         <div style={{width: 5, height: 1}}></div>
                         <div className='formGroupContainer' style={{flex: 1}}>
                             <Form.Group className='formGroup'>
-                                <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '')}>{t("fileName")}</label>
+                                <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '') + (isDirty ? ' upperLabelDirty' : '')}>{t("fileName")}</label>
                                 <Form.Control
                                     className='form-control-lg'
                                     type="text"
@@ -997,7 +997,7 @@ const NoteComp = ({editedItem}: Props) => {
                     </div>
                     <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive') + (isDirty ? ' notepadDirty' : '')} >
                         <Form.Group ref={scrollableRef} className='formGroup' style={{overflow: 'auto'}} onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} onScroll={()=> {rememberScrollPosition()}}>
-                            <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '')}>{t("note")}</label>
+                            <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '') + (isDirty ? ' upperLabelDirty' : '')}>{t("note")}</label>
                             <div style={{height: 100}}>
                                 <CodeMirror 
                                     value={note} 
