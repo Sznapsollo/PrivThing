@@ -226,6 +226,18 @@ const HeaderComp = () => {
                     <Navbar.Text style={{flex: 1}} className='search bigScreenHeaderItem'>
                         <Form.Group className='formGroup'>
                             <InputGroup>
+                                {
+                                    searchState.searchQuery && 
+                                    <InputGroup.Text 
+                                        className="clearInput" 
+                                        onClick={(e) => {
+                                            searchDispatch({type: SEARCH_ACTIONS.FILTER_BY_SEARCH, payload: {
+                                                searchQuery: '',
+                                                searchContent: searchState.searchContent === true,
+                                            }});
+                                        }
+                                    }><RxCross2/></InputGroup.Text>
+                                }
                                 <Form.Control 
                                     placeholder={t("startTypingToFilterFiles")} 
                                     value={searchState.searchQuery}
