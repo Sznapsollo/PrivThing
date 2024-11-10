@@ -1153,7 +1153,7 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
                             </div>
                             {
                                 !isFullScreen &&
-                                <div style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center', justifyItems: 'center', alignContent: 'center' }}>
+                                <div className='bigScreenItem' style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center', justifyItems: 'center', alignContent: 'center' }}>
                                     <button className='btn btn-sm' onClick={() => { setShowFullScreen(true) }}>
                                         <FaMagnifyingGlass className='h3' />
                                         &nbsp;

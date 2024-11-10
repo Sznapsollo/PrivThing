@@ -580,6 +580,10 @@ label.upperLabel.upperLabelDirty {
 }
 
 @media (max-width: 500px) {
+    .bigScreenItem {
+        display: none;
+    }
+    
     .bigScreenHeaderItem,
     .resizer {
         display: none;
