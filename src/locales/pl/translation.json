@@ -119,6 +119,7 @@
     "saveToSelectedLocation": "Zapisz do wybranej lokacji",
     "search": "Szukaj",
     "searchContent": "Szukaj w zawartości plików",
+    "showFullScreen": "Pokaż na cały ekran",
     "singleLineTabs": "Jednolinijkowe zakładki",
     "size": "Rozmiar",
     "shrink": "Ściśnij",
@@ -134,6 +135,7 @@
     "unsavedChanges": "Wykryto niezapiane zmiany. Czy chcesz kontynuować?",
     "unveilHiddenText": "Odkryj na chwilę ukryty tekst",
     "warning": "Ostrzeżenie",
+    "wrapRows": "Zwijaj wiersze",
     "yes": "Tak"
 }
 

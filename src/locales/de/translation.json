@@ -120,6 +120,7 @@
     "shrink": "Schrumpfen",
     "search": "Suche",
     "searchContent": "Durchsuchen Sie den Inhalt von Dateien",
+    "showFullScreen": "Vollbild anzeigen",
     "singleLineTabs": "einzeilige Tabulatoren",
     "size": "Größe",
     "showHints": "Zeige Hinweise",
@@ -133,6 +134,7 @@
     "unhideHiddenText": "Versteckten Text einblenden",
     "unsavedChanges": "Es liegen ungespeicherte Änderungen vor. Möchten Sie fortfahren?",
     "unveilHiddenText": "Verborgenen Text für einen Moment anzeigen",
-    "Warnung": "Warnung",
+    "Warning": "Warnung",
+    "wrapRows": "Zeilen umbrechen",
     "yes": "Ja"
 }

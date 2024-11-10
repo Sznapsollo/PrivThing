@@ -120,6 +120,7 @@
     "shrink": "Shrink",
     "search": "Search",
     "searchContent": "Search in files content",
+    "showFullScreen": "Show full screen",
     "singleLineTabs": "Single line tabs",
     "size": "Size",
     "showHints": "Show hints",
@@ -134,6 +135,7 @@
     "unsavedChanges": "There are unsaved changes. Do you want to continue?",
     "unveilHiddenText": "Show for a moment hidden text",
     "warning": "Warning",
+    "wrapRows": "Wrap rows",
     "yes": "Yes"
 }
 
