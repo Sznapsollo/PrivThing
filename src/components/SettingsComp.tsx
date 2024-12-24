@@ -60,7 +60,7 @@ const SettingsComp = () => {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                {t("settings")} <span style={{fontSize: 8, color: '#cecece'}}>version: 1.0.26</span>
+                {t("settings")} <span style={{fontSize: 8, color: '#cecece'}}>version: 1.0.30</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -397,6 +397,25 @@ const SettingsComp = () => {
                             className={'form-control-lg largeCheckbox'}
                             onChange={(e) => {
                                 setSettings({...settings, stretchNoteSpaceOnActive: e.target.checked});
+                            }}
+                            onClick={(e) => {
+                                console.log('onclicked', e.target)
+                            }}
+                        ></Form.Check>
+                    </Form.Group>
+                </div>
+
+                <div className='formGroupContainer' style={{textAlign:'center'}}>
+                    <Form.Group className='formGroup' style={{display: 'inline-block'}}>
+                        <Form.Check
+                            id="enableRecentsChbx"
+                            type="checkbox"
+                            label={t("enableRecents")}
+                            name="enableRecents"
+                            checked={settings.enableRecents}
+                            className={'form-control-lg largeCheckbox'}
+                            onChange={(e) => {
+                                setSettings({...settings, enableRecents: e.target.checked});
                             }}
                             onClick={(e) => {
                                 console.log('onclicked', e.target)

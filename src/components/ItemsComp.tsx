@@ -17,7 +17,7 @@ const ItemsComp = () => {
 
     const { t } = useTranslation();
 
-    const {mainState: {folders, items, itemsListRefreshTrigger, activeEditedItemPath, favourites, showFavourites}, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer, excludeFromAll}} = AppState();
+    const {mainState: {folders, items, itemsListRefreshTrigger, activeEditedItemPath, favourites, showFavourites, recents, showRecents}, mainDispatch, searchState, searchDispatch, settingsState: {enableFileServer, excludeFromAll, enableRecents}} = AppState();
     const { searchState: {currentFolder, sort, searchQuery} } = AppState()
     const [foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -448,6 +448,41 @@ const ItemsComp = () => {
                                     onDragStart={dragStart}
                                     onDragEnter={dragEnter}
                                     onDrop={drop}
+                                    />
+                                })
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            {
+                enableRecents && recents && recents.length > 0 &&
+                <div>
+                    <div className='recentsContainerHeader' onClick={(e) => {
+                        mainDispatch({type: MAIN_ACTIONS.TOGGLE_RECENTS});
+                    }}>
+                        <div style={{display: 'inline-block', paddingRight: 5}}>
+                            {
+                                showRecents &&
+                                <BiDownArrow className='h5'/>
+                            }
+                            {
+                                !showRecents &&
+                                <BiRightArrow className='h5'/>
+                            }
+                        </div>
+                        {t("recents")} ({recents.length})
+                    </div>
+                    {
+                        showRecents && 
+                        <div className="recentsContainer">
+                            {
+                                recents.map((item, itemIndex) => {
+                                    return <LisItem 
+                                    key={itemIndex} 
+                                    keyProp={itemIndex} 
+                                    item={item} 
+                                    editedItemPath={activeEditedItemPath}
                                     />
                                 })
                             }

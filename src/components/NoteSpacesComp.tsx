@@ -22,7 +22,7 @@ const NoteSpacesComp = () => {
 
     const { t } = useTranslation();
 
-    const { mainState: { editedItemSpaces, favourites }, mainDispatch} = AppState();
+    const { mainState: { editedItemSpaces, favourites, recents }, mainDispatch} = AppState();
     const [ noteSpaceContextMenu, setNoteSpaceContextMenu ] = useState<NoteSpaceContextMenu>(initialNoteSpaceContextMenu)
 
     useEffect(() => {
@@ -46,6 +46,17 @@ const NoteSpacesComp = () => {
             }
         }
     }, [favourites])
+
+    useEffect(() => {
+        if(!!recents) {
+            const copiedRecents = recents.map((recentItem) => {
+                return  {...recentItem}
+            })
+            if(!!copiedRecents) {
+                saveLocalStorage("privthing.pmrecents", copiedRecents);
+            }
+        }
+    }, [recents])
 
     const buildContextMenu = (e: React.MouseEvent<HTMLDivElement>, noteSpaceItem: EditItem): void => {
         e.preventDefault();

@@ -11,10 +11,12 @@ const appInitialState: MainContextType = {
   tabs: [],
   folders: [],
   favourites: [],
+  recents: [],
   itemsListRefreshTrigger: 0,
   fullItems: false,
   showSettings: false,
-  showFavourites: false
+  showFavourites: false,
+  showRecents: false
 }
 const searchInitialState = {
   sort: 'lastModifiedHighToLow', 
@@ -28,6 +30,7 @@ export const settingsInitialStateBaseline = {
   forgetSecretMode: "AFTER_TIME",
   enableFileServer: true,
   showHints: true,
+  enableRecents: true,
   stretchNoteSpaceOnActive: false,
   codeMirrorTheme: 'none',
   customThemeColors: {
@@ -147,6 +150,14 @@ const Context = ({children}: Props) => {
             if(pmfavourites && Array.isArray(pmfavourites)) {
                 if(!!pmfavourites) {
                     appInitialState.favourites = pmfavourites;
+                }
+                
+            }
+
+            let pmrecents = retrieveLocalStorage("privthing.pmrecents");
+            if(pmrecents && Array.isArray(pmrecents)) {
+                if(!!pmrecents) {
+                    appInitialState.recents = pmrecents;
                 }
                 
             }

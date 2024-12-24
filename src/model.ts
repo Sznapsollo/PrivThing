@@ -53,7 +53,9 @@ export interface MainContextType {
     items: Item[],
     // user tabs
     tabs: Tab[],
-    favourites: EditItem[],
+    favourites: Item[],
+    // recently opened items
+    recents: Item[],
     // to operate full screen items for smaller screens - flag for layout to resize items list full screen
     fullItems: boolean,
     // just a number to trigger items list rerender
@@ -66,6 +68,8 @@ export interface MainContextType {
     showSettings: boolean,
     // show favourites,
     showFavourites: boolean,
+    // show recents,
+    showRecents: boolean,
     // open after list is loaded. taken from newPathToOpenCandidate and filled if exists in items after load by path
     newItemToOpen?: Item,
     // candidate to open newly added
@@ -119,7 +123,8 @@ export interface SettingsContextType {
     enableFileServer?: boolean,
     showHints?: boolean,
     stretchNoteSpaceOnActive?: boolean,
-    customThemeColors: LooseObject
+    customThemeColors: LooseObject,
+    enableRecents?: boolean,
 }
 
 export interface Tab extends Item {

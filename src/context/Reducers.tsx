@@ -23,8 +23,10 @@ export enum MAIN_ACTIONS {
     STRETCH_NOTE_SPACE = 'STRETCH_NOTE_SPACE',
     TOGGLE_FAVOURITES = 'TOGGLE_FAVOURITES',
     TOGGLE_ITEMS_BAR = 'TOGGLE_ITEMS_BAR',
+    TOGGLE_RECENTS = 'TOGGLE_RECENTS',
     UPDATE_FAVOURITES = 'UPDATE_FAVOURITES',
     UPDATE_ITEMS_LIST = 'UPDATE_ITEMS_LIST',
+    UPDATE_RECENTS = 'UPDATE_RECENTS',
     UPDATE_TABS = 'UPDATE_TABS',
     UPDATE_TABS_SILENT = 'UPDATE_TABS_SILENT',
     UPDATE_SECRET = 'UPDATE_SECRET'
@@ -50,8 +52,10 @@ type ShrinkNoteSpace = {type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: EditItem}
 type StretchNoteSpace = {type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: EditItem};
 type ToggleFavourites = {type: MAIN_ACTIONS.TOGGLE_FAVOURITES};
 type ToggleItemsBar = {type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR};
+type ToggleRecents = {type: MAIN_ACTIONS.TOGGLE_RECENTS};
 type UpdateFavourites = {type: MAIN_ACTIONS.UPDATE_FAVOURITES, payload: EditItem[]};
 type UpdateItemsList = {type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: string};
+type UpdateRecents = {type: MAIN_ACTIONS.UPDATE_RECENTS, payload: EditItem[]};
 type UpdateTabs = {type: MAIN_ACTIONS.UPDATE_TABS, payload: Tab[]};
 type UpdateTabsSilent = {type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: Tab[]};
 type UpdateSecret = {type: MAIN_ACTIONS.UPDATE_SECRET, payload: string};
@@ -76,8 +80,10 @@ export type MainActions = AddToFavourites |
     StretchNoteSpace |
     ToggleFavourites | 
     ToggleItemsBar | 
+    ToggleRecents |
     UpdateFavourites | 
     UpdateItemsList | 
+    UpdateRecents | 
     UpdateTabs |
     UpdateTabsSilent |
     UpdateSecret;
@@ -141,11 +147,17 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 editedItemSpaces = manageEditItemSpaces(editedItemSpaces, itemPayload);
             }
 
+            let currentRecents = state.recents || [];
+            currentRecents = currentRecents.filter((currentRecentItem) => currentRecentItem.path !== itemPayload.path);
+            currentRecents = currentRecents.slice(0, 9);
+            currentRecents.unshift(itemPayload);
+
             return { 
                 ...state, 
                 editedItemSpaces: editedItemSpaces, 
                 activeEditedItemPath: itemPayload.path,
                 tabs: updatedTabs, 
+                recents: currentRecents,
                 newItemToOpen: undefined ,
                 editedItemCandidate: undefined
             };
@@ -267,10 +279,14 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 return { ...state, showFavourites: !state.showFavourites };
         case MAIN_ACTIONS.TOGGLE_ITEMS_BAR:
             return { ...state, fullItems: !state.fullItems };
+        case MAIN_ACTIONS.TOGGLE_RECENTS:
+            return { ...state, showRecents: !state.showRecents };
         case MAIN_ACTIONS.UPDATE_FAVOURITES:
             return { ...state, favourites: action.payload};
         case MAIN_ACTIONS.UPDATE_ITEMS_LIST:
             return { ...state, itemsListRefreshTrigger: new Date().getTime(), newItemToOpen: undefined, newPathToOpenCandidate: action.payload };
+        case MAIN_ACTIONS.UPDATE_RECENTS:
+            return { ...state, recents: action.payload};
         case MAIN_ACTIONS.UPDATE_SECRET:
             return { ...state, secret: action.payload};
         case MAIN_ACTIONS.UPDATE_TABS:
