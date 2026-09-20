@@ -2,93 +2,184 @@
 
 ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/62dc426d-a544-4c84-88f8-5e5d27cee6fd)
 
+A place to keep notes, scripts, snippets and passwords. Quick to open, quick to copy something
+out of, and able to keep the sensitive parts out of sight.
 
-## About
+Notes live in your browser by default. You can also open and save files from your drive, and -
+if you run the small optional server - work directly on files from chosen folders on your
+computer.
 
-Tool for managing notes with notes/scripts/passwords and other data. 
+Nothing is sent anywhere. There is no account, no cloud, no telemetry.
 
-By default PrivThing uses local browser storage to store notes.
+## Try it
 
-You can also save notes as files on your drive and also open notes from files from your drive.
+**<a href="https://privthing.com/" target="_blank">privthing.com</a>** - the same app, open to
+anyone who wants a notes organizer online. Your notes stay in your own browser.
 
-Optionally it can follow files from different folders using small local server.
+---
 
-Its original intent (and how i use it personally) is to host some kind of server which serves privthing locally and also opens up APIs that allow to read content of some local folders files on this computer (of course such server should not allow this access from outside your computer).
-This way i have my local privthing on the computer and it lists me files not only from localStorage but also from selected folders on my computer.
+## What it can do
 
-It should act as central and convenient place to store notes. Quick to access and quick to copy fragments of notes (code fragments, passwords) by clicking on line numbers
+### Keeping notes
 
-This repository does not contain server for following additional folders - it is in separate repository - more info below.
+- Create, edit and delete notes stored in your browser
+- Open a file from your drive with **Choose file**, edit it, and save it back out
+- Save any note to your drive as a file
+- With the optional server: open, edit and create files inside folders you configured
+- Deleted browser notes go to a **30 day trash** you can restore from in Settings - they are
+  not destroyed on the spot
 
-### How it looks - DEMO Time!
+### Writing
 
-- go to  **<a href="https://privthing.com/" target="_blank">privthing.com/</a>** - open for anyone who wants to have some notes organizer online
+- The editor is CodeMirror, so you get line numbers, search, bracket matching and the rest
+- **Syntax highlighting follows the file name** - `.json`, `.md`, `.sql`, `.sh`, `.yaml`,
+  `.xml`, `.html`, `.css`, `.py`, `.groovy` and more. Anything else is treated as JavaScript
+- **Markdown preview** side by side with the editor for `.md` notes
+- **Wrap rows** on or off, remembered separately for each pane
+- **Several note spaces side by side**, each with its own note
 
-### What it does
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/f5735a8a-bd86-441a-9be6-c0af59915256)
 
-- you can add / update / encrypt / remove notes
+### Copying things out quickly
 
-- PrivThing utilizes CodeMirror for note so it nicely displays code and line numbers + has some other CodeMirror features
+- **Click a line number** and the whole line goes to the clipboard
+- **Click masked text** and the hidden value goes to the clipboard - without ever showing it
 
-- you can pick local file using Choose file field. It can also be encrypted file then you will be able to decrypt it with password
+### Hiding sensitive text
 
-- create new note in browser localStorage or save them sa files. 
+Wrap anything in `hide[[your text]]`, or select it and choose **Hide** from the right click
+menu. It shows as asterisks from then on.
 
-- notes can be encrypted (set password when using Save as option)
+- Click masked text to copy it
+- Right click it to unveil it for 5 seconds, unhide it for good, or other actions
+- Hidden text stays hidden in the markdown preview too
 
-- passwords or some texts can be hidden by using **hide[[your text]]** or by marking text and choosing in right click menu Hide option
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d1e1c80d-77bc-4fdc-930a-7c31b909800a)
 
-### Passwords
+Right clicking selected text (within one line) offers to hide it:
 
-PrivThing has capabilities to encrypt / decrypt notes containg security data like passwords, private data etc.
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/a5bc326c-a0e6-46ff-831c-b18f43fefb8e)
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/5e7c2f3a-0b5f-48ef-880e-9101d599d685)
 
-Password is not saved or send anywhere. There is no reminder for it. You forget it then you have a problem ;-)
+### Encrypting whole notes
 
-Notes can be encrypted with different passwords. 
+Set a password when saving with **Save as** and the note is encrypted before it is stored.
+A strength meter tells you how good the password is while you type it.
 
-You have three options in settings of handling passwords.
- - password can be just one time thing so you have to type it each time to open encrypted document
- - it can be valid for some time so you will be able to open encrypted notes for some time after entering password untill password is invalidated
- - it can never forget password for given note (untill you refresh page of course)
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/906782c4-404b-4332-a36d-7d17d8744440)
 
-#### Optional Server
+More about how passwords are handled in [Passwords](#passwords) below.
 
-Optionally you can provide server and configure it to serve PrivThing as web and provide the following apis so PrivThing could also handle files from different locations (it all depends what server will provide)
+### Finding your way around
 
-Server is expected to enable APIs 
-- getListOfFiles - get list of files (the idea is that server can get files from different folders)
-- retrieveFileFromPath - get file content of specific path
-- updateFileFromPath - update file from path with specific data
+- **Ctrl + P** (or **Ctrl + K**) opens a quick search - type part of a name, press Enter
+- Search by note name, or tick the box in the search bar to search note **contents**
+- **Pin** any note or file to the top of the list
+- Filter by folder, sort by name or date
+- **Tabs** - reorderable, remembered between sessions, each with its own scroll position
 
-I share simple node server in my repositor - https://github.com/Sznapsollo/PrivThingServer - that servers PrivThing
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d5170b5f-d947-41ef-84c1-925ec71dd8de)
 
-#### PrivThing features which make it nice to use it for notes
+- **Favourites** - reorderable
 
-- multi note spaces (note spaces next to each other)
-- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/f5735a8a-bd86-441a-9be6-c0af59915256)
-- row numbers - clicking on row number puts whole row into clipboard
-- you can hide/mask text in your notes (for example of passwords) by wrapping them with **hide[[your text]]** or by selecting text and choosing in right click menu 'Hide option'. Example of hiding below.
-- clicking on row number 2 will copy masked text to clipboard
-- clicking on masked text will copy it to clipboard
-- right clicking on masked text will give options to unveil it for 5 seconds, unhide it permanently or do some additional actions
-- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d1e1c80d-77bc-4fdc-930a-7c31b909800a)
-- when right clicking on selected text (within one line) context menu will appear allowing to hide this text
-- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/a5bc326c-a0e6-46ff-831c-b18f43fefb8e)
-- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/5e7c2f3a-0b5f-48ef-880e-9101d599d685)
-- tabs
-  - reordable
-  - remember scroll for each note
-  - remembered
-  - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/d5170b5f-d947-41ef-84c1-925ec71dd8de)
-- favourites
-  - reordable
-  - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/99dee3bd-2c37-4ab1-90ec-a57e7838bda4)
-  - ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/3a90d17d-7e01-4680-818e-afd90f0ad6d4)
-- possibility to password secure individual notes
-- ![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/906782c4-404b-4332-a36d-7d17d8744440)
-- hotkeys
-  - ctr + s
-  - ctr + f triggers CodeMirror search instead of web search
-- draggable vertical resizer between items list and note - its position is remembered
-- search of notes titles & notes contents (this is optional and has to be checked in search field in search bar)
-- different folders (by default)
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/99dee3bd-2c37-4ab1-90ec-a57e7838bda4)
+![image](https://github.com/Sznapsollo/PrivThing/assets/20971560/3a90d17d-7e01-4680-818e-afd90f0ad6d4)
+
+### Not losing work
+
+- **Crash-safe drafts** - what you type is kept aside a moment after you stop, and offered
+  back if the tab dies before you saved. Encrypted notes are deliberately not drafted
+- The browser asks before you close a tab with unsaved changes
+- **Conflict detection** - if a file changed on disk since you opened it, saving asks whether
+  to overwrite, reload, or cancel, instead of quietly replacing somebody's work
+- **Export and import** all browser notes, optionally **encrypted with a password**
+
+### Comparing
+
+Open two notes side by side and click the compare icon between them for a line by line diff.
+
+### Making it yours
+
+- **Light, dark, or follow the system** - switch from the icon in the header, next to the flag
+- 16 editor themes, or build your own colours
+- English, German and Polish
+- Draggable divider between the list and the note, position remembered
+
+---
+
+## Hotkeys
+
+| | |
+|---|---|
+| **Ctrl + S** / **Cmd + S** | save the note |
+| **Ctrl + F** | search inside the note (instead of the browser's own search) |
+| **Ctrl + P** / **Ctrl + K** | quick open by name |
+
+---
+
+## Passwords
+
+PrivThing can encrypt and decrypt notes holding passwords, private data and anything else you
+would rather not leave lying around.
+
+**The password is never saved and never sent anywhere. There is no reminder and no recovery.
+Forget it and the note is gone.**
+
+Different notes can use different passwords.
+
+Settings offers three ways of handling a password once you have typed it:
+
+- **forget immediately** - type it again every time you open the note
+- **forget after a while** - encrypted notes stay open for a set time, then lock again
+- **never forget** - until you reload the page
+
+---
+
+## Optional server
+
+PrivThing can work on files from folders on your computer if you give it a server to talk to.
+The server serves PrivThing itself and exposes a small API:
+
+- **getListOfFiles** - list files from the configured folders
+- **retrieveFileFromPath** - read one file
+- **updateFileFromPath** - write one file
+- **createFileInFolder** - create a new file in a configured folder
+
+A ready one is in a separate repository: **https://github.com/Sznapsollo/PrivThingServer**
+
+Turn it on in Settings with **Enable file server**.
+
+Originally this is how it was meant to be used, and how the author still uses it: a small
+server running locally that serves PrivThing *and* lets it read chosen folders, so the list
+shows browser notes and real files together. Such a server should never be reachable from
+outside your own computer.
+
+---
+
+## Running it yourself
+
+You need Node 20 or newer.
+
+```
+npm install
+npm start          # development server on http://localhost:3000
+npm run build      # production build into build/
+npm test           # run the test suite
+npm run lint       # lint
+npm run typecheck  # TypeScript check
+```
+
+`npm start` proxies `/actions` to `http://localhost:8180`, so you can develop against a local
+PrivThingServer.
+
+### Releasing alongside the server
+
+`npm run release` builds, copies the result into the sibling PrivThingServer checkout's
+`client/build`, stamps the version, and prints what to commit:
+
+```
+npm run release
+npm run release -- --dry-run   # show what it would do
+```
+
+Set `PRIVTHING_SERVER_DIR` if the server checkout is not a sibling folder.
