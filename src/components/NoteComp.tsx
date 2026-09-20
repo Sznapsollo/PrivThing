@@ -1,7 +1,4 @@
 import { AiOutlineLoading } from 'react-icons/ai';
-import { RiMenuUnfoldFill } from "react-icons/ri";
-import { RiArrowUpCircleLine } from "react-icons/ri";
-import { FaMagnifyingGlass } from "react-icons/fa6";
 
 import '../styles.css'
 
@@ -9,14 +6,11 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Alert, Form, Button, Modal } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context'
-import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
-import { AlertData, EditItem, Item, NotificationData, SaveAsResults, GenericContextMenu, GenericContextMenuItem, GenericContextMenuAction, NoteContextMenu } from '../model';
+import { AlertData, EditItem, Item, NotificationData, SaveAsResults, GenericContextMenuItem, GenericContextMenuAction, NoteContextMenu } from '../model';
 
-import Dropdown from 'react-bootstrap/Dropdown';
 import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { openSearchPanel } from '@codemirror/search';
-import SaveAsComp from './SaveAsComp';
 import { getNewItem, retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
 import { CONFLICT, getProvider, localStorageItem, StorageError } from '../storage';
@@ -25,7 +19,8 @@ import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { useCodeMirrorSetup } from './note/useCodeMirrorSetup';
 import { hideRegex } from './note/hideRegex';
-import GenericContextMenuComp from './GenericContextMenuComp';
+import NoteModals from './note/NoteModals';
+import NoteToolbar from './note/NoteToolbar';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
@@ -322,6 +317,37 @@ const NoteComp = ({ editedItem }: Props) => {
 
     const handleWrappToggle = () => {
         setWrapWords(prev => !prev);
+    }
+
+    const handleUnsavedIgnore = () => {
+        setShowUnsaved(false);
+        if (editedItemCandidate) {
+            if (secret && forgetSecretMode === "IMMEDIATE") {
+                mainDispatch({ type: MAIN_ACTIONS.CLEAR_SECRET })
+            }
+            if (editedItemCandidate?.item) {
+                mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate });
+            }
+        }
+    }
+
+    const handleUnsavedSave = () => {
+        setShowUnsaved(false);
+        if (!canUpdateFile(editedItem)) {
+            setIsSavingAs(true);
+        } else {
+            updateFile(function () {
+                if (editedItemCandidate?.item) {
+                    mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate });
+                }
+            });
+        }
+    }
+
+    const handleRefreshConfirm = () => {
+        setAskRefresh(false);
+        mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
+        initializeEditedItem();
     }
 
     const handleReloadFromDisk = () => {
@@ -907,187 +933,57 @@ const NoteComp = ({ editedItem }: Props) => {
                             {t('privThingIntroduction')}
                         </Alert>
                     }
-                    <div style={{ display: "flex", marginTop: 3, height: '55px' }} className='formGroupContainer'>
-                        {
-                            editedItem.isActive && canUpdateFileDom &&
-                            <Button ref={updateFileButtonRef} className="btn-lg" disabled={!isDirty} variant='success'
-                                onClick={() => {
-                                    updateFile();
-                                }}
-                                title={t("saveToLocation") + ' ' + editedItem.path}>
-                                {t("save")}
-                                {canUpdateFileDom === true && isDirty === true && <div style={{ fontSize: 10, margin: '-5px 0 -5px 0' }}>{saveHotKey}</div>}
-                            </Button>
-                        }
-                        &nbsp;
-                        {
-                            editedItem.isActive && getProvider(editedItem).canDelete && <Button className="btn-lg" variant='danger' onClick={() => {
-                                setAskDelete(true);
-                            }}
-                                title={t("delete")}>{t("delete")}</Button>
-                        } &nbsp;
-                        {
-                            editedItem.isActive &&
-                            <div style={{ display: 'none', alignItems: 'center', cursor: 'pointer' }} ref={srollTopBtn} onClick={() => {
-                                scrollableRef.current?.scrollTo({ top: 0 });
-                                rememberScrollPosition();
-                            }}><RiArrowUpCircleLine className='h1' /></div>
-
-                        } &nbsp;
-                        {
-                            editedItem.isActive && isEncrypted && <Dropdown>
-                                <Dropdown.Toggle variant="default" id="dropdown-basic" className="btn-lg">
-                                    <RiMenuUnfoldFill className='h2' />
-                                </Dropdown.Toggle>
-
-                                <Dropdown.Menu>
-                                    {isEncrypted && !needSecret && <Dropdown.Item href="#/action-1" onClick={() => {
-                                        setUpdateSecret(true);
-                                    }}
-                                    >{t("changeSecret")}</Dropdown.Item>}
-                                </Dropdown.Menu>
-                            </Dropdown>
-                        }
-                        <div style={{ flex: 1 }}>&nbsp;</div>
-                        <div style={{ margin: "auto", color: "#666666", fontSize: 10 }}>
-                            <div style={{ textAlign: 'center' }}>
-                                {
-                                    `${t('size')}: ${note.length}`
-                                }
-                            </div>
-                            {
-                                !showFullScreen &&
-                                <div className='bigScreenItem' style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center', justifyItems: 'center', alignContent: 'center' }}>
-                                    <button className='btn btn-sm' onClick={() => { setShowFullScreen(true) }}>
-                                        <FaMagnifyingGlass className='h3' />
-                                        &nbsp;
-                                        {t('showFullScreen')}
-                                    </button>
-                                </div>
-                            }
-                            {
-                                showFullScreen &&
-                                <Form.Check
-                                    id="wrapWorkdsChbx"
-                                    type="checkbox"
-                                    label={t("wrapRows")}
-                                    name="wrapWords"
-                                    checked={wrapWords}
-                                    className={'form-control-sm'}
-                                    onChange={(e) => {
-                                        handleWrappToggle()
-                                    }}
-                                ></Form.Check>
-                            }
-
-                        </div>
-                        <div style={{ flex: 1 }}>&nbsp;</div>
-                        &nbsp;
-                        {
-                            editedItem.isActive && <Button className="btn-lg" ref={saveToFileButtonRef} disabled={!note?.length} variant='success' onClick={() => {
-                                setIsSavingAs(true);
-                            }}
-                                title={t("saveToSelectedLocation")}>
-                                {t("saveAs")}
-                                {(note?.length > 0) && (canUpdateFileDom !== true || isDirty !== true) && <div style={{ fontSize: 10, margin: '-5px 0 -5px 0' }}>{saveHotKey}</div>}
-                            </Button>
-                        }
-                        &nbsp;
-                        {
-                            editedItem.isActive && <Button className="btn-lg" disabled={!isDirty} variant='danger' onClick={() => {
-                                setNote(orgNote.current);
-                            }}
-                                title={t("rollbackItemChanges")}>{t("cancel")}</Button>
-                        }
-                    </div>
+                    <NoteToolbar
+                        isActive={editedItem.isActive === true}
+                        filePath={editedItem.path}
+                        canUpdateFile={canUpdateFileDom === true}
+                        canDelete={getProvider(editedItem).canDelete}
+                        isDirty={isDirty}
+                        isEncrypted={isEncrypted}
+                        needSecret={needSecret}
+                        noteLength={note.length}
+                        saveHotKey={saveHotKey}
+                        showFullScreen={showFullScreen}
+                        wrapWords={wrapWords}
+                        updateFileButtonRef={updateFileButtonRef}
+                        saveToFileButtonRef={saveToFileButtonRef}
+                        scrollTopButtonRef={srollTopBtn}
+                        onSave={() => { updateFile() }}
+                        onDelete={() => { setAskDelete(true) }}
+                        onScrollTop={() => {
+                            scrollableRef.current?.scrollTo({ top: 0 });
+                            rememberScrollPosition();
+                        }}
+                        onChangeSecret={() => { setUpdateSecret(true) }}
+                        onShowFullScreen={() => { setShowFullScreen(true) }}
+                        onWrapToggle={handleWrappToggle}
+                        onSaveAs={() => { setIsSavingAs(true) }}
+                        onRollback={() => { setNote(orgNote.current) }}
+                    />
                 </div>
             }
-            {
-                isSavingAs &&
-                <SaveAsComp
-                    fileName={fileName}
-                    onSave={handleSaveAs}
-                    onClose={() => { setIsSavingAs(false) }}
-                />
-            }
-            {
-                showUnsaved &&
-                <ConfirmationComp
-                    externalHeading={t("warning")}
-                    externalSaveLabel={t("save")}
-                    externalMiddleLabel={t("ignoreUnsaved")}
-                    externalCloseLabel={t("cancel")}
-                    externalShowMiddleButton={true}
-                    handleExternalMiddle={() => {
-                        setShowUnsaved(false);
-                        if (editedItemCandidate) {
-                            if (secret && forgetSecretMode === "IMMEDIATE") {
-                                mainDispatch({ type: MAIN_ACTIONS.CLEAR_SECRET })
-                            }
-                            if (editedItemCandidate?.item) {
-                                mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate });
-                            }
-                        }
-                    }}
-                    handleExternalSave={() => {
-                        setShowUnsaved(false);
-                        if (!canUpdateFile(editedItem)) {
-                            setIsSavingAs(true);
-                        } else {
-                            updateFile(function () {
-                                if (editedItemCandidate?.item) {
-                                    mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: editedItemCandidate });
-                                }
-                            });
-                        }
-                    }}
-                    handleExternalClose={() => { setShowUnsaved(false) }}
-                >{t("unsavedChanges")}</ConfirmationComp>
-            }
-            {
-                askRefresh &&
-                <ConfirmationComp
-                    externalHeading={t("question")}
-                    externalSaveLabel={t("yes")}
-                    externalCloseLabel={t("no")}
-                    handleExternalSave={() => {
-                        setAskRefresh(false);
-                        mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
-                        initializeEditedItem();
-                    }}
-                    handleExternalClose={() => { setAskRefresh(false) }}
-                >{t("confirmRefresh")}</ConfirmationComp>
-            }
-            {
-                askDelete &&
-                <ConfirmationComp
-                    externalHeading={t("pleaseConfirm")}
-                    externalSaveLabel={t("yes")}
-                    externalCloseLabel={t("no")}
-                    handleExternalSave={handleDeleteItem}
-                    handleExternalClose={() => { setAskDelete(false) }}
-                >{t("confirmDelete", { item: fileName })}</ConfirmationComp>
-            }
-            {
-                askOverwrite &&
-                <ConfirmationComp
-                    externalHeading={t("warning")}
-                    externalSaveLabel={t("overwriteAnyway")}
-                    externalSaveButtonVariant={'danger'}
-                    externalShowMiddleButton={true}
-                    externalMiddleLabel={t("reloadFromDisk")}
-                    externalMiddleButtonVariant={'primary'}
-                    externalCloseLabel={t("cancel")}
-                    externalCloseButtonVariant={'secondary'}
-                    handleExternalSave={handleOverwriteAnyway}
-                    handleExternalMiddle={handleReloadFromDisk}
-                    handleExternalClose={() => { setAskOverwrite(false); pendingSaveRef.current = null; }}
-                >{t("fileChangedOnDisk")}</ConfirmationComp>
-            }
-            {
-                noteContextMenu.show === true &&
-                <GenericContextMenuComp x={noteContextMenu.x} y={noteContextMenu.y} menuActions={noteContextMenu.menuActions} contextMenuAction={handleContextMenuAction} />
-            }
+            <NoteModals
+                fileName={fileName}
+                isSavingAs={isSavingAs}
+                onSaveAs={handleSaveAs}
+                onCloseSaveAs={() => { setIsSavingAs(false) }}
+                showUnsaved={showUnsaved}
+                onUnsavedSave={handleUnsavedSave}
+                onUnsavedIgnore={handleUnsavedIgnore}
+                onUnsavedClose={() => { setShowUnsaved(false) }}
+                askRefresh={askRefresh}
+                onRefresh={handleRefreshConfirm}
+                onRefreshClose={() => { setAskRefresh(false) }}
+                askDelete={askDelete}
+                onDelete={handleDeleteItem}
+                onDeleteClose={() => { setAskDelete(false) }}
+                askOverwrite={askOverwrite}
+                onOverwrite={handleOverwriteAnyway}
+                onReloadFromDisk={handleReloadFromDisk}
+                onOverwriteClose={() => { setAskOverwrite(false); pendingSaveRef.current = null; }}
+                noteContextMenu={noteContextMenu}
+                onContextMenuAction={handleContextMenuAction}
+            />
         </div>
     )
 
