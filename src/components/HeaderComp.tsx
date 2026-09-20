@@ -10,9 +10,10 @@ import { FiMenu } from 'react-icons/fi';
 import { AlertData, ProcessingResult } from '../model';
 import ConfirmationComp from './ConfirmationComp';
 import '../styles.css';
-import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
+import { saveLocalStorage } from '../utils/utils';
 import { APP_VERSION } from '../utils/version';
 import { durationClock, fileNameTimestamp } from '../utils/dates';
+import { allNotes, NoteRecord, setNotes } from '../storage/notesStore';
 import ResultsComp from './ResultsComp';
 import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
 
@@ -127,8 +128,8 @@ const HeaderComp = () => {
         setCenterLabelContent(msg);
     }
 
-    const handleExportLocalStorageItems = () => {
-        let localStorageFilesData = retrieveLocalStorage('privthing.files') || {};
+    const handleExportLocalStorageItems = async () => {
+        let localStorageFilesData = await allNotes();
 
         const blob = new Blob([JSON.stringify(localStorageFilesData)], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
@@ -149,23 +150,25 @@ const HeaderComp = () => {
                     if(e.target?.value) {
                         var file = e.target.files[0]; 
                         var reader = new FileReader();
-                        reader.onload = function(event:any) {
+                        reader.onload = async function(event:any) {
                             // The file's text will be printed here
-                            let currentLocalStorage = retrieveLocalStorage('privthing.files') || {};
+                            let currentLocalStorage = await allNotes();
                             let importedLocalStorage = JSON.parse(event.target.result)
+                            let notesToImport: Record<string, NoteRecord> = {};
                             for(let storageItem in importedLocalStorage) {
                                 if(currentLocalStorage[storageItem] != null) {
                                     results.push({name: storageItem, result: t('itemAlreadyExists'), status: -1});
                                 } else {
                                     results.push({name: storageItem, result: t('itemImported'), status: 0});
-                                    currentLocalStorage[storageItem] = importedLocalStorage[storageItem];
+                                    notesToImport[storageItem] = importedLocalStorage[storageItem];
                                 }
                             }
                             let okResult = results.find((resultItem => resultItem.status === 0))
                             if(okResult) {
-                                if(saveLocalStorage('privthing.files', currentLocalStorage)) {
+                                try {
+                                    await setNotes(notesToImport);
                                     mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
-                                } else {
+                                } catch (error) {
                                     results.forEach((resultItem) => {
                                         if(resultItem.status === 0) {
                                             resultItem.result = t('dataNotSaved');

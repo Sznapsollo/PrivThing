@@ -660,3 +660,9 @@ label.upperLabel.upperLabelDirty {
     box-shadow: 0 3px 10px #00000040;
     margin: 0;
 }
+
+.oldNotesBackupInfo {
+    color: #666666;
+    font-size: 13px;
+    margin-bottom: 8px;
+}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { AppState, settingsInitialStateBaseline } from '../context/Context'
 import { Modal, Button, Form, InputGroup } from 'react-bootstrap'
 import ConfirmationComp from './ConfirmationComp';
+import { legacyBackupSize, removeLegacyBackup } from '../storage/notesStore';
 import { useTranslation } from 'react-i18next'
 import { removeLocalStorage, saveLocalStorage } from '../utils/utils'
 import { APP_VERSION } from '../utils/version'
@@ -16,10 +17,24 @@ const SettingsComp = () => {
     const { mainState, mainDispatch, settingsState, settingsDispatch } = AppState();
     const [ settings, setSettings ] = useState<any>(settingsState);
     const [ clearSettings, setClearSettings ] = useState<boolean>(false);
+    const [ clearOldNotesBackup, setClearOldNotesBackup ] = useState<boolean>(false);
+    const [ oldNotesBackupSize, setOldNotesBackupSize ] = useState<number | null>(null);
 
     useEffect(() => {
         setSettings(settingsState);
     }, [settingsState]);
+
+    useEffect(() => {
+        if(mainState.showSettings) {
+            setOldNotesBackupSize(legacyBackupSize());
+        }
+    }, [mainState.showSettings]);
+
+    const handleRemoveOldNotesBackup = () => {
+        setClearOldNotesBackup(false);
+        removeLegacyBackup();
+        setOldNotesBackupSize(null);
+    }
 
     const handleClose = () => {
         mainDispatch({type: MAIN_ACTIONS.HIDE_SETTINGS});
@@ -412,6 +427,19 @@ const SettingsComp = () => {
                         ></Form.Check>
                     </Form.Group>
                 </div>
+
+                {
+                    oldNotesBackupSize != null &&
+                    <>
+                        <label className='sectionLabel'>{t("oldNotesBackup")}</label>
+                        <div className='formSection'>
+                            <Form.Group className='formGroup'>
+                                <div className='oldNotesBackupInfo'>{t("oldNotesBackupInfo", {size: Math.max(1, Math.round(oldNotesBackupSize / 1024))})}</div>
+                                <Button variant="danger" className={'btn-sm'} onClick={() => setClearOldNotesBackup(true)}>{t("removeOldNotesBackup")}</Button>
+                            </Form.Group>
+                        </div>
+                    </>
+                }
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="danger" className={'btn-lg'} onClick={() => setClearSettings(true)}>{t("clearAllSettings")}</Button>
@@ -431,6 +459,19 @@ const SettingsComp = () => {
                 handleExternalClose={() => {setClearSettings(false)}}
             >
                 {t("clearAllSettingsConfirm")}
+            </ConfirmationComp>
+            }
+
+            {
+            clearOldNotesBackup &&
+            <ConfirmationComp
+                externalHeading={t("pleaseConfirm")}
+                externalSaveLabel={t("yes")}
+                externalCloseLabel={t("no")}
+                handleExternalSave={handleRemoveOldNotesBackup}
+                handleExternalClose={() => {setClearOldNotesBackup(false)}}
+            >
+                {t("removeOldNotesBackupConfirm")}
             </ConfirmationComp>
             }
         </>

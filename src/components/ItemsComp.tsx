@@ -7,7 +7,8 @@ import { AiOutlineLoading } from 'react-icons/ai';
 import { CiUndo } from 'react-icons/ci';
 import { BiDownArrow, BiRightArrow } from "react-icons/bi";
 import { BsFillArrowUpSquareFill } from 'react-icons/bs';
-import { Item } from '../model';
+import { AlertData, Item } from '../model';
+import { allNotes } from '../storage/notesStore';
 import { FiPlusCircle } from 'react-icons/fi';
 import { getNewItem, retrieveLocalStorage } from '../utils/utils';
 import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
@@ -68,38 +69,37 @@ const ItemsComp = () => {
         // console.log('updated: itemsListRefreshTrigger')
         let itemsLoaded: Item[] = [];
       
-        let loadFilesFromLocalCache = () => {
+        let loadFilesFromLocalCache = async () => {
             try {
-                let localStorageFiles = retrieveLocalStorage('privthing.files');
-                if(localStorageFiles) {
-                    for(let localStorageFileName in localStorageFiles) {
-                        let localStorageFile = localStorageFiles[localStorageFileName]
-                        let lcItem: Item = {
-                            folder: 'localStorage',
-                            path: 'localStorage/' + localStorageFileName,
-                            name: localStorageFileName,
-                            size: localStorageFile.size,
-                            lastModified: localStorageFile.lastModified
-                        }
-                        try {
-                            if(searchState.searchContent && searchState.searchQuery && searchState.searchQuery.length >= 3 && localStorageFiles[localStorageFileName].data) {
-                                if(lcItem.name.toLowerCase().includes(searchState.searchQuery.toLowerCase())) {
-                                    // its ok
-                                } else {
-                                    const noteContent = String(localStorageFiles[localStorageFileName].data).toLowerCase();
-                                    if (!noteContent.includes(searchState.searchQuery.toLowerCase())) {
-                                        continue
-                                    }
+                const localStorageFiles = await allNotes();
+                for(let localStorageFileName in localStorageFiles) {
+                    let localStorageFile = localStorageFiles[localStorageFileName]
+                    let lcItem: Item = {
+                        folder: 'localStorage',
+                        path: 'localStorage/' + localStorageFileName,
+                        name: localStorageFileName,
+                        size: localStorageFile.size,
+                        lastModified: localStorageFile.lastModified
+                    }
+                    try {
+                        if(searchState.searchContent && searchState.searchQuery && searchState.searchQuery.length >= 3 && localStorageFile.data) {
+                            if(lcItem.name.toLowerCase().includes(searchState.searchQuery.toLowerCase())) {
+                                // its ok
+                            } else {
+                                const noteContent = String(localStorageFile.data).toLowerCase();
+                                if (!noteContent.includes(searchState.searchQuery.toLowerCase())) {
+                                    continue
                                 }
                             }
-                        } catch (error) {
-                            console.error(`Error searching item ${localStorageFileName}: ${error}`);
                         }
-                        itemsLoaded.push(lcItem)
+                    } catch (error) {
+                        console.error(`Error searching item ${localStorageFileName}: ${error}`);
                     }
+                    itemsLoaded.push(lcItem)
                 }
             } catch(e) {
-                alert("Problem retrieving localStorage items")
+                console.warn('Problem retrieving stored notes', e);
+                mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong')} as AlertData})
             }
         }
 
@@ -155,7 +155,7 @@ const ItemsComp = () => {
                 await loadFilesFromServer();
 
                 // always load all
-                loadFilesFromLocalCache();
+                await loadFilesFromLocalCache();
                 mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: itemsLoaded});
             } catch(e) {
                 let excError: String = '';
