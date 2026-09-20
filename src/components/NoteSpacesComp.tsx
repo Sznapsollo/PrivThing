@@ -8,6 +8,7 @@ import { PiArrowsInLineHorizontalFill } from "react-icons/pi";
 import { PiArrowsOutLineHorizontalFill } from "react-icons/pi";
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { getNewItem, saveLocalStorage, toPersistable } from '../utils/utils';
+import { pruneDrafts } from '../storage/draftsStore';
 import { useTranslation } from 'react-i18next';
 import GenericContextMenuComp from './GenericContextMenuComp';
 
@@ -33,6 +34,10 @@ const NoteSpacesComp = () => {
             if(!!copiedEditedItems) {
                 saveLocalStorage("privthing.pmeditedItemSpaces", copiedEditedItems);
             }
+            const liveSpaceIds = editedItemSpaces
+                .map((editedItemSpace) => editedItemSpace.spaceId)
+                .filter((spaceId): spaceId is string => !!spaceId);
+            pruneDrafts(liveSpaceIds).catch((e) => console.warn('Could not prune drafts', e));
         }
     }, [editedItemSpaces])
 

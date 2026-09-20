@@ -15,6 +15,7 @@ import { getNewItem, retrieveLocalStorage, saveLocalStorage } from '../utils/uti
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
 import { CONFLICT, getProvider, localStorageItem, StorageError } from '../storage';
 import { createServerFile } from '../storage/serverProvider';
+import { Draft, getDraft, removeDraft, saveDraft } from '../storage/draftsStore';
 import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { useCodeMirrorSetup } from './note/useCodeMirrorSetup';
@@ -56,6 +57,8 @@ const NoteComp = ({ editedItem }: Props) => {
     const lastModifiedRef = useRef<number | undefined>(undefined);
     const pendingSaveRef = useRef<{ fileData: string, callback?: () => void } | null>(null);
     const [askOverwrite, setAskOverwrite] = useState<boolean>(false);
+    const [pendingDraft, setPendingDraft] = useState<Draft | null>(null);
+    const draftHandle = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
     const [isIntroduced, setIsIntroduced] = useState<boolean>(isIntroducedGlb);
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
@@ -146,6 +149,47 @@ const NoteComp = ({ editedItem }: Props) => {
     }, [note]);
 
     useEffect(() => {
+        if (!editedItem.spaceId || isEncrypted || isLoading) {
+            return
+        }
+        if (draftHandle.current != null) {
+            clearTimeout(draftHandle.current);
+        }
+        if (note === orgNote.current) {
+            removeDraft(editedItem.spaceId);
+            return
+        }
+        const spaceId = editedItem.spaceId;
+        const draftedNote = note;
+        draftHandle.current = setTimeout(() => {
+            saveDraft({
+                spaceId: spaceId,
+                path: editedItem.path || '',
+                name: editedItem.name || '',
+                note: draftedNote,
+                savedAt: new Date().getTime()
+            }).catch((e) => console.warn('Could not store the draft', e));
+        }, 1500)
+        return () => {
+            if (draftHandle.current != null) {
+                clearTimeout(draftHandle.current);
+            }
+        }
+    }, [note, isEncrypted, isLoading, editedItem.spaceId, editedItem.path, editedItem.name]);
+
+    useEffect(() => {
+        if (!isDirty) {
+            return
+        }
+        const warnBeforeLeaving = (e: BeforeUnloadEvent) => {
+            e.preventDefault();
+            e.returnValue = '';
+        };
+        window.addEventListener('beforeunload', warnBeforeLeaving);
+        return () => window.removeEventListener('beforeunload', warnBeforeLeaving)
+    }, [isDirty]);
+
+    useEffect(() => {
         if (isLoading || !editedItem.isActive || focusedPathRef.current === editedItem.path) {
             return
         }
@@ -198,6 +242,13 @@ const NoteComp = ({ editedItem }: Props) => {
 
         setIsLoading(false);
         initializeCompleted();
+
+        if (editedItem.spaceId && !isEncrypted) {
+            const draft = await getDraft(editedItem.spaceId);
+            if (draft && draft.note !== orgNote.current) {
+                setPendingDraft(draft);
+            }
+        }
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -385,6 +436,23 @@ const NoteComp = ({ editedItem }: Props) => {
     const markSaved = () => {
         orgNote.current = note;
         setIsDirty(false);
+        if (editedItem.spaceId) {
+            removeDraft(editedItem.spaceId);
+        }
+    }
+
+    const handleRestoreDraft = () => {
+        if (pendingDraft) {
+            setNote(pendingDraft.note);
+        }
+        setPendingDraft(null);
+    }
+
+    const handleDiscardDraft = () => {
+        if (editedItem.spaceId) {
+            removeDraft(editedItem.spaceId);
+        }
+        setPendingDraft(null);
     }
 
     const handleSaveAs = async (saveResults: SaveAsResults): Promise<void> => {
@@ -983,6 +1051,9 @@ const NoteComp = ({ editedItem }: Props) => {
                 onOverwriteClose={() => { setAskOverwrite(false); pendingSaveRef.current = null; }}
                 noteContextMenu={noteContextMenu}
                 onContextMenuAction={handleContextMenuAction}
+                pendingDraft={pendingDraft}
+                onRestoreDraft={handleRestoreDraft}
+                onDiscardDraft={handleDiscardDraft}
             />
         </div>
     )

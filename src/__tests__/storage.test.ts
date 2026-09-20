@@ -2,9 +2,11 @@ import { CONFLICT, getProvider, localStorageItem, StorageError } from '../storag
 import axios from 'axios';
 import { createServerFile } from '../storage/serverProvider';
 import * as notesStore from '../storage/notesStore';
+import * as draftsStore from '../storage/draftsStore';
 import { Item } from '../model';
 
 beforeEach(async () => {
+    await draftsStore.pruneDrafts([]);
     const stored = await notesStore.allNotes();
     for (const name of Object.keys(stored)) {
         await notesStore.removeNote(name);
@@ -218,5 +220,42 @@ describe('the leftover localStorage backup', () => {
 
         expect(store.legacyBackupSize()).toBeNull();
         expect((await store.getNote('a.txt'))?.data).toBe('old copy');
+    });
+});
+
+describe('crash-safe drafts', () => {
+    it('keeps one draft per note space', async () => {
+        const drafts = draftsStore;
+
+        await drafts.saveDraft({ spaceId: 'space-a', path: '/a.txt', name: 'a.txt', note: 'half typed', savedAt: 100 });
+        await drafts.saveDraft({ spaceId: 'space-b', path: '/a.txt', name: 'a.txt', note: 'different pane', savedAt: 100 });
+
+        expect((await drafts.getDraft('space-a'))?.note).toBe('half typed');
+        expect((await drafts.getDraft('space-b'))?.note).toBe('different pane');
+    });
+
+    it('forgets a draft once it is no longer needed', async () => {
+        const drafts = draftsStore;
+
+        await drafts.saveDraft({ spaceId: 'space-c', path: '/c.txt', name: 'c.txt', note: 'x', savedAt: 100 });
+        await drafts.removeDraft('space-c');
+
+        expect(await drafts.getDraft('space-c')).toBeUndefined();
+    });
+
+    it('prunes drafts of spaces that are gone, and stale ones', async () => {
+        const drafts = draftsStore;
+        const now = new Date().getTime();
+
+        await drafts.saveDraft({ spaceId: 'live', path: '/a.txt', name: 'a.txt', note: 'keep', savedAt: now });
+        await drafts.saveDraft({ spaceId: 'closed', path: '/b.txt', name: 'b.txt', note: 'drop', savedAt: now });
+        await drafts.saveDraft({ spaceId: 'ancient', path: '/c.txt', name: 'c.txt', note: 'drop', savedAt: now - (60 * 24 * 60 * 60 * 1000) });
+
+        const removed = await drafts.pruneDrafts(['live', 'ancient']);
+
+        expect(removed).toBe(2);
+        expect((await drafts.getDraft('live'))?.note).toBe('keep');
+        expect(await drafts.getDraft('closed')).toBeUndefined();
+        expect(await drafts.getDraft('ancient')).toBeUndefined();
     });
 });

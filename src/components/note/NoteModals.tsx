@@ -3,6 +3,7 @@ import GenericContextMenuComp from '../GenericContextMenuComp';
 import SaveAsComp from '../SaveAsComp';
 import { useTranslation } from 'react-i18next';
 import { GenericContextMenuAction, NoteContextMenu, SaveAsResults } from '../../model';
+import { Draft } from '../../storage/draftsStore';
 
 interface Props {
     fileName: string,
@@ -24,7 +25,10 @@ interface Props {
     onReloadFromDisk: () => void,
     onOverwriteClose: () => void,
     noteContextMenu: NoteContextMenu,
-    onContextMenuAction: (menuAction: GenericContextMenuAction) => void
+    onContextMenuAction: (menuAction: GenericContextMenuAction) => void,
+    pendingDraft: Draft | null,
+    onRestoreDraft: () => void,
+    onDiscardDraft: () => void
 }
 
 const NoteModals = ({
@@ -34,7 +38,8 @@ const NoteModals = ({
     askRefresh, onRefresh, onRefreshClose,
     askDelete, onDelete, onDeleteClose,
     askOverwrite, onOverwrite, onReloadFromDisk, onOverwriteClose,
-    noteContextMenu, onContextMenuAction
+    noteContextMenu, onContextMenuAction,
+    pendingDraft, onRestoreDraft, onDiscardDraft
 }: Props) => {
 
     const { t } = useTranslation();
@@ -97,6 +102,17 @@ const NoteModals = ({
                     handleExternalMiddle={onReloadFromDisk}
                     handleExternalClose={onOverwriteClose}
                 >{t("fileChangedOnDisk")}</ConfirmationComp>
+            }
+            {
+                pendingDraft &&
+                <ConfirmationComp
+                    externalHeading={t("draftFound")}
+                    externalSaveLabel={t("restoreDraft")}
+                    externalCloseLabel={t("discardDraft")}
+                    externalCloseButtonVariant={'secondary'}
+                    handleExternalSave={onRestoreDraft}
+                    handleExternalClose={onDiscardDraft}
+                >{t("draftFoundInfo", { when: new Date(pendingDraft.savedAt).toLocaleString() })}</ConfirmationComp>
             }
             {
                 noteContextMenu.show === true &&
