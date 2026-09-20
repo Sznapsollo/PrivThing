@@ -9,6 +9,7 @@ import TabsComp from './TabsComp';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import NoteSpacesComp from './NoteSpacesComp';
 import HintsComp from './HintsComp';
+import QuickOpenComp from './QuickOpenComp';
 import { useTranslation } from 'react-i18next';
 
 
@@ -20,11 +21,25 @@ const HomeComp = () => {
 
     const { mainState, settingsState: {showHints}, mainDispatch } = AppState();
     const [hint, setHint] = useState('');
+    const [showQuickOpen, setShowQuickOpen] = useState(false);
     const [showHint, setShowHint] = useState(showHints)
     const [itemsWidth, setItemsWidth] = useState(typeof defaultItemsWidth === 'number' ? defaultItemsWidth : 25);
     const itewsWrapperRef = useRef(null);
 
     const { t } = useTranslation();
+
+    useEffect(() => {
+        const isMac = window.navigator.userAgent.indexOf('Mac') >= 0;
+        const onKeyDown = (e: KeyboardEvent) => {
+            const key = e.key.toLowerCase();
+            if ((isMac ? e.metaKey : e.ctrlKey) && (key === 'p' || key === 'k')) {
+                e.preventDefault();
+                setShowQuickOpen(true);
+            }
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown)
+    }, []);
 
     const mouseUpListener = () => {
         cleanListeners();
@@ -95,6 +110,7 @@ const HomeComp = () => {
     
     return (
         <div className={'home nonTextSelectable'}>
+            {showQuickOpen && <QuickOpenComp onClose={() => setShowQuickOpen(false)} />}
             <div ref={itewsWrapperRef} className={"itemsResizeWrapper " + (mainState.fullItems === true ? 'fullItemsDisplay' : '')} style={{width: mainState.fullItems === true ? '100%' : itemsWidth + '%'}}>
                 <ItemsComp />    
             </div>

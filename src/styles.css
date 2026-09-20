@@ -666,3 +666,53 @@ label.upperLabel.upperLabelDirty {
     font-size: 13px;
     margin-bottom: 8px;
 }
+
+.quickOpenResults {
+    margin-top: 10px;
+    max-height: 45vh;
+    overflow-y: auto;
+}
+
+.quickOpenItem {
+    align-items: baseline;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    gap: 10px;
+    padding: 7px 10px;
+}
+
+.quickOpenItemSelected {
+    background-color: #e7f1ff;
+}
+
+.quickOpenName {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.quickOpenFolder {
+    color: #888888;
+    font-size: 11px;
+    max-width: 45%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.quickOpenEmpty {
+    color: #888888;
+    padding: 12px 10px;
+    text-align: center;
+}
+
+.quickOpenHint {
+    border-top: 1px solid #eeeeee;
+    color: #999999;
+    font-size: 11px;
+    margin-top: 8px;
+    padding-top: 8px;
+    text-align: center;
+}
