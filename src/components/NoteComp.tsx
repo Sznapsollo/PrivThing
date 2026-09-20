@@ -5,8 +5,8 @@ import { FaMagnifyingGlass } from "react-icons/fa6";
 
 import '../styles.css'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { Form, Button, Modal } from 'react-bootstrap'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { Alert, Form, Button, Modal } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
@@ -21,8 +21,7 @@ import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
-import moment from 'moment';
-import { Alert } from '@mui/material';
+import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import axios from 'axios';
 import { amy, ayuLight, barf, bespin, birdsOfParadise, boysAndGirls, clouds, cobalt, coolGlow, dracula, espresso, noctisLilac, rosePineDawn, smoothy, solarizedLight, tomorrow } from 'thememirror';
@@ -61,6 +60,7 @@ const NoteComp = ({ editedItem }: Props) => {
     const [note, setNote] = useState<string>('');
     const [isDirty, setIsDirty] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const focusedPathRef = useRef<string | null>(null);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
     const [isIntroduced, setIsIntroduced] = useState<boolean>(isIntroducedGlb);
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
@@ -144,15 +144,18 @@ const NoteComp = ({ editedItem }: Props) => {
 
     useEffect(() => {
         validateButtonsState();
-        setTimeout(() => {
-            let noteCMView = noteRef.current?.view;
-            if (!noteCMView) {
-                return
-            }
-            noteCMView?.focus();
-        }, 100)
-
     }, [note]);
+
+    useEffect(() => {
+        if (isLoading || !editedItem.isActive || focusedPathRef.current === editedItem.path) {
+            return
+        }
+        focusedPathRef.current = editedItem.path;
+        const focusHandle = setTimeout(() => {
+            noteRef.current?.view?.focus();
+        }, 100)
+        return () => clearTimeout(focusHandle)
+    }, [isLoading, editedItem.isActive, editedItem.path]);
 
     const initializeCompleted = () => {
         if (secretUpdateRef.current && secretUpdateRef.current.length) {
@@ -166,7 +169,7 @@ const NoteComp = ({ editedItem }: Props) => {
             setInitialState();
         }
 
-        let defaultFileName = moment().format('MMMM_Do_YYYY_h_mm_ss') + '_privthing.txt';
+        let defaultFileName = fileNameTimestamp() + '_privthing.txt';
         setFilePath(editedItem.path || '');
         setFileName(editedItem.name || defaultFileName);
 
@@ -859,95 +862,88 @@ const NoteComp = ({ editedItem }: Props) => {
             noteRef.current.view.contentDOM.classList.add(blinkingCss);
         }
     }
-    class PassHiderWidget extends WidgetType {
-        constructor(readonly element: string, readonly view: EditorView, readonly position: number) { super() }
+    const copyClickedValueRef = useRef(copyClickedValue);
+    copyClickedValueRef.current = copyClickedValue;
 
-        toDOM() {
-            const spanID = `${this.position}_${this.position + this.element.length + ('hide[[]]').length}`
-            let wrap = document.createElement("span")
-            wrap.setAttribute("aria-hidden", "true")
-            wrap.setAttribute("id", spanID)
-            wrap.onclick = (e) => {
-                copyClickedValue((this.element || '').replaceAll('hide[[', '').replaceAll(']]', ''), 'copied');
-                e.preventDefault();
-            }
-            wrap.oncontextmenu = (e) => {
-                if (e && e.target) {
-                    // const {pageX, pageY} = e;
-                    buildContextMenu(e, { type: 'fromMarked', selectionStart: this.position, selectionEnd: this.position + this.element.length + ('hide[[]]').length });
+    const buildContextMenuRef = useRef(buildContextMenu);
+    buildContextMenuRef.current = buildContextMenu;
+
+    const cdmrrorTheme: 'none' | Extension = useMemo(() => {
+        const themes: Record<string, Extension> = {
+            amy: amy,
+            ayuLight: ayuLight,
+            barf: barf,
+            bespin: bespin,
+            birdsOfParadise: birdsOfParadise,
+            boysAndGirls: boysAndGirls,
+            clouds: clouds,
+            cobalt: cobalt,
+            coolGlow: coolGlow,
+            dracula: dracula,
+            espresso: espresso,
+            noctisLilac: noctisLilac,
+            rosePineDawn: rosePineDawn,
+            smoothy: smoothy,
+            solarizedLight: solarizedLight,
+            tomorrow: tomorrow,
+        };
+        if (codeMirrorTheme === 'customTheme') {
+            return createCustomTheme(customThemeColors)
+        }
+        return (codeMirrorTheme && themes[codeMirrorTheme]) || 'none'
+    }, [codeMirrorTheme, customThemeColors]);
+
+    const cdmrrorExtensions = useMemo(() => {
+        class PassHiderWidget extends WidgetType {
+            constructor(readonly element: string, readonly view: EditorView, readonly position: number) { super() }
+
+            toDOM() {
+                const spanID = `${this.position}_${this.position + this.element.length + ('hide[[]]').length}`
+                let wrap = document.createElement("span")
+                wrap.setAttribute("aria-hidden", "true")
+                wrap.setAttribute("id", spanID)
+                wrap.onclick = (e) => {
+                    copyClickedValueRef.current((this.element || '').replaceAll('hide[[', '').replaceAll(']]', ''), 'copied');
+                    e.preventDefault();
                 }
-                e.preventDefault();
+                wrap.oncontextmenu = (e) => {
+                    if (e && e.target) {
+                        // const {pageX, pageY} = e;
+                        buildContextMenuRef.current(e, { type: 'fromMarked', selectionStart: this.position, selectionEnd: this.position + this.element.length + ('hide[[]]').length });
+                    }
+                    e.preventDefault();
+                }
+                wrap.className = "cm-pass-hider";
+                wrap.innerHTML = this.element.replace(/./g, '*');
+
+                return wrap
             }
-            wrap.className = "cm-pass-hider";
-            wrap.innerHTML = this.element.replace(/./g, '*');
 
-            return wrap
+            ignoreEvent() { return false }
         }
-
-        ignoreEvent() { return false }
-    }
-
-    const placeholderMatcher = new MatchDecorator({
-        // regexp: /pass\[\[(\w+)\]\]/g,
-        regexp: hideRegex,
-        decoration: (match, view, position) => Decoration.replace({
-            widget: new PassHiderWidget(match[1], view, position)
+        const placeholderMatcher = new MatchDecorator({
+            // regexp: /pass\[\[(\w+)\]\]/g,
+            regexp: hideRegex,
+            decoration: (match, view, position) => Decoration.replace({
+                widget: new PassHiderWidget(match[1], view, position)
+            })
         })
-    })
 
-    const placeholders = ViewPlugin.fromClass(class {
-        placeholders: DecorationSet
-        constructor(view: EditorView) {
-            this.placeholders = placeholderMatcher.createDeco(view)
-        }
-        update(update: ViewUpdate) {
-            this.placeholders = placeholderMatcher.updateDeco(update, this.placeholders)
-        }
-    }, {
-        decorations: instance => instance.placeholders,
-        provide: plugin => EditorView.atomicRanges.of(view => {
-            return view.plugin(plugin)?.placeholders || Decoration.none
+        const placeholders = ViewPlugin.fromClass(class {
+            placeholders: DecorationSet
+            constructor(view: EditorView) {
+                this.placeholders = placeholderMatcher.createDeco(view)
+            }
+            update(update: ViewUpdate) {
+                this.placeholders = placeholderMatcher.updateDeco(update, this.placeholders)
+            }
+        }, {
+            decorations: instance => instance.placeholders,
+            provide: plugin => EditorView.atomicRanges.of(view => {
+                return view.plugin(plugin)?.placeholders || Decoration.none
+            })
         })
-    })
-
-    let cdmrrorTheme: 'none' | Extension = 'none'
-    if (codeMirrorTheme === 'amy') {
-        cdmrrorTheme = amy
-    } else if (codeMirrorTheme === 'ayuLight') {
-        cdmrrorTheme = ayuLight
-    } else if (codeMirrorTheme === 'barf') {
-        cdmrrorTheme = barf
-    } else if (codeMirrorTheme === 'bespin') {
-        cdmrrorTheme = bespin
-    } else if (codeMirrorTheme === 'birdsOfParadise') {
-        cdmrrorTheme = birdsOfParadise
-    } else if (codeMirrorTheme === 'boysAndGirls') {
-        cdmrrorTheme = boysAndGirls
-    } else if (codeMirrorTheme === 'clouds') {
-        cdmrrorTheme = clouds
-    } else if (codeMirrorTheme === 'cobalt') {
-        cdmrrorTheme = cobalt
-    } else if (codeMirrorTheme === 'coolGlow') {
-        cdmrrorTheme = coolGlow
-    } else if (codeMirrorTheme === 'dracula') {
-        cdmrrorTheme = dracula
-    } else if (codeMirrorTheme === 'espresso') {
-        cdmrrorTheme = espresso
-    } else if (codeMirrorTheme === 'noctisLilac') {
-        cdmrrorTheme = noctisLilac
-    } else if (codeMirrorTheme === 'rosePineDawn') {
-        cdmrrorTheme = rosePineDawn
-    } else if (codeMirrorTheme === 'smoothy') {
-        cdmrrorTheme = smoothy
-    } else if (codeMirrorTheme === 'solarizedLight') {
-        cdmrrorTheme = solarizedLight
-    } else if (codeMirrorTheme === 'tomorrow') {
-        cdmrrorTheme = tomorrow
-    } else if (codeMirrorTheme === 'customTheme') {
-        cdmrrorTheme = createCustomTheme(customThemeColors)
-    }
-
-    let cdmrrorExtensions = [
+        const extensions = [
         javascript({ jsx: true }),
         lineNumbers({
             domEventHandlers: {
@@ -956,7 +952,7 @@ const NoteComp = ({ editedItem }: Props) => {
                     if (clickedNumber) {
                         let rowNumber = parseInt(clickedNumber);
                         if (!isNaN(rowNumber)) {
-                            copyClickedValue((view.state.doc.line(rowNumber).text || '').replaceAll('hide[[', '').replaceAll(']]', ''));
+                            copyClickedValueRef.current((view.state.doc.line(rowNumber).text || '').replaceAll('hide[[', '').replaceAll(']]', ''));
 
                             view.dispatch({
                                 // Set selection to that entire line.
@@ -1014,11 +1010,15 @@ const NoteComp = ({ editedItem }: Props) => {
         //       borderLeftColor: 'red', // Change the cursor color here
         //     },
         // }, { dark: true })
-    ]
+        ];
 
-    if (wrapWords) {
-        cdmrrorExtensions.push(EditorView.lineWrapping);
-    }
+        if (wrapWords) {
+            extensions.push(EditorView.lineWrapping);
+        }
+
+        return extensions
+    }, [wrapWords]);
+
 
     const noteBody = (
         <div className='noteContainer'>
@@ -1107,7 +1107,7 @@ const NoteComp = ({ editedItem }: Props) => {
                         </Form.Group>
                     </div>
                     {!isIntroduced && editedItem.isActive &&
-                        <Alert className='privThingIntroduction' onClose={handleAcceptIntroduction} severity="info">
+                        <Alert className='privThingIntroduction' variant="info" dismissible onClose={handleAcceptIntroduction}>
                             {t('privThingIntroduction')}
                         </Alert>
                     }

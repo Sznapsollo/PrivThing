@@ -9,10 +9,10 @@ import { RxCross2 } from 'react-icons/rx';
 import { FiMenu } from 'react-icons/fi';
 import { AlertData, ProcessingResult } from '../model';
 import ConfirmationComp from './ConfirmationComp';
-import moment from 'moment';
 import '../styles.css';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import { APP_VERSION } from '../utils/version';
+import { durationClock, fileNameTimestamp } from '../utils/dates';
 import ResultsComp from './ResultsComp';
 import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
 
@@ -123,21 +123,9 @@ const HeaderComp = () => {
             return
         }
         var timeDiff = forgetSecretTimeThreshold.getTime() - new Date().getTime();
-        let msg = 'Password will expire in ' + formatDate(new Date(timeDiff), "mm:ss") + '<br>' + t("forgetPassword");
+        let msg = 'Password will expire in ' + durationClock(timeDiff, false) + '<br>' + t("forgetPassword");
         setCenterLabelContent(msg);
     }
-
-    const formatDate = (value: Date | undefined, format: string): string => {
-		if(!value) {
-            return ''
-        }
-        try {
-			return moment(value).format(format)
-		} catch(e) {
-			console.warn('format date')
-		}
-		return ''
-	}
 
     const handleExportLocalStorageItems = () => {
         let localStorageFilesData = retrieveLocalStorage('privthing.files') || {};
@@ -145,7 +133,7 @@ const HeaderComp = () => {
         const blob = new Blob([JSON.stringify(localStorageFilesData)], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.download = moment().format('MMMM_Do_YYYY_h_mm_ss') + '_privthing_backup.txt';
+        link.download = fileNameTimestamp() + '_privthing_backup.txt';
         link.href = url;
         
         link.click();

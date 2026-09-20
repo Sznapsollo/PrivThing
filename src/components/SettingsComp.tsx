@@ -5,7 +5,7 @@ import ConfirmationComp from './ConfirmationComp';
 import { useTranslation } from 'react-i18next'
 import { removeLocalStorage, saveLocalStorage } from '../utils/utils'
 import { APP_VERSION } from '../utils/version'
-import moment from 'moment';
+import { durationClock } from '../utils/dates'
 import { MAIN_ACTIONS, SETTINGS_ACTIONS } from '../context/Reducers';
 
 
@@ -99,7 +99,7 @@ const SettingsComp = () => {
                                 setSettings({...settings, forgetSecretTime: parseInt(e.target.value)});
                             }}
                         ></Form.Control>
-                        <div style={{padding: 10, textAlign: "center"}}>{moment.utc(settings.forgetSecretTime).format("HH:mm:ss")}</div>
+                        <div style={{padding: 10, textAlign: "center"}}>{durationClock(settings.forgetSecretTime || 0)}</div>
                     </Form.Group>}
                 </div>
 

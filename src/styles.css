@@ -648,3 +648,15 @@ label.upperLabel.upperLabelDirty {
       transform: rotate(720deg);
     }
   }
+.notificationContainer {
+    bottom: 20px;
+    left: 20px;
+    position: fixed;
+    max-width: 480px;
+    z-index: 1400;
+}
+
+.notificationContainer .alert {
+    box-shadow: 0 3px 10px #00000040;
+    margin: 0;
+}

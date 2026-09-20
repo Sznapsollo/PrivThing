@@ -81,7 +81,14 @@ type Props = {
     children: React.ReactNode
 }
 
-const Context = ({children}: Props) => {
+let bootstrapped = false;
+
+const bootstrapInitialStates = () => {
+    if(bootstrapped) {
+        return
+    }
+    bootstrapped = true;
+
 
   // appInitialState.secret = 'test';
 
@@ -181,10 +188,13 @@ const Context = ({children}: Props) => {
     if(pmSearchSettings?.currentFolder) {
         searchInitialState.currentFolder = pmSearchSettings?.currentFolder;
     }
+}
 
-    const [mainState, mainDispatch] = useReducer(mainReducer, appInitialState);
-    const [searchState, searchDispatch] = useReducer(searchReducer, searchInitialState);
-    const [settingsState, settingsDispatch] = useReducer(settingsReducer, settingsInitialState);
+const Context = ({children}: Props) => {
+
+    const [mainState, mainDispatch] = useReducer(mainReducer, undefined, () => { bootstrapInitialStates(); return appInitialState });
+    const [searchState, searchDispatch] = useReducer(searchReducer, undefined, () => { bootstrapInitialStates(); return searchInitialState });
+    const [settingsState, settingsDispatch] = useReducer(settingsReducer, undefined, () => { bootstrapInitialStates(); return settingsInitialState });
 
     return (
         <AppContext.Provider value={{

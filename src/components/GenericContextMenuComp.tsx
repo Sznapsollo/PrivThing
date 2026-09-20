@@ -1,5 +1,5 @@
 import {useRef} from 'react'
-import { useClickAway } from 'react-use';
+import { useClickAway } from '../utils/useClickAway';
 // import { AppState } from '../context/Context';
 // import { useTranslation } from 'react-i18next'
 // import { MAIN_ACTIONS } from '../context/Reducers';

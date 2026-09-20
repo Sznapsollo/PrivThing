@@ -1,4 +1,4 @@
-import {AlertColor} from '@mui/material'
+export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 export interface AlertData {
     buttonLabel?: string,

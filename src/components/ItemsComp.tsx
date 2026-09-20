@@ -190,9 +190,6 @@ const ItemsComp = () => {
             // if it was switched from content search we should also update all items
             if(searchContentChanged) {
                 mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
-            } else {
-                // items same but reference change will trigger useMemo
-                mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: items});
             }
         }
     }, [searchState]);
@@ -213,7 +210,7 @@ const ItemsComp = () => {
         }
 
         if(sort) {
-            transformedItemsLocal = transformedItemsLocal.sort((a, b) => {
+            transformedItemsLocal = [...transformedItemsLocal].sort((a, b) => {
                 if(sort === 'nameLowToHigh') {
                 return (a.name.localeCompare(b.name))
                 } else if(sort === 'nameHighToLow') {
@@ -232,7 +229,7 @@ const ItemsComp = () => {
         }
 
         return transformedItemsLocal;
-    }, [items])
+    }, [items, currentFolder, excludeFromAll, sort, searchQuery, searchState.searchContent])
     
     const handleScroll = (e: React.UIEvent<HTMLElement>) => {
         setScrollTop(e.currentTarget.scrollTop);

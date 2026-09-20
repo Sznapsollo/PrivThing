@@ -87,3 +87,27 @@ describe('manageEditItemSpaces', () => {
         expect(spaces.filter((space) => space.isActive)).toHaveLength(1);
     });
 });
+
+describe('date helpers (moment replacements)', () => {
+    const { fileNameTimestamp, durationClock, formatUtcDateTime } = require('../utils/dates');
+
+    it('builds the same filename shape moment produced', () => {
+        expect(fileNameTimestamp(new Date(2026, 8, 20, 13, 5, 7))).toBe('September_20th_2026_1_05_07');
+        expect(fileNameTimestamp(new Date(2026, 0, 1, 0, 0, 0))).toBe('January_1st_2026_12_00_00');
+        expect(fileNameTimestamp(new Date(2026, 0, 2, 9, 0, 0))).toBe('January_2nd_2026_9_00_00');
+        expect(fileNameTimestamp(new Date(2026, 0, 3, 9, 0, 0))).toBe('January_3rd_2026_9_00_00');
+        expect(fileNameTimestamp(new Date(2026, 0, 11, 9, 0, 0))).toBe('January_11th_2026_9_00_00');
+    });
+
+    it('formats a duration as a clock', () => {
+        expect(durationClock(120000)).toBe('00:02:00');
+        expect(durationClock(3661000)).toBe('01:01:01');
+        expect(durationClock(65000, false)).toBe('01:05');
+        expect(durationClock(0)).toBe('00:00:00');
+        expect(durationClock(undefined)).toBe('00:00:00');
+    });
+
+    it('formats a timestamp in UTC, as moment.utc did', () => {
+        expect(formatUtcDateTime(Date.UTC(2026, 8, 20, 13, 5, 7))).toBe('2026-09-20 13:05:07');
+    });
+});
