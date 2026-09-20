@@ -1,4 +1,4 @@
-import { getProvider, localStorageItem, StorageError } from '../storage';
+import { CONFLICT, getProvider, localStorageItem, StorageError } from '../storage';
 import axios from 'axios';
 import { createServerFile } from '../storage/serverProvider';
 import * as notesStore from '../storage/notesStore';
@@ -40,10 +40,14 @@ describe('the localStorage backend', () => {
         window.localStorage.clear();
     });
 
-    it('writes a note and reads it back', async () => {
+    it('writes a note and reads it back, with the time it was written', async () => {
         const provider = getProvider(lsItem('a.txt'));
-        await provider.write(lsItem('a.txt'), 'hello');
-        expect(await provider.read(lsItem('a.txt'))).toEqual({ data: 'hello', found: true });
+        const written = await provider.write(lsItem('a.txt'), 'hello');
+        const read = await provider.read(lsItem('a.txt'));
+
+        expect(read.data).toBe('hello');
+        expect(read.found).toBe(true);
+        expect(read.lastModified).toBe(written.lastModified);
     });
 
     it('reports a missing note as not found rather than throwing', async () => {
@@ -98,6 +102,35 @@ describe('the server backend', () => {
         jest.spyOn(axios, 'post').mockResolvedValue({ data: { status: -1, data: 'Access to file denied.' } });
 
         await expect(createServerFile('/notes/', 'new.txt', 'x')).rejects.toThrow('Access to file denied.');
+    });
+
+    it('sends the timestamp it read, and keeps the one the server returns', async () => {
+        const post = jest.spyOn(axios, 'post').mockResolvedValue({ data: { status: 0, lastModified: 222 } });
+
+        const written = await getProvider(serverItem('/tmp/a.txt')).write(serverItem('/tmp/a.txt'), 'new text', 111);
+
+        expect(JSON.parse(post.mock.calls[0][1] as string)).toEqual({
+            type: 'updateFileFromPath', data: 'new text', path: '/tmp/a.txt', lastModified: 111
+        });
+        expect(written.lastModified).toBe(222);
+    });
+
+    it('reports a stale write as a conflict the editor can recognise', async () => {
+        jest.spyOn(axios, 'post').mockResolvedValue({ data: { status: -1, code: 'CONFLICT', data: 'File changed on disk.', lastModified: 999 } });
+
+        const failure = await getProvider(serverItem('/tmp/a.txt'))
+            .write(serverItem('/tmp/a.txt'), 'mine', 111)
+            .catch((e) => e);
+
+        expect(failure).toBeInstanceOf(StorageError);
+        expect(failure.code).toBe(CONFLICT);
+        expect(failure.lastModified).toBe(999);
+    });
+
+    it('reads the timestamp along with the content', async () => {
+        jest.spyOn(axios, 'post').mockResolvedValue({ data: { status: 0, data: 'file text', lastModified: 333 } });
+        expect(await getProvider(serverItem('/tmp/a.txt')).read(serverItem('/tmp/a.txt')))
+            .toEqual({ data: 'file text', found: true, lastModified: 333 });
     });
 
     it('creates a file in a folder and returns its new path', async () => {

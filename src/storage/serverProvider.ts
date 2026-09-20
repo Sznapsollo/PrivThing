@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Item } from '../model';
-import { ReadResult, StorageError, StorageProvider } from './types';
+import { ReadResult, StorageError, StorageProvider, WriteResult } from './types';
 
 const post = async (body: object) => {
     const response = await axios.post('actions', JSON.stringify(body), {
@@ -8,7 +8,7 @@ const post = async (body: object) => {
     });
     const data = response.data;
     if (data?.status !== 0) {
-        throw new StorageError(data?.data || 'Server refused the request')
+        throw new StorageError(data?.data || 'Server refused the request', data?.code, data?.lastModified)
     }
     return data
 };
@@ -28,11 +28,17 @@ export const serverProvider: StorageProvider = {
         if (typeof data.data !== 'string') {
             return { data: null, found: false }
         }
-        return { data: data.data, found: true }
+        return { data: data.data, found: true, lastModified: data.lastModified }
     },
 
-    write: async (item: Item, content: string): Promise<void> => {
-        await post({ type: 'updateFileFromPath', data: content, path: item.path });
+    write: async (item: Item, content: string, expectedLastModified?: number): Promise<WriteResult> => {
+        const data = await post({
+            type: 'updateFileFromPath',
+            data: content,
+            path: item.path,
+            lastModified: expectedLastModified
+        });
+        return { lastModified: data.lastModified }
     },
 
     remove: async (): Promise<void> => {

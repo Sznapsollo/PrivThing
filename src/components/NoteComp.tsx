@@ -19,7 +19,7 @@ import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
-import { getProvider, localStorageItem } from '../storage';
+import { CONFLICT, getProvider, localStorageItem, StorageError } from '../storage';
 import { createServerFile } from '../storage/serverProvider';
 import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
@@ -58,6 +58,9 @@ const NoteComp = ({ editedItem }: Props) => {
     const [isDirty, setIsDirty] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const focusedPathRef = useRef<string | null>(null);
+    const lastModifiedRef = useRef<number | undefined>(undefined);
+    const pendingSaveRef = useRef<{ fileData: string, callback?: () => void } | null>(null);
+    const [askOverwrite, setAskOverwrite] = useState<boolean>(false);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
     const [isIntroduced, setIsIntroduced] = useState<boolean>(isIntroducedGlb);
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
@@ -187,6 +190,7 @@ const NoteComp = ({ editedItem }: Props) => {
 
         try {
             const result = await getProvider(editedItem).read(editedItem);
+            lastModifiedRef.current = result.lastModified;
             if (result.found && result.data != null) {
                 setRawNote(result.data);
             } else if (!!editedItem.path) {
@@ -318,6 +322,38 @@ const NoteComp = ({ editedItem }: Props) => {
 
     const handleWrappToggle = () => {
         setWrapWords(prev => !prev);
+    }
+
+    const handleReloadFromDisk = () => {
+        setAskOverwrite(false);
+        pendingSaveRef.current = null;
+        isUpdating.current = false;
+        initializeEditedItem();
+    }
+
+    const handleOverwriteAnyway = async () => {
+        setAskOverwrite(false);
+        const pending = pendingSaveRef.current;
+        pendingSaveRef.current = null;
+        if (!pending) {
+            return
+        }
+
+        try {
+            const written = await getProvider(editedItem).write(editedItem, pending.fileData, undefined);
+            lastModifiedRef.current = written.lastModified;
+        } catch (e) {
+            mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
+            return
+        }
+
+        markSaved();
+        mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
+
+        if (pending.callback) {
+            pending.callback();
+        }
     }
 
     const markSaved = () => {
@@ -483,9 +519,15 @@ const NoteComp = ({ editedItem }: Props) => {
         const fileData = isEncrypted ? await encryptData(secretLoc) : note;
 
         try {
-            await getProvider(editedItem).write(editedItem, fileData);
+            const written = await getProvider(editedItem).write(editedItem, fileData, lastModifiedRef.current);
+            lastModifiedRef.current = written.lastModified;
         } catch (e) {
             console.warn('Write operation error: ', e);
+            if ((e as StorageError)?.code === CONFLICT) {
+                pendingSaveRef.current = { fileData: fileData, callback: callback };
+                setAskOverwrite(true);
+                return
+            }
             mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
             return
         }
@@ -1025,6 +1067,22 @@ const NoteComp = ({ editedItem }: Props) => {
                     handleExternalSave={handleDeleteItem}
                     handleExternalClose={() => { setAskDelete(false) }}
                 >{t("confirmDelete", { item: fileName })}</ConfirmationComp>
+            }
+            {
+                askOverwrite &&
+                <ConfirmationComp
+                    externalHeading={t("warning")}
+                    externalSaveLabel={t("overwriteAnyway")}
+                    externalSaveButtonVariant={'danger'}
+                    externalShowMiddleButton={true}
+                    externalMiddleLabel={t("reloadFromDisk")}
+                    externalMiddleButtonVariant={'primary'}
+                    externalCloseLabel={t("cancel")}
+                    externalCloseButtonVariant={'secondary'}
+                    handleExternalSave={handleOverwriteAnyway}
+                    handleExternalMiddle={handleReloadFromDisk}
+                    handleExternalClose={() => { setAskOverwrite(false); pendingSaveRef.current = null; }}
+                >{t("fileChangedOnDisk")}</ConfirmationComp>
             }
             {
                 noteContextMenu.show === true &&

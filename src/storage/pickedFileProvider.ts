@@ -1,5 +1,5 @@
 import { Item } from '../model';
-import { ReadResult, StorageError, StorageProvider } from './types';
+import { ReadResult, StorageError, StorageProvider, WriteResult } from './types';
 
 export const pickedFileProvider: StorageProvider = {
     kind: 'pickedFile',
@@ -10,7 +10,7 @@ export const pickedFileProvider: StorageProvider = {
         return { data: item.rawNote || '', found: true }
     },
 
-    write: async (): Promise<void> => {
+    write: async (): Promise<WriteResult> => {
         throw new StorageError('A picked file can only be saved with Save as')
     },
 
