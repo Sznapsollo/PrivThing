@@ -1,6 +1,7 @@
 import { RefObject } from 'react';
 import { Button, Dropdown, Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
+import { keyActivate } from '../../utils/a11y';
 import { FaEye, FaMagnifyingGlass } from 'react-icons/fa6';
 import { RiArrowUpCircleLine, RiMenuUnfoldFill } from 'react-icons/ri';
 
@@ -61,7 +62,15 @@ const NoteToolbar = ({
                 } &nbsp;
                 {
                     isActive &&
-                    <div style={{ display: 'none', alignItems: 'center', cursor: 'pointer' }} ref={scrollTopButtonRef} onClick={onScrollTop}><RiArrowUpCircleLine className='h1' /></div>
+                    <div
+                        style={{ display: 'none', alignItems: 'center', cursor: 'pointer' }}
+                        ref={scrollTopButtonRef}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={t("scrollToTop")}
+                        onKeyDown={keyActivate(onScrollTop)}
+                        onClick={onScrollTop}
+                    ><RiArrowUpCircleLine className='h1' /></div>
 
                 } &nbsp;
                 {
@@ -82,6 +91,7 @@ const NoteToolbar = ({
                         {
                             `${t('size')}: ${noteLength}`
                         }
+                        {isDirty && <span className='unsavedMarker'> {'\u2022'} {t('unsaved')}</span>}
                     </div>
                     <div className='noteToolbarExtras'>
                     {

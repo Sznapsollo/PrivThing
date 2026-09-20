@@ -109,7 +109,15 @@ export function useCodeMirrorSetup({
             toDOM() {
                 const spanID = `${this.position}_${this.position + this.element.length + 'hide[[]]'.length}`;
                 let wrap = document.createElement('span');
-                wrap.setAttribute('aria-hidden', 'true');
+                wrap.setAttribute('role', 'button');
+                wrap.setAttribute('tabindex', '0');
+                wrap.setAttribute('aria-label', 'hidden value, activate to copy it');
+                wrap.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        copyClickedValueRef.current((this.element || '').replaceAll('hide[[', '').replaceAll(']]', ''), 'copied');
+                    }
+                };
                 wrap.setAttribute('id', spanID);
                 wrap.onclick = (e) => {
                     copyClickedValueRef.current(

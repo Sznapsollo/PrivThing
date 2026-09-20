@@ -14,6 +14,7 @@ import { saveLocalStorage } from '../utils/utils';
 import { APP_VERSION } from '../utils/version';
 import { durationClock, fileNameTimestamp } from '../utils/dates';
 import { APP_THEME_DARK, APP_THEME_LIGHT, isSystemAppTheme, nextAppTheme } from '../utils/appTheme';
+import { keyActivate } from '../utils/a11y';
 import { MdDarkMode, MdLightMode, MdBrightnessAuto } from 'react-icons/md';
 import { allNotes, NoteRecord, setNotes } from '../storage/notesStore';
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
@@ -330,7 +331,15 @@ const HeaderComp = () => {
                             
                         </Form.Group>
                     </Navbar.Text>
-                    <div className='navLink' onClick={handleForgetSecret} ref={centerLabelref}></div>
+                    <div
+                        className='navLink'
+                        role="button"
+                        tabIndex={mainState.secret ? 0 : -1}
+                        aria-label={t("forgetPassword")}
+                        onKeyDown={keyActivate(handleForgetSecret)}
+                        onClick={handleForgetSecret}
+                        ref={centerLabelref}
+                    ></div>
                     <Nav>
                         <Dropdown>
                             <Dropdown.Toggle variant="dark">
@@ -352,6 +361,9 @@ const HeaderComp = () => {
                     <Nav>
                         <div
                             className='appThemeToggle'
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={keyActivate(handleAppThemeToggle)}
                             title={t("appTheme") + ': ' + t(appTheme === APP_THEME_DARK ? 'appThemeDark' : appTheme === APP_THEME_LIGHT ? 'appThemeLight' : 'appThemeSystem')}
                             onClick={handleAppThemeToggle}
                         >

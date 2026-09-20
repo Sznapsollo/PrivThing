@@ -995,7 +995,9 @@ const NoteComp = ({ editedItem }: Props) => {
                     </div>
                     <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive') + (isDirty ? ' notepadDirty' : '') + (showPreview && canPreview ? ' noteWithPreview' : '')} >
                         <Form.Group ref={scrollableRef} className='formGroup' style={{ overflow: 'auto' }} onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} onScroll={() => { rememberScrollPosition() }}>
-                            <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '') + (isDirty ? ' upperLabelDirty' : '')}>{t("note")}</label>
+                            <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '') + (isDirty ? ' upperLabelDirty' : '')}>
+                                {t("note")}{isDirty && <span className='unsavedMarker' title={t("unsavedChanges")}> {'\u2022'} {t("unsaved")}</span>}
+                            </label>
                             <div style={{ height: 100 }}>
                                 <CodeMirror
                                     value={note}

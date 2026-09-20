@@ -1,5 +1,6 @@
 import '../styles.css'
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
+import { keyActivate } from '../utils/a11y';;
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { ImInfo } from "react-icons/im";
 
@@ -17,7 +18,7 @@ const HintsComp = ({hint, closeHint, onAnotherHint}: Props) => {
             <div className='hintBarText'>
                 {
                     onAnotherHint && 
-                    <ImInfo title={t("anotherHint")} color={'#666666'} className='h5 itemTabIconRemove' onClick={(e) => {
+                    <ImInfo title={t("anotherHint")} aria-label={t("anotherHint")} role="button" tabIndex={0} onKeyDown={keyActivate(() => onAnotherHint())} color={'#666666'} className='h5 itemTabIconRemove' onClick={(e) => {
                         e.preventDefault();
                         onAnotherHint();
                     }}/>
@@ -26,7 +27,7 @@ const HintsComp = ({hint, closeHint, onAnotherHint}: Props) => {
                 {hint}
             </div>
             <div>
-                <IoCloseCircleOutline title={t("close")} color={'#666666'} className='h2 itemTabIconRemove' onClick={(e) => {
+                <IoCloseCircleOutline title={t("close")} aria-label={t("close")} role="button" tabIndex={0} onKeyDown={keyActivate(() => closeHint())} color={'#666666'} className='h2 itemTabIconRemove' onClick={(e) => {
                     e.preventDefault();
                     closeHint();
                 }}/>

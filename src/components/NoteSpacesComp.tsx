@@ -9,6 +9,7 @@ import { PiArrowsOutLineHorizontalFill } from "react-icons/pi";
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { getNewItem, saveLocalStorage, toPersistable } from '../utils/utils';
 import { pruneDrafts } from '../storage/draftsStore';
+import { keyActivate } from '../utils/a11y';
 import CompareComp from './note/CompareComp';
 import { VscDiff } from 'react-icons/vsc';
 import { useTranslation } from 'react-i18next';
@@ -128,7 +129,11 @@ const NoteSpacesComp = () => {
                         <div className='noteSpacesDivider'>
                             <VscDiff
                                 title={t("compareNotes")}
+                                aria-label={t("compareNotes")}
+                                role="button"
+                                tabIndex={0}
                                 className='h5 noteSpacesDividerIcon'
+                                onKeyDown={keyActivate(() => setComparePair([editedItemSpaces[index - 1], editedItemSpace]))}
                                 onClick={(e) => {
                                     e.preventDefault();
                                     setComparePair([editedItemSpaces[index - 1], editedItemSpace]);
@@ -139,18 +144,23 @@ const NoteSpacesComp = () => {
                     <div style={{flex: editedItemSpace.flex || 1, display: 'flex'}} className='noteSpaceContainer'>
                         <div style={{textAlign: 'center'}}>
                             {
-                                editedItemSpaces.length > 1 && (!editedItemSpace.flex || editedItemSpace.flex < 2) && <PiArrowsOutLineHorizontalFill title={t("stretch")} className='h4 itemTabIconResize' onClick={(e) => {
+                                editedItemSpaces.length > 1 && (!editedItemSpace.flex || editedItemSpace.flex < 2) && <PiArrowsOutLineHorizontalFill title={t("stretch")} aria-label={t("stretch")} role="button" tabIndex={0} onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: editedItemSpace}))} className='h4 itemTabIconResize' onClick={(e) => {
                                     e.preventDefault();
                                     mainDispatch({type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: editedItemSpace});
                                 }}/>
                             }
                             {
-                                editedItemSpaces.length > 1 && (editedItemSpace.flex && editedItemSpace.flex >= 2) && <PiArrowsInLineHorizontalFill title={t("shrink")} className='h4 itemTabIconResize' onClick={(e) => {
+                                editedItemSpaces.length > 1 && (editedItemSpace.flex && editedItemSpace.flex >= 2) && <PiArrowsInLineHorizontalFill title={t("shrink")} aria-label={t("shrink")} role="button" tabIndex={0} onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: editedItemSpace}))} className='h4 itemTabIconResize' onClick={(e) => {
                                     e.preventDefault();
                                     mainDispatch({type: MAIN_ACTIONS.SHRINK_NOTE_SPACE, payload: editedItemSpace});
                                 }}/>
                             }
                             <div style={{padding: 10}} className={'editItemSpace ' + (editedItemSpace.isActive ? 'isActive' : '')} 
+                                role="button"
+                                tabIndex={0}
+                                aria-pressed={editedItemSpace.isActive === true}
+                                aria-label={editedItemSpace.name || t("newNote")}
+                                onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: editedItemSpace}))}
                                 onClick={() => {
                                     mainDispatch({type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: editedItemSpace})
                                 }}
@@ -159,14 +169,14 @@ const NoteSpacesComp = () => {
                                 <div>
                                     {
                                         isFavourite(editedItemSpace) &&
-                                        <FaStar title={t("removeFromFavourites")} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
+                                        <FaStar title={t("removeFromFavourites")} aria-label={t("removeFromFavourites")} role="button" tabIndex={0} onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.REMOVE_FROM_FAVOURITES, payload: editedItemSpace}))} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
                                             e.preventDefault();
                                             mainDispatch({type: MAIN_ACTIONS.REMOVE_FROM_FAVOURITES, payload: editedItemSpace})
                                         }}/>
                                     }
                                     {
                                         !isFavourite(editedItemSpace) &&
-                                        <FaRegStar title={t("addToFavourites")} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
+                                        <FaRegStar title={t("addToFavourites")} aria-label={t("addToFavourites")} role="button" tabIndex={0} onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.ADD_TO_FAVOURITES, payload: editedItemSpace}))} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
                                             e.preventDefault();
                                             mainDispatch({type: MAIN_ACTIONS.ADD_TO_FAVOURITES, payload: editedItemSpace})
                                         }}/>
@@ -175,13 +185,16 @@ const NoteSpacesComp = () => {
                                 </div>
                             </div>
                             { 
-                                editedItemSpaces.length > 1 && <FiMinusCircle title={t("closeNoteSpace")} color={editedItemSpace.isActive ? '#ffffff' : '#000000'} className='h2 itemTabIconRemove' onClick={(e) => {
+                                editedItemSpaces.length > 1 && <FiMinusCircle title={t("closeNoteSpace")} aria-label={t("closeNoteSpace")} role="button" tabIndex={0} onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: editedItemSpace}))} color={editedItemSpace.isActive ? '#ffffff' : '#000000'} className='h2 itemTabIconRemove' onClick={(e) => {
                                     e.preventDefault();
                                     mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: editedItemSpace});
                                 }}/>
                             }
                             {
-                                (index === editedItemSpaces.length - 1) && <FiPlusCircle title={t("newNoteSpace")} className='h2 itemTabIconAdd' onClick={() => {
+                                (index === editedItemSpaces.length - 1) && <FiPlusCircle title={t("newNoteSpace")} aria-label={t("newNoteSpace")} role="button" tabIndex={0} onKeyDown={keyActivate(() => {
+                                    const payLoadItem: Item = getNewItem();
+                                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}, action: 'NEW_NOTE_SPACE'}});
+                                })} className='h2 itemTabIconAdd' onClick={() => {
                                     const payLoadItem: Item = getNewItem();
                                     mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}, action: 'NEW_NOTE_SPACE'}});
                                 }}/>

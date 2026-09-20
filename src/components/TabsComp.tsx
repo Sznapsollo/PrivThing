@@ -5,6 +5,7 @@ import { GenericContextMenuAction, GenericContextMenuItem, Item, Tab, TabContext
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { PiArrowsInLineVertical, PiArrowsOutLineVertical } from 'react-icons/pi';
 import { getNewItem, retrieveLocalStorage, saveLocalStorage, toPersistable } from '../utils/utils'
+import { keyActivate } from '../utils/a11y';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import GenericContextMenuComp from './GenericContextMenuComp';
 
@@ -184,13 +185,13 @@ const TabsComp = () => {
             <span>
                 {
                     (tabsDisplayMode !== 'SINGLELINE') &&
-                    <PiArrowsInLineVertical title={t("singleLineTabs")} className='h2 tabBarShrinkIcon' onClick={(e) => {
+                    <PiArrowsInLineVertical title={t("singleLineTabs")} aria-label={t("singleLineTabs")} role="button" tabIndex={0} onKeyDown={keyActivate(() => handleChangeTabsDisplayMode('SINGLELINE'))} className='h2 tabBarShrinkIcon' onClick={(e) => {
                         handleChangeTabsDisplayMode('SINGLELINE');
                     }}/>
                 }
                 {
                     (tabsDisplayMode === 'SINGLELINE') &&
-                    <PiArrowsOutLineVertical title={t("multiLineTabs")} className='h2 tabBarShrinkIcon' onClick={(e) => {
+                    <PiArrowsOutLineVertical title={t("multiLineTabs")} aria-label={t("multiLineTabs")} role="button" tabIndex={0} onKeyDown={keyActivate(() => handleChangeTabsDisplayMode('MULTILINE'))} className='h2 tabBarShrinkIcon' onClick={(e) => {
                         handleChangeTabsDisplayMode('MULTILINE');
                     }}/>
                 }
@@ -204,6 +205,15 @@ const TabsComp = () => {
                     draggable={true}
                     >
                         <div className={'itemTab ' + ((tabItem.isActive === true) ? ' selected': '') + ((tabItem.isDragged === true) ? ' isDragged': '')} 
+                            role="tab"
+                            tabIndex={0}
+                            aria-selected={tabItem.isActive === true}
+                            aria-label={tabItem.name || t("empty")}
+                            onKeyDown={keyActivate(() => {
+                                if(tabItem.isActive !== true) {
+                                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: tabItem, tab: tabItem}});
+                                }
+                            })}
                             onClick={() => {
                                 if(tabItem.isActive === true) {
                                     return
@@ -213,7 +223,7 @@ const TabsComp = () => {
                             onContextMenu={(e) => buildContextMenu(e, tabItem)}
                         >{tabItem.name || t("empty")} &nbsp; 
                         </div>
-                        <FiMinusCircle title={t("closeTab")} className='h2 itemTabIconRemove' onClick={(e) => {
+                        <FiMinusCircle title={t("closeTab")} aria-label={t("closeTab") + ': ' + (tabItem.name || t("empty"))} role="button" tabIndex={0} onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: getNewItem(), tab: tabItem, action: 'REMOVE_TAB'}}))} className='h2 itemTabIconRemove' onClick={(e) => {
                             e.preventDefault();
                             mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: getNewItem(), tab: tabItem, action: 'REMOVE_TAB'}});
                         }}/>
@@ -221,7 +231,10 @@ const TabsComp = () => {
                         
                 ))
             }
-            <FiPlusCircle title={t("newTab")} className='h2 itemTabIconAdd' onClick={() => {
+            <FiPlusCircle title={t("newTab")} aria-label={t("newTab")} role="button" tabIndex={0} onKeyDown={keyActivate(() => {
+                const payLoadItem: Item = getNewItem();
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
+            })} className='h2 itemTabIconAdd' onClick={() => {
                 const payLoadItem: Item = getNewItem();
                 mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
             }}/>

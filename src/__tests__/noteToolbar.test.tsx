@@ -78,3 +78,15 @@ describe('preview and full screen together', () => {
         expect(screen.queryByText('Wrap rows')).not.toBeNull();
     });
 });
+
+describe('signalling unsaved changes without relying on colour', () => {
+    it('says so in words when the note is dirty', () => {
+        render(<NoteToolbar {...props()} isDirty={true} />);
+        expect(screen.queryByText(/unsaved/)).not.toBeNull();
+    });
+
+    it('says nothing when the note is saved', () => {
+        render(<NoteToolbar {...props()} isDirty={false} />);
+        expect(screen.queryByText(/unsaved/)).toBeNull();
+    });
+});

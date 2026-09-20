@@ -9,6 +9,7 @@ import { BiDownArrow, BiRightArrow } from "react-icons/bi";
 import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { AlertData, Item, NotificationData } from '../model';
 import { sortPinnedFirst } from '../utils/pinned';
+import { keyActivate } from '../utils/a11y';
 import { allNotes } from '../storage/notesStore';
 import { FiPlusCircle } from 'react-icons/fi';
 import { getNewItem, retrieveLocalStorage } from '../utils/utils';
@@ -419,7 +420,13 @@ const ItemsComp = () => {
             {
                 favourites && favourites.length > 0 &&
                 <div>
-                    <div className='favouritesContainerHeader' onClick={(e) => {
+                    <div className='favouritesContainerHeader'
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={showFavourites === true}
+                        aria-label={t("favourites")}
+                        onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.TOGGLE_FAVOURITES}))}
+                        onClick={(e) => {
                         mainDispatch({type: MAIN_ACTIONS.TOGGLE_FAVOURITES});
                     }}>
                         <div style={{display: 'inline-block', paddingRight: 5}}>
@@ -457,7 +464,13 @@ const ItemsComp = () => {
             {
                 enableRecents && recents && recents.length > 0 &&
                 <div>
-                    <div className='recentsContainerHeader' onClick={(e) => {
+                    <div className='recentsContainerHeader'
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={showRecents === true}
+                        aria-label={t("recents")}
+                        onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.TOGGLE_RECENTS}))}
+                        onClick={(e) => {
                         mainDispatch({type: MAIN_ACTIONS.TOGGLE_RECENTS});
                     }}>
                         <div style={{display: 'inline-block', paddingRight: 5}}>
@@ -509,7 +522,12 @@ const ItemsComp = () => {
             }
             {
                 (scrollTop > 0) &&
-                <div style={{position: "absolute", bottom: 10, cursor: 'pointer'}} onClick={() => {
+                <div style={{position: "absolute", bottom: 10, cursor: 'pointer'}}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={t("scrollToTop")}
+                    onKeyDown={keyActivate(handleScrollTop)}
+                    onClick={() => {
                     handleScrollTop();
                 }}>
                     <BsFillArrowUpSquareFill className='h1' style={{height: 45, width: 45}}/>

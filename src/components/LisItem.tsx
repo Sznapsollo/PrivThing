@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Item } from '../model';
 import { isPinned, togglePinned } from '../utils/pinned';
 import { displayItemPath } from '../utils/itemDisplay';
+import { keyActivate } from '../utils/a11y';
 import { formatUtcDateTime } from '../utils/dates';
 import { AppState } from '../context/Context'
 import { GiPadlock } from 'react-icons/gi';
@@ -45,32 +46,37 @@ const LisItem = ({item, keyProp, editedItemPath, onPinnedChange, onDragStart, on
         }
     }
 
+    const openItem = (inNewSpace: boolean) => {
+        const payLoadItem: Item = {
+            name: item.name,
+            folder: item.folder,
+            path: item.path,
+            size: item.size,
+            fetchData: item.folder === 'localStorage' ? false : true,
+            rawNote: undefined
+        };
+        mainDispatch({
+            type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE,
+            payload: {
+                item: payLoadItem,
+                tab: {...payLoadItem, isNew: true},
+                action: inNewSpace ? 'NEW_NOTE_SPACE' : undefined
+            }
+        });
+    }
+
     let canDrag = !!onDragStart;
 
     return (
         <div className={"listItem " + itemCss} 
-            onClick={() => {
-                const payLoadItem: Item = {
-                    name: item.name,
-                    folder: item.folder,
-                    path: item.path,
-                    size: item.size,
-                    fetchData: item.folder === 'localStorage' ? false : true,
-                    rawNote: undefined
-                };
-                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}}});
-            }}
+            role="button"
+            tabIndex={0}
+            aria-label={item.name}
+            onKeyDown={keyActivate(() => openItem(false))}
+            onClick={() => openItem(false)}
             onContextMenu={(e) => {
                 e.preventDefault();
-                const payLoadItem: Item = {
-                    name: item.name,
-                    folder: item.folder,
-                    path: item.path,
-                    size: item.size,
-                    fetchData: item.folder === 'localStorage' ? false : true,
-                    rawNote: undefined
-                };
-                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: payLoadItem, tab: {...payLoadItem, isNew: true}, action: 'NEW_NOTE_SPACE'}});
+                openItem(true);
             }}
             onDragStart={(e) => onDragStart && onDragStart(e.currentTarget, keyProp)}
             onDragEnter={(e) => onDragEnter && onDragEnter(e.currentTarget, keyProp)}
@@ -80,6 +86,16 @@ const LisItem = ({item, keyProp, editedItemPath, onPinnedChange, onDragStart, on
             <div
                 className={'listItemPin' + (isPinned(item.path) ? ' listItemPinned' : '')}
                 title={isPinned(item.path) ? t("unpinFromTop") : t("pinToTop")}
+                role="button"
+                tabIndex={0}
+                aria-label={(isPinned(item.path) ? t("unpinFromTop") : t("pinToTop")) + ': ' + item.name}
+                aria-pressed={isPinned(item.path)}
+                onKeyDown={keyActivate(() => {
+                    togglePinned(item.path);
+                    if(onPinnedChange) {
+                        onPinnedChange();
+                    }
+                })}
                 onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
