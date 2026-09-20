@@ -32,7 +32,7 @@ import GenericContextMenuComp from './GenericContextMenuComp';
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
 
-const hideRegex = /hide\[\[(.*)\]\]/g;
+const hideRegex = /hide\[\[(.*?)\]\]/g;
 
 const initialContextMenu: NoteContextMenu = {
     show: false,
@@ -374,10 +374,12 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
                 return
             }
 
-            if (saveResults.encryptData && saveResults.secret) {
-                saveEncrypted(saveResults);
-            } else {
-                saveToLocalStorage(saveResults.fileName, note);
+            const saved = (saveResults.encryptData && saveResults.secret)
+                ? saveEncrypted(saveResults)
+                : saveToLocalStorage(saveResults.fileName, note);
+            if (!saved) {
+                setIsSavingAs(false);
+                return
             }
             mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: "localStorage/" + saveResults.fileName });
             mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
@@ -401,7 +403,10 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
             let privThingLSFiles = retrieveLocalStorage('privthing.files') || {};
             if (privThingLSFiles) {
                 delete privThingLSFiles[fileName]
-                saveLocalStorage('privthing.files', privThingLSFiles);
+                if (!saveLocalStorage('privthing.files', privThingLSFiles)) {
+                    mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("somethingWentWrong") } as AlertData })
+                    return
+                }
                 mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
                 var currTab = tabs.find((tab) => {
                     return tab.path === filePath && tab.isActive === true
@@ -427,17 +432,21 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
         mainDispatch({ type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: editedItem })
     }
 
-    const saveEncrypted = (saveResults: SaveAsResults) => {
+    const saveEncrypted = (saveResults: SaveAsResults): boolean => {
         if (saveResults.secret) {
             if (saveResults.saveAsType === "LOCAL_STORAGE") {
-                saveToLocalStorage(saveResults.fileName, encryptData(saveResults.secret));
-            } else {
-                saveToFile(saveResults.fileName, encryptData(saveResults.secret));
+                return saveToLocalStorage(saveResults.fileName, encryptData(saveResults.secret));
             }
+            saveToFile(saveResults.fileName, encryptData(saveResults.secret));
         }
+        return true
     }
 
-    const saveToLocalStorage = (fileNameLoc: string, fileData: string) => {
+    const showSaveFailed = () => {
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
+    }
+
+    const saveToLocalStorage = (fileNameLoc: string, fileData: string): boolean => {
         try {
             let privThingLSFiles = retrieveLocalStorage('privthing.files') || {};
             privThingLSFiles[fileNameLoc] = {
@@ -445,9 +454,14 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
                 lastModified: new Date().getTime(),
                 data: fileData
             }
-            saveLocalStorage('privthing.files', privThingLSFiles);
+            if (!saveLocalStorage('privthing.files', privThingLSFiles)) {
+                showSaveFailed();
+                return false
+            }
+            return true
         } catch (e) {
-            mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("somethingWentWrong") } as AlertData })
+            showSaveFailed();
+            return false
         }
     }
 
@@ -532,7 +546,9 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
         const fileData = isEncrypted ? encryptData(secretLoc) : note;
 
         if (isLocalStorageItem(editedItem)) {
-            saveToLocalStorage(editedItem.name, fileData);
+            if (!saveToLocalStorage(editedItem.name, fileData)) {
+                return
+            }
 
             mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
             mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
@@ -568,6 +584,10 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
                         isUpdating.current = true;
                         initializeEditedItem();
                     }
+                })
+                .catch(error => {
+                    console.warn('updateFileFromPath failed', error);
+                    mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
                 })
         }
     }
@@ -759,8 +779,10 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
                     let chartEnd = line.to;
 
                     let firstPart = note.substring(0, charStart);
-                    if (firstPart.endsWith('\n')) {
+                    if (firstPart.endsWith('\r\n')) {
                         firstPart = firstPart.substring(0, firstPart.length - 2);
+                    } else if (firstPart.endsWith('\n')) {
+                        firstPart = firstPart.substring(0, firstPart.length - 1);
                     }
                     setNote(firstPart + note.substring(chartEnd));
                 }

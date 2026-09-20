@@ -3,6 +3,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import i18n from './i18n';
 import AlertModalComp from './components/AlertModalComp';
+import ErrorBoundaryComp from './components/ErrorBoundaryComp';
 import HeaderComp from './components/HeaderComp'
 import HomeComp from './components/HomeComp';
 import SettingsComp from './components/SettingsComp';
@@ -30,12 +31,14 @@ function App() {
     return (
         <div className="App">
             <NotificationComp />
-            <BrowserRouter>
-                <HeaderComp />
-                <Routes>
-                    <Route path='/' element={<HomeComp/>} />
-                </Routes>
-            </BrowserRouter>
+            <ErrorBoundaryComp>
+                <BrowserRouter>
+                    <HeaderComp />
+                    <Routes>
+                        <Route path='/' element={<HomeComp/>} />
+                    </Routes>
+                </BrowserRouter>
+            </ErrorBoundaryComp>
             <SettingsComp />
             <AlertModalComp />
         </div>

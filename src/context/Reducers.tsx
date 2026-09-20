@@ -1,6 +1,6 @@
 
 import { AlertData, Item, NavigationItem, Tab, MainContextType, NotificationData, SearchContextType, SettingsContextType, Folder, ProcessingResult, EditItem, LooseObject, SearchQueryItem } from '../model'
-import { makeId, manageEditItemSpaces, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
+import { makeId, manageEditItemSpaces, manageHeaderTabs, retrieveLocalStorage, saveLocalStorage, toPersistable } from '../utils/utils'
 
 export enum MAIN_ACTIONS {
     ADD_TO_FAVOURITES = 'ADD_TO_FAVOURITES',
@@ -298,7 +298,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                     timeoutUpdatesHandles["privthing.pmTabs"] = null;
                 }
                 timeoutUpdatesHandles["privthing.pmTabs"] = setTimeout(() => {
-                    saveLocalStorage("privthing.pmTabs", state.tabs);
+                    saveLocalStorage("privthing.pmTabs", (state.tabs || []).map(toPersistable));
                 }, 100)
             }
             state.tabs = [...action.payload]

@@ -40,13 +40,23 @@ export function retrieveLocalStorage(lsName) {
 export function saveLocalStorage(lsName, data) {
     try {
         if(!window.localStorage) {
-            return null
+            return false
         }
         window.localStorage.setItem(lsName, btoa(encodeURIComponent(JSON.stringify(data))))
+        return true
     } catch(e) {
         var errMsg = 'saveStorageData error for: ' + lsName
-        console.warn(errMsg)
+        console.warn(errMsg, e)
+        return false
     }
+}
+
+export function toPersistable(item) {
+    if(!item) {
+        return item
+    }
+    const { rawNote, ...persistableItem } = item;
+    return persistableItem
 }
 
 export function removeLocalStorage(lsName) {

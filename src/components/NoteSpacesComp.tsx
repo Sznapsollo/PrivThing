@@ -7,7 +7,7 @@ import { FaRegStar, FaStar } from 'react-icons/fa';
 import { PiArrowsInLineHorizontalFill } from "react-icons/pi";
 import { PiArrowsOutLineHorizontalFill } from "react-icons/pi";
 import { MAIN_ACTIONS } from '../context/Reducers';
-import { getNewItem, saveLocalStorage } from '../utils/utils';
+import { getNewItem, saveLocalStorage, toPersistable } from '../utils/utils';
 import { useTranslation } from 'react-i18next';
 import GenericContextMenuComp from './GenericContextMenuComp';
 
@@ -28,7 +28,7 @@ const NoteSpacesComp = () => {
     useEffect(() => {
         if(!!editedItemSpaces) {
             const copiedEditedItems = editedItemSpaces.map((editedItemSpace) => {
-                return  {...editedItemSpace}
+                return  toPersistable(editedItemSpace)
             })
             if(!!copiedEditedItems) {
                 saveLocalStorage("privthing.pmeditedItemSpaces", copiedEditedItems);
@@ -39,7 +39,7 @@ const NoteSpacesComp = () => {
     useEffect(() => {
         if(!!favourites) {
             const copiedFavourites = favourites.map((favItem) => {
-                return  {...favItem}
+                return  toPersistable(favItem)
             })
             if(!!copiedFavourites) {
                 saveLocalStorage("privthing.pmfavourites", copiedFavourites);
@@ -50,7 +50,7 @@ const NoteSpacesComp = () => {
     useEffect(() => {
         if(!!recents) {
             const copiedRecents = recents.map((recentItem) => {
-                return  {...recentItem}
+                return  toPersistable(recentItem)
             })
             if(!!copiedRecents) {
                 saveLocalStorage("privthing.pmrecents", copiedRecents);

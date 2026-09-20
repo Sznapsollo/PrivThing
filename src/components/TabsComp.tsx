@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { GenericContextMenuAction, GenericContextMenuItem, Item, Tab, TabContextMenu } from '../model';
 import { FiPlusCircle, FiMinusCircle } from 'react-icons/fi';
 import { PiArrowsInLineVertical, PiArrowsOutLineVertical } from 'react-icons/pi';
-import { getNewItem, retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
+import { getNewItem, retrieveLocalStorage, saveLocalStorage, toPersistable } from '../utils/utils'
 import { MAIN_ACTIONS } from '../context/Reducers';
 import GenericContextMenuComp from './GenericContextMenuComp';
 
@@ -38,7 +38,7 @@ const TabsComp = () => {
     useEffect(() => {
         if(!!mainState.tabs) {
             const copiedTabs = mainState.tabs.map((tabItem) => {
-                return  {...tabItem}
+                return  toPersistable(tabItem)
             })
             if(!!copiedTabs) {
                 saveLocalStorage("privthing.pmTabs", copiedTabs);

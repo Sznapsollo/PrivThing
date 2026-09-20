@@ -174,8 +174,16 @@ const HeaderComp = () => {
                             }
                             let okResult = results.find((resultItem => resultItem.status === 0))
                             if(okResult) {
-                                saveLocalStorage('privthing.files', currentLocalStorage);
-                                mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
+                                if(saveLocalStorage('privthing.files', currentLocalStorage)) {
+                                    mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
+                                } else {
+                                    results.forEach((resultItem) => {
+                                        if(resultItem.status === 0) {
+                                            resultItem.result = t('dataNotSaved');
+                                            resultItem.status = -1;
+                                        }
+                                    });
+                                }
                             }
                             setProcessingResult(results);
                             setShowProcessingResult(true);
