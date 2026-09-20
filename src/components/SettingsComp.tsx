@@ -360,9 +360,6 @@ const SettingsComp = () => {
                             onChange={(e) => {
                                 setSettings({...settings, enableFileServer: e.target.checked});
                             }}
-                            onClick={(e) => {
-                                console.log('onclicked', e.target)
-                            }}
                         ></Form.Check>
                     </Form.Group>
                 </div>
@@ -378,9 +375,6 @@ const SettingsComp = () => {
                             className={'form-control-lg largeCheckbox'}
                             onChange={(e) => {
                                 setSettings({...settings, showHints: e.target.checked});
-                            }}
-                            onClick={(e) => {
-                                console.log('onclicked', e.target)
                             }}
                         ></Form.Check>
                     </Form.Group>
@@ -398,9 +392,6 @@ const SettingsComp = () => {
                             onChange={(e) => {
                                 setSettings({...settings, stretchNoteSpaceOnActive: e.target.checked});
                             }}
-                            onClick={(e) => {
-                                console.log('onclicked', e.target)
-                            }}
                         ></Form.Check>
                     </Form.Group>
                 </div>
@@ -416,9 +407,6 @@ const SettingsComp = () => {
                             className={'form-control-lg largeCheckbox'}
                             onChange={(e) => {
                                 setSettings({...settings, enableRecents: e.target.checked});
-                            }}
-                            onClick={(e) => {
-                                console.log('onclicked', e.target)
                             }}
                         ></Form.Check>
                     </Form.Group>

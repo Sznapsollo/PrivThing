@@ -45,10 +45,9 @@ const initialContextMenu: NoteContextMenu = {
 }
 interface Props {
     editedItem: EditItem,
-    isFullScreen?: boolean
 }
 
-const NoteComp = ({ editedItem, isFullScreen }: Props) => {
+const NoteComp = ({ editedItem }: Props) => {
 
     const { t } = useTranslation();
     interface SecretMeta {
@@ -1034,7 +1033,7 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
         cdmrrorExtensions.push(EditorView.lineWrapping);
     }
 
-    return (
+    const noteBody = (
         <div className='noteContainer'>
             {
                 isLoading &&
@@ -1174,7 +1173,7 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
                                 }
                             </div>
                             {
-                                !isFullScreen &&
+                                !showFullScreen &&
                                 <div className='bigScreenItem' style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center', justifyItems: 'center', alignContent: 'center' }}>
                                     <button className='btn btn-sm' onClick={() => { setShowFullScreen(true) }}>
                                         <FaMagnifyingGlass className='h3' />
@@ -1184,7 +1183,7 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
                                 </div>
                             }
                             {
-                                isFullScreen &&
+                                showFullScreen &&
                                 <Form.Check
                                     id="wrapWorkdsChbx"
                                     type="checkbox"
@@ -1290,34 +1289,38 @@ const NoteComp = ({ editedItem, isFullScreen }: Props) => {
                 noteContextMenu.show === true &&
                 <GenericContextMenuComp x={noteContextMenu.x} y={noteContextMenu.y} menuActions={noteContextMenu.menuActions} contextMenuAction={handleContextMenuAction} />
             }
-            {
-                showFullScreen &&
-                <Modal
-                    show={showFullScreen}
-                    onHide={() => { setShowFullScreen(false) }}
-                    backdrop="static"
-                    keyboard={false}
-                    fullscreen
-                    aria-labelledby="contained-modal-title-vcenter"
-                    centered
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-vcenter">
-                            {
-                                fileName
-                            }
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <NoteComp editedItem={editedItem} isFullScreen={true} />
-                    </Modal.Body>
-                    <Modal.Footer>
-                        {<Button className={'btn-lg'} variant='secondary' onClick={() => { setShowFullScreen(false) }}>{t('close')}</Button>}
-                    </Modal.Footer>
-                </Modal>
-            }
         </div>
     )
+
+    if (showFullScreen) {
+        return (
+            <Modal
+                show={showFullScreen}
+                onHide={() => { setShowFullScreen(false) }}
+                backdrop="static"
+                keyboard={false}
+                fullscreen
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                        {
+                            fileName
+                        }
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {noteBody}
+                </Modal.Body>
+                <Modal.Footer>
+                    {<Button className={'btn-lg'} variant='secondary' onClick={() => { setShowFullScreen(false) }}>{t('close')}</Button>}
+                </Modal.Footer>
+            </Modal>
+        )
+    }
+
+    return noteBody
 }
 
 export default NoteComp

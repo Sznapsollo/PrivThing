@@ -41,7 +41,7 @@ const LisItem = ({item, keyProp, editedItemPath, onDragStart, onDragEnter, onDro
         }
     }
 
-    let canDrag = onDragStart !== null;
+    let canDrag = !!onDragStart;
 
     return (
         <div className={"listItem " + itemCss} 

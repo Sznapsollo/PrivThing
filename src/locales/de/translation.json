@@ -7,6 +7,8 @@
     "changeSecret": "Kennwort ändern",
     "clearAllSettings": "Alle Einstellungen löschen",
     "clearAllSettingsConfirm": "Dadurch werden alle Einstellungen gelöscht. Möchten Sie fortfahren?",
+    "anotherHint": "Noch ein Hinweis",
+    "addToFavourites": "Zu Favoriten hinzufügen",
     "close": "Schließen",
     "closeNoteSpace": "Notizbereich schließen",
     "closeNoteSpacesButThis": "Andere Leerzeichen schließen",
@@ -58,6 +60,7 @@
     "excludeFromAllHint": "Zum Beispiel:  litterBin, oldLogs, forgetAboutIt",
     "exportLocalStorageItems": "Elemente exportieren",
     "fail": "Fehler",
+    "removeFromFavourites": "Aus Favoriten entfernen",
     "favourites": "Favoriten",
     "file": "Datei",
     "fileName": "Dateiname",
@@ -140,7 +143,7 @@
     "unhideHiddenText": "Versteckten Text einblenden",
     "unsavedChanges": "Es liegen ungespeicherte Änderungen vor. Möchten Sie fortfahren?",
     "unveilHiddenText": "Verborgenen Text für einen Moment anzeigen",
-    "Warning": "Warnung",
+    "warning": "Warnung",
     "wrapRows": "Zeilen umbrechen",
     "yes": "Ja"
 }

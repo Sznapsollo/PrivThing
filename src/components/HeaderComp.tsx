@@ -364,7 +364,7 @@ const HeaderComp = () => {
                             <li>...</li>
                         </ul>
                         <br/><br/>
-                        It is Open Source. Check it on GitHub - <a href="https://github.com/Sznapsollo/PrivThing" target="_blank">https://github.com/Sznapsollo/PrivThing</a>
+                        It is Open Source. Check it on GitHub - <a href="https://github.com/Sznapsollo/PrivThing" target="_blank" rel="noopener noreferrer">https://github.com/Sznapsollo/PrivThing</a>
                         <br/><br/>
                         I have always some list of things that I want to add here. I usually come up with them when I use this tool and something is missing. 
                         On GitHub there is a todo file committed with such points.

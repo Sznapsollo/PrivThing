@@ -110,7 +110,7 @@ const ItemsComp = () => {
                         setIsLoading(true);
                     }
                     let searchRQBody:{type: String, searchPhrase?: string} = {type: 'getListOfFiles'};
-                    if(searchState.searchContent === true && searchState.searchQuery && searchState.searchQuery.length > 3) {
+                    if(searchState.searchContent === true && searchState.searchQuery && searchState.searchQuery.length >= 3) {
                         searchRQBody.searchPhrase = searchQuery;
                     }
                     axios.post('actions', 
@@ -517,7 +517,7 @@ const ItemsComp = () => {
                 </div>
             }
             </div>
-            <div className='privThingGitHubInfo'>{t('privThingOpenSource')} <a href="https://github.com/Sznapsollo/PrivThing" target="_blank">{t('privThingGitHub')}</a></div>
+            <div className='privThingGitHubInfo'>{t('privThingOpenSource')} <a href="https://github.com/Sznapsollo/PrivThing" target="_blank" rel="noopener noreferrer">{t('privThingGitHub')}</a></div>
         </div>
     )
 }

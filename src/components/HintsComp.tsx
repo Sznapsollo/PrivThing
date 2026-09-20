@@ -17,7 +17,7 @@ const HintsComp = ({hint, closeHint, onAnotherHint}: Props) => {
             <div className='hintBarText'>
                 {
                     onAnotherHint && 
-                    <ImInfo title={t("closeNoteSpace")} color={'#666666'} className='h5 itemTabIconRemove' onClick={(e) => {
+                    <ImInfo title={t("anotherHint")} color={'#666666'} className='h5 itemTabIconRemove' onClick={(e) => {
                         e.preventDefault();
                         onAnotherHint();
                     }}/>
@@ -26,7 +26,7 @@ const HintsComp = ({hint, closeHint, onAnotherHint}: Props) => {
                 {hint}
             </div>
             <div>
-                <IoCloseCircleOutline title={t("closeNoteSpace")} color={'#666666'} className='h2 itemTabIconRemove' onClick={(e) => {
+                <IoCloseCircleOutline title={t("close")} color={'#666666'} className='h2 itemTabIconRemove' onClick={(e) => {
                     e.preventDefault();
                     closeHint();
                 }}/>

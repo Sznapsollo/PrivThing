@@ -130,14 +130,14 @@ const NoteSpacesComp = () => {
                                 <div>
                                     {
                                         isFavourite(editedItemSpace) &&
-                                        <FaStar title={t("shrink")} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
+                                        <FaStar title={t("removeFromFavourites")} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
                                             e.preventDefault();
                                             mainDispatch({type: MAIN_ACTIONS.REMOVE_FROM_FAVOURITES, payload: editedItemSpace})
                                         }}/>
                                     }
                                     {
                                         !isFavourite(editedItemSpace) &&
-                                        <FaRegStar title={t("shrink")} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
+                                        <FaRegStar title={t("addToFavourites")} className='h6' style={{margin: 0, padding: 0, marginRight: 5}} onClick={(e) => {
                                             e.preventDefault();
                                             mainDispatch({type: MAIN_ACTIONS.ADD_TO_FAVOURITES, payload: editedItemSpace})
                                         }}/>
