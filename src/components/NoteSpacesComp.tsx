@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import NoteComp from './NoteComp'
 import { AppState } from '../context/Context';
 import { EditItem, GenericContextMenuAction, GenericContextMenuItem, Item, NoteSpaceContextMenu } from '../model';
@@ -9,6 +9,8 @@ import { PiArrowsOutLineHorizontalFill } from "react-icons/pi";
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { getNewItem, saveLocalStorage, toPersistable } from '../utils/utils';
 import { pruneDrafts } from '../storage/draftsStore';
+import CompareComp from './note/CompareComp';
+import { VscDiff } from 'react-icons/vsc';
 import { useTranslation } from 'react-i18next';
 import GenericContextMenuComp from './GenericContextMenuComp';
 
@@ -25,6 +27,7 @@ const NoteSpacesComp = () => {
 
     const { mainState: { editedItemSpaces, favourites, recents }, mainDispatch} = AppState();
     const [ noteSpaceContextMenu, setNoteSpaceContextMenu ] = useState<NoteSpaceContextMenu>(initialNoteSpaceContextMenu)
+    const [ comparePair, setComparePair ] = useState<EditItem[] | null>(null)
 
     useEffect(() => {
         if(!!editedItemSpaces) {
@@ -116,9 +119,24 @@ const NoteSpacesComp = () => {
     return (
         <div className='notesSpacesContainer'>
             {noteSpaceContextMenu.show === true && <GenericContextMenuComp x={noteSpaceContextMenu.x} y={noteSpaceContextMenu.y} menuActions={noteSpaceContextMenu.menuActions} contextMenuAction={handleContextMenuAction}/>}
+            {comparePair && <CompareComp left={comparePair[0]} right={comparePair[1]} onClose={() => setComparePair(null)}/>}
             {
                 editedItemSpaces.map((editedItemSpace, index) => (
-                    <div key={index} style={{flex: editedItemSpace.flex || 1, display: 'flex'}} className='noteSpaceContainer'>
+                    <Fragment key={editedItemSpace.spaceId || index}>
+                    {
+                        index > 0 &&
+                        <div className='noteSpacesDivider'>
+                            <VscDiff
+                                title={t("compareNotes")}
+                                className='h5 noteSpacesDividerIcon'
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setComparePair([editedItemSpaces[index - 1], editedItemSpace]);
+                                }}
+                            />
+                        </div>
+                    }
+                    <div style={{flex: editedItemSpace.flex || 1, display: 'flex'}} className='noteSpaceContainer'>
                         <div style={{textAlign: 'center'}}>
                             {
                                 editedItemSpaces.length > 1 && (!editedItemSpace.flex || editedItemSpace.flex < 2) && <PiArrowsOutLineHorizontalFill title={t("stretch")} className='h4 itemTabIconResize' onClick={(e) => {
@@ -171,6 +189,7 @@ const NoteSpacesComp = () => {
                         </div>
                         <NoteComp editedItem={editedItemSpace} />
                     </div>
+                    </Fragment>
                 ))
             }
         </div>

@@ -894,3 +894,86 @@ label.upperLabel.upperLabelDirty {
     color: #777777;
     font-size: 11px;
 }
+
+.compareSummary {
+    color: #777777;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.compareAddedCount {
+    color: #2a7a2a;
+}
+
+.compareRemovedCount {
+    color: #b02a2a;
+}
+
+.compareSame {
+    color: #666666;
+    padding: 10px 0 15px 0;
+    text-align: center;
+}
+
+.compareDiff {
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    overflow-x: auto;
+}
+
+.compareLine {
+    display: flex;
+    gap: 8px;
+    padding: 1px 6px;
+    white-space: pre;
+}
+
+.compareLine-added {
+    background-color: #e6ffec;
+}
+
+.compareLine-removed {
+    background-color: #ffebe9;
+}
+
+.compareLineNumber {
+    color: #aaaaaa;
+    flex: 0 0 auto;
+    text-align: right;
+    user-select: none;
+    width: 34px;
+}
+
+.compareLineSign {
+    flex: 0 0 auto;
+    width: 10px;
+}
+
+.compareLineText {
+    flex: 1;
+    min-width: 0;
+}
+
+.noteSpacesDivider {
+    flex: 0 0 0;
+    overflow: visible;
+    position: relative;
+    width: 0;
+}
+
+.noteSpacesDividerIcon {
+    color: #9aa7b4;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: color .1s ease-in-out;
+    z-index: 2;
+}
+
+.noteSpacesDividerIcon:hover {
+    color: #002f5f;
+}

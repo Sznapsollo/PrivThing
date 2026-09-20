@@ -20,6 +20,7 @@ import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { useCodeMirrorSetup } from './note/useCodeMirrorSetup';
 import MarkdownPreview from './note/MarkdownPreview';
+import { registerNoteText, unregisterNoteText } from './note/noteTexts';
 import { isMarkdownNote } from '../utils/markdown';
 import { hideRegex } from './note/hideRegex';
 import NoteModals from './note/NoteModals';
@@ -150,6 +151,15 @@ const NoteComp = ({ editedItem }: Props) => {
     useEffect(() => {
         validateButtonsState();
     }, [note]);
+
+    const noteRefForCompare = useRef(note);
+    noteRefForCompare.current = note;
+
+    useEffect(() => {
+        const spaceId = editedItem.spaceId;
+        registerNoteText(spaceId, () => noteRefForCompare.current);
+        return () => unregisterNoteText(spaceId)
+    }, [editedItem.spaceId]);
 
     useEffect(() => {
         if (!editedItem.spaceId || isEncrypted || isLoading) {
