@@ -93,6 +93,10 @@ const NoteComp = ({ editedItem }: Props) => {
         }
     }
 
+    const encryptData = async (secret: string): Promise<string> => {
+        return await encryptNote(note, secret)
+    };
+
     const isMac = window.navigator.userAgent.indexOf('Mac') >= 0;
 
     useEffect(() => {
@@ -361,7 +365,7 @@ const NoteComp = ({ editedItem }: Props) => {
         setWrapWords(prev => !prev);
     }
 
-    const handleSaveAs = (saveResults: SaveAsResults): void => {
+    const handleSaveAs = async (saveResults: SaveAsResults): Promise<void> => {
         if (!canSaveFile(saveResults)) {
             return
         }
@@ -377,7 +381,7 @@ const NoteComp = ({ editedItem }: Props) => {
             }
 
             const saved = (saveResults.encryptData && saveResults.secret)
-                ? saveEncrypted(saveResults)
+                ? await saveEncrypted(saveResults)
                 : saveToLocalStorage(saveResults.fileName, note);
             if (!saved) {
                 setIsSavingAs(false);
@@ -387,7 +391,7 @@ const NoteComp = ({ editedItem }: Props) => {
             mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
         } else {
             if (saveResults.encryptData && saveResults.secret) {
-                saveEncrypted(saveResults);
+                await saveEncrypted(saveResults);
             } else {
                 saveToFile(saveResults.fileName, note);
             }
@@ -434,12 +438,13 @@ const NoteComp = ({ editedItem }: Props) => {
         mainDispatch({ type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: editedItem })
     }
 
-    const saveEncrypted = (saveResults: SaveAsResults): boolean => {
+    const saveEncrypted = async (saveResults: SaveAsResults): Promise<boolean> => {
         if (saveResults.secret) {
+            const encrypted = await encryptData(saveResults.secret);
             if (saveResults.saveAsType === "LOCAL_STORAGE") {
-                return saveToLocalStorage(saveResults.fileName, encryptData(saveResults.secret));
+                return saveToLocalStorage(saveResults.fileName, encrypted)
             }
-            saveToFile(saveResults.fileName, encryptData(saveResults.secret));
+            saveToFile(saveResults.fileName, encrypted);
         }
         return true
     }
@@ -530,7 +535,7 @@ const NoteComp = ({ editedItem }: Props) => {
         }
     }
 
-    const updateFile = (callback?: () => void) => {
+    const updateFile = async (callback?: () => void) => {
         if (!canUpdateFile(editedItem)) {
             return
         }
@@ -545,7 +550,7 @@ const NoteComp = ({ editedItem }: Props) => {
             secretLoc = secretUpdateRef.current;
         }
 
-        const fileData = isEncrypted ? encryptData(secretLoc) : note;
+        const fileData = isEncrypted ? await encryptData(secretLoc) : note;
 
         if (isLocalStorageItem(editedItem)) {
             if (!saveToLocalStorage(editedItem.name, fileData)) {
@@ -594,12 +599,8 @@ const NoteComp = ({ editedItem }: Props) => {
         }
     }
 
-    const encryptData = (secret: string): string => {
-        return encryptNote(note, secret);
-    };
-
-    const decryptData = () => {
-        let data;
+    const decryptData = async () => {
+        let data: string | undefined;
         let rawData = rawNote.current;
         let encrypted = false;
         try {
@@ -613,7 +614,7 @@ const NoteComp = ({ editedItem }: Props) => {
                     return
                 }
 
-                data = decryptNote(rawData, secret);
+                data = await decryptNote(rawData, secret);
             } else {
                 data = rawData;
             }
