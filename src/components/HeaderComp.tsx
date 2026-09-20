@@ -12,6 +12,7 @@ import ConfirmationComp from './ConfirmationComp';
 import moment from 'moment';
 import '../styles.css';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
+import { APP_VERSION } from '../utils/version';
 import ResultsComp from './ResultsComp';
 import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
 
@@ -218,7 +219,7 @@ const HeaderComp = () => {
                             <div style={{display: 'flex', flexDirection: 'row'}}>
                                 <div style={{paddingTop: 3}}><i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="imageRotateHorizontal d-inline-block align-top" alt="" /></i></div>
                                 <div className='navbarTitle'>
-                                    <div>{t("privThing")}</div>
+                                    <div>{t("privThing")} <span className='navbarVersion'>v{APP_VERSION}</span></div>
                                     <div style={{fontSize: 10, color: '#ffffff80', margin: '-4px 0 0 0'}}>{t('privThingMemo')}</div>
                                 </div>
                             </div>

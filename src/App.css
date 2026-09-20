@@ -20,3 +20,10 @@ a {
   padding: 10px;
   white-space: pre-wrap;
 }
+
+.navbarVersion {
+  color: #ffffff80;
+  font-size: 10px;
+  font-weight: normal;
+  vertical-align: super;
+}

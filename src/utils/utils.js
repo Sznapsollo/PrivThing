@@ -1,28 +1,3 @@
-import Cookies from 'universal-cookie';
-
-export function saveCookie(cookieName, cookieData) {
-    try {
-        const cookies = new Cookies();
-        cookies.set(cookieName, btoa(encodeURIComponent(JSON.stringify(cookieData))), { path: '/' });
-    } catch(e) {
-        console.warn("saveCookie error")
-    }
-}
-
-export function retrieveCookie(cookieName) {
-    try {
-        const cookies = new Cookies();
-        let cookieData = cookies.get(cookieName);
-        if(!cookieData) {
-            return null
-        }
-        return JSON.parse(decodeURIComponent(atob(cookieData)));
-    } catch(e) {
-        console.warn("retrieveCookie error")
-    }
-    return null
-}
-
 export function retrieveLocalStorage(lsName) {
     try {
         if(!window.localStorage) {

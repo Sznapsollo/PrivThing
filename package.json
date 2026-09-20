@@ -1,6 +1,6 @@
 {
   "name": "privthing",
-  "version": "0.5.0",
+  "version": "1.0.31",
   "private": true,
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.1",
@@ -17,14 +17,10 @@
     "@types/react-dom": "^18.2.14",
     "@uiw/react-codemirror": "^4.21.20",
     "axios": "^1.6.2",
-    "boostrap": "^2.0.0",
     "bootstrap": "^5.3.2",
     "crypto-js": "^4.1.1",
-    "http-proxy-middleware": "^2.0.6",
     "i18next": "^23.6.0",
-    "install": "^0.13.0",
     "moment": "^2.29.4",
-    "npm": "^10.2.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.1",
     "react-dom": "^18.2.0",
@@ -35,20 +31,18 @@
     "react-use": "^17.4.0",
     "thememirror": "^2.0.1",
     "typescript": "^4.9.5",
-    "universal-cookie": "^6.1.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "REACT_APP_VERSION=$npm_package_version react-scripts start",
+    "build": "REACT_APP_VERSION=$npm_package_version react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "eject": "react-scripts eject",
+    "lint": "eslint src --ext .ts,.tsx,.js",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,json,css}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,json,css}\"",
+    "typecheck": "tsc --noEmit",
+    "release": "node scripts/release.js"
   },
   "browserslist": {
     "production": [
@@ -61,5 +55,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "prettier": "^3.9.8"
   }
 }

@@ -4,6 +4,7 @@ import { Modal, Button, Form, InputGroup } from 'react-bootstrap'
 import ConfirmationComp from './ConfirmationComp';
 import { useTranslation } from 'react-i18next'
 import { removeLocalStorage, saveLocalStorage } from '../utils/utils'
+import { APP_VERSION } from '../utils/version'
 import moment from 'moment';
 import { MAIN_ACTIONS, SETTINGS_ACTIONS } from '../context/Reducers';
 
@@ -60,7 +61,7 @@ const SettingsComp = () => {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                {t("settings")} <span style={{fontSize: 8, color: '#cecece'}}>version: 1.0.30</span>
+                {t("settings")} <span style={{fontSize: 8, color: '#cecece'}}>version: {APP_VERSION}</span>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>

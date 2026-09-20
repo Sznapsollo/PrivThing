@@ -8,7 +8,6 @@ import '../styles.css'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Form, Button, Modal } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
-import CryptoJS from 'crypto-js';
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
@@ -21,6 +20,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
+import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
 import moment from 'moment';
 import { Alert } from '@mui/material';
 import { MAIN_ACTIONS } from '../context/Reducers';
@@ -592,12 +592,7 @@ const NoteComp = ({ editedItem }: Props) => {
     }
 
     const encryptData = (secret: string): string => {
-        const encryptedData = CryptoJS.AES.encrypt(
-            JSON.stringify(note),
-            secret
-        ).toString();
-
-        return 'privthingencrypted_' + encryptedData;
+        return encryptNote(note, secret);
     };
 
     const decryptData = () => {
@@ -605,14 +600,7 @@ const NoteComp = ({ editedItem }: Props) => {
         let rawData = rawNote.current;
         let encrypted = false;
         try {
-            encrypted = false;
-            if (editedItem.name?.toLocaleLowerCase()?.includes('.prvthng')) {
-                encrypted = true;
-            }
-            if (rawData.startsWith('privthingencrypted_')) {
-                encrypted = true;
-                rawData = rawData.replace('privthingencrypted_', '');
-            }
+            encrypted = isEncryptedNote(rawData, editedItem.name);
 
             if (encrypted === true) {
                 setIsEncrypted(true);
@@ -622,8 +610,7 @@ const NoteComp = ({ editedItem }: Props) => {
                     return
                 }
 
-                const bytes = CryptoJS.AES.decrypt(rawData, secret);
-                data = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                data = decryptNote(rawData, secret);
             } else {
                 data = rawData;
             }
