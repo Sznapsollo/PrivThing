@@ -13,9 +13,11 @@ import '../styles.css';
 import { saveLocalStorage } from '../utils/utils';
 import { APP_VERSION } from '../utils/version';
 import { durationClock, fileNameTimestamp } from '../utils/dates';
+import { APP_THEME_DARK, APP_THEME_LIGHT, isSystemAppTheme, nextAppTheme } from '../utils/appTheme';
+import { MdDarkMode, MdLightMode, MdBrightnessAuto } from 'react-icons/md';
 import { allNotes, NoteRecord, setNotes } from '../storage/notesStore';
 import ResultsComp from './ResultsComp';
-import { MAIN_ACTIONS, SEARCH_ACTIONS } from '../context/Reducers';
+import { MAIN_ACTIONS, SEARCH_ACTIONS, SETTINGS_ACTIONS } from '../context/Reducers';
 
 let forgetSecretTimeThreshold: Date | undefined = undefined;
 let forgetTimer: ReturnType<typeof setTimeout> | null, forgetDebounceTimer: ReturnType<typeof setTimeout> | null, countDownTimer: ReturnType<typeof setInterval> | null;
@@ -41,7 +43,8 @@ const HeaderComp = () => {
     }
 
     const { t } = useTranslation();
-    const { searchState, mainState, mainDispatch, searchDispatch, settingsState: {forgetSecretMode, forgetSecretTime} } = AppState();
+    const { searchState, mainState, mainDispatch, searchDispatch, settingsDispatch, settingsState } = AppState();
+    const { forgetSecretMode, forgetSecretTime, appTheme } = settingsState;
     const [ processingResult , setProcessingResult ] = useState<ProcessingResult[]>([])
     const [ showProcessingResult, setShowProcessingResult ] = useState(false);
     const [ showAbout, setShowAbout ] = useState(false);
@@ -126,6 +129,12 @@ const HeaderComp = () => {
         var timeDiff = forgetSecretTimeThreshold.getTime() - new Date().getTime();
         let msg = t("passwordWillExpireIn") + ' ' + durationClock(timeDiff, false) + '<br>' + t("forgetPassword");
         setCenterLabelContent(msg);
+    }
+
+    const handleAppThemeToggle = () => {
+        const updatedSettings = {...settingsState, appTheme: nextAppTheme(appTheme)};
+        settingsDispatch({type: SETTINGS_ACTIONS.UPDATE_SETTINGS, payload: updatedSettings});
+        saveLocalStorage("privthing.pmSettings", updatedSettings);
     }
 
     const handleExportLocalStorageItems = async () => {
@@ -303,6 +312,17 @@ const HeaderComp = () => {
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
+                    </Nav>
+                    <Nav>
+                        <div
+                            className='appThemeToggle'
+                            title={t("appTheme") + ': ' + t(appTheme === APP_THEME_DARK ? 'appThemeDark' : appTheme === APP_THEME_LIGHT ? 'appThemeLight' : 'appThemeSystem')}
+                            onClick={handleAppThemeToggle}
+                        >
+                            {appTheme === APP_THEME_DARK && <MdDarkMode />}
+                            {appTheme === APP_THEME_LIGHT && <MdLightMode />}
+                            {isSystemAppTheme(appTheme) && <MdBrightnessAuto />}
+                        </div>
                     </Nav>
                     <Nav>
                         <Dropdown>

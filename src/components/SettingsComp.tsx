@@ -156,6 +156,23 @@ const SettingsComp = () => {
                     </Form.Group>
                     <br/>
                     <Form.Group className='formGroup'>
+                        <label className='upperLabel'>{t("appTheme")}</label>
+                        <Form.Control
+                            as="select"
+                            name="appTheme"
+                            value={settings.appTheme || 'LIGHT'}
+                            className='form-control-lg'
+                            onChange={(e) => {
+                                setSettings({...settings, appTheme: e.target.value});
+                            }}
+                        >
+                            <option value="LIGHT">{t('appThemeLight')}</option>
+                            <option value="DARK">{t('appThemeDark')}</option>
+                            <option value="SYSTEM">{t('appThemeSystem')}</option>
+                        </Form.Control>
+                    </Form.Group>
+                    <br/>
+                    <Form.Group className='formGroup'>
                         <label className='upperLabel'>{t("codeMirrorTheme")}</label>
                         <Form.Control 
                             as="select" 

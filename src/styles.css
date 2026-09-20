@@ -977,3 +977,133 @@ label.upperLabel.upperLabelDirty {
 .noteSpacesDividerIcon:hover {
     color: #002f5f;
 }
+
+.appDark body,
+.appDark .App {
+    background-color: #1b1f24;
+    color: #d5dae0;
+}
+
+.appDark .homeContainer {
+    background-color: #1b1f24;
+}
+
+.appDark .itemTab {
+    background-color: #2a3038;
+    color: #d5dae0;
+}
+
+.appDark .contextMenu {
+    background: #2a3038;
+    border-color: #3a424c;
+    color: #d5dae0;
+}
+
+.appDark .contextMenuItem:hover {
+    background: #3a424c;
+}
+
+.appDark .hintBar {
+    background-color: #22272e;
+}
+
+.appDark .hintBarText {
+    color: #9aa7b4;
+}
+
+.appDark .upperLabel {
+    color: #9aa7b4;
+}
+
+.appDark .markdownPreview {
+    background-color: #22272e;
+    border-color: #3a424c;
+    color: #d5dae0;
+}
+
+.appDark .markdownPreview h1,
+.appDark .markdownPreview h2,
+.appDark .markdownPreview h3 {
+    border-bottom-color: #3a424c;
+}
+
+.appDark .markdownPreview pre,
+.appDark .markdownPreview code {
+    background-color: #2a3038;
+}
+
+.appDark .markdownPreview blockquote {
+    border-left-color: #3a424c;
+    color: #9aa7b4;
+}
+
+.appDark .markdownPreview th,
+.appDark .markdownPreview td {
+    border-color: #3a424c;
+}
+
+.appDark .quickOpenItemSelected {
+    background-color: #2f3b4a;
+}
+
+.appDark .quickOpenFolder,
+.appDark .quickOpenEmpty,
+.appDark .quickOpenHint {
+    color: #8b97a4;
+}
+
+.appDark .quickOpenHint {
+    border-top-color: #3a424c;
+}
+
+.appDark .compareDiff {
+    border-color: #3a424c;
+}
+
+.appDark .compareLine-added {
+    background-color: #12261a;
+}
+
+.appDark .compareLine-removed {
+    background-color: #2d1618;
+}
+
+.appDark .compareSame,
+.appDark .compareSummary {
+    color: #9aa7b4;
+}
+
+.appDark .trashedNote {
+    border-bottom-color: #3a424c;
+}
+
+.appDark .passwordStrengthTrack {
+    background-color: #3a424c;
+}
+
+.appDark .oldNotesBackupInfo,
+.appDark .passwordStrengthLabel,
+.appDark .trashedNoteWhen {
+    color: #9aa7b4;
+}
+
+.appDark .privThingGitHubInfo {
+    color: #9aa7b4;
+}
+
+.appDark .noteSpacesDividerIcon:hover {
+    color: #7aa7cc;
+}
+
+.appThemeToggle {
+    align-items: center;
+    color: #ffffffcc;
+    cursor: pointer;
+    display: flex;
+    font-size: 22px;
+    padding: 0 10px;
+}
+
+.appThemeToggle:hover {
+    color: #ffffff;
+}

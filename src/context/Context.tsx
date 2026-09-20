@@ -32,6 +32,7 @@ export const settingsInitialStateBaseline = {
   showHints: true,
   enableRecents: true,
   stretchNoteSpaceOnActive: false,
+  appTheme: 'SYSTEM',
   codeMirrorTheme: 'none',
   customThemeColors: {
         variant: 'light',

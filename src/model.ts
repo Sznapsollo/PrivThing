@@ -119,6 +119,7 @@ export interface SearchQueryItem {
 export interface SettingsContextType {
     forgetSecretMode: string, // IMMEDIATE, AFTER_TIME, NEVER
     forgetSecretTime: number,
+    appTheme?: string, // LIGHT, DARK
     codeMirrorTheme?: string,
     excludeFromAll?: string,
     enableFileServer?: boolean,
