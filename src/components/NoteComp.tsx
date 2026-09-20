@@ -5,7 +5,7 @@ import { FaMagnifyingGlass } from "react-icons/fa6";
 
 import '../styles.css'
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Alert, Form, Button, Modal } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context'
@@ -14,24 +14,20 @@ import SecretComp from './SecretComp';
 import { AlertData, EditItem, Item, SaveAsResults, GenericContextMenu, GenericContextMenuItem, GenericContextMenuAction, NoteContextMenu } from '../model';
 
 import Dropdown from 'react-bootstrap/Dropdown';
-import CodeMirror, { BlockInfo, ReactCodeMirrorRef, lineNumbers, Extension, SelectionRange, EditorSelection, Prec } from '@uiw/react-codemirror';
-import { Decoration, DecorationSet, EditorView, MatchDecorator, WidgetType, ViewPlugin, ViewUpdate, keymap } from "@codemirror/view"
-import { javascript } from '@codemirror/lang-javascript';
+import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
+import { getProvider, localStorageItem } from '../storage';
 import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
-import axios from 'axios';
-import { amy, ayuLight, barf, bespin, birdsOfParadise, boysAndGirls, clouds, cobalt, coolGlow, dracula, espresso, noctisLilac, rosePineDawn, smoothy, solarizedLight, tomorrow } from 'thememirror';
-import { createCustomTheme } from '../utils/customTheme'
+import { useCodeMirrorSetup } from './note/useCodeMirrorSetup';
+import { hideRegex } from './note/hideRegex';
 import GenericContextMenuComp from './GenericContextMenuComp';
 
 var scrollNoteHandle: ReturnType<typeof setTimeout> | null = null;
 var isIntroducedGlb = retrieveLocalStorage("privthing.isIntroduced");
-
-const hideRegex = /hide\[\[(.*?)\]\]/g;
 
 const initialContextMenu: NoteContextMenu = {
     show: false,
@@ -168,7 +164,13 @@ const NoteComp = ({ editedItem }: Props) => {
         }
     }
 
-    const initializeEditedItem = () => {
+    const reportMissingFile = () => {
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '') } as AlertData })
+        let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
+        mainDispatch({ type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs });
+    }
+
+    const initializeEditedItem = async () => {
         if (isUpdating.current !== true) {
             setInitialState();
         }
@@ -177,73 +179,25 @@ const NoteComp = ({ editedItem }: Props) => {
         setFilePath(editedItem.path || '');
         setFileName(editedItem.name || defaultFileName);
 
-        if (isLocalStorageItem(editedItem)) {
-            if (isUpdating.current !== true) {
-                // will cause flickker so no on update
-                setIsLoading(true);
-            }
-            try {
-                let localStorageFiles = retrieveLocalStorage('privthing.files');
-                if (localStorageFiles && localStorageFiles[editedItem.name] != null && localStorageFiles[editedItem.name].data != null) {
-                    setRawNote(localStorageFiles[editedItem.name].data);
-                } else if (!!editedItem.path) {
-                    mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '') } as AlertData })
-                    // mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("error"), message: t("fileNotFound")} as AlertData})
-                    let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
-                    mainDispatch({ type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs });
-                }
-                initializeCompleted();
-            } catch (e) {
-                console.warn('localStorage read operation error: ', e);
-                mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '') } as AlertData })
-                initializeCompleted();
-            }
-            setIsLoading(false);
-        } else if (isExternalFileItem(editedItem)) {
-            // NJ load and setEncrypted data
-            if (isUpdating.current !== true) {
-                // will cause flickker so no on update
-                setIsLoading(true);
-            }
-
-            axios.post('actions',
-                JSON.stringify({ type: 'retrieveFileFromPath', data: editedItem.path }),
-                {
-                    headers: {
-                        "Content-Type": 'application/json',
-                    },
-                }
-            )
-                .then(response => {
-                    let data = response.data
-                    setIsLoading(false);
-                    if (data?.status !== 0) {
-                        // console.warn("Actions response", data);
-                        return
-                    }
-                    if (data.data == null && !!editedItem.path) {
-                        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '') } as AlertData })
-                        // mainDispatch({type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: {show: true, header: t("error"), message: t("fileNotFound")} as AlertData})
-                        let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
-                        mainDispatch({ type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs });
-                    }
-                    if (typeof data.data === "string") {
-                        setRawNote(data.data);
-                    }
-                    initializeCompleted();
-                })
-                .catch(function (error) {
-                    setIsLoading(false);
-                    console.warn('Fetch operation error: ', error.message);
-                    mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '') } as AlertData })
-                    initializeCompleted();
-                });
-        } else {
+        if (isUpdating.current !== true) {
+            // will cause flickker so no on update
             setIsLoading(true);
-            setRawNote(editedItem.rawNote || '');
-            setIsLoading(false);
-            initializeCompleted();
         }
+
+        try {
+            const result = await getProvider(editedItem).read(editedItem);
+            if (result.found && result.data != null) {
+                setRawNote(result.data);
+            } else if (!!editedItem.path) {
+                reportMissingFile();
+            }
+        } catch (e) {
+            console.warn('Read operation error: ', e);
+            mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '') } as AlertData })
+        }
+
+        setIsLoading(false);
+        initializeCompleted();
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -382,7 +336,7 @@ const NoteComp = ({ editedItem }: Props) => {
 
             const saved = (saveResults.encryptData && saveResults.secret)
                 ? await saveEncrypted(saveResults)
-                : saveToLocalStorage(saveResults.fileName, note);
+                : await saveToLocalStorage(saveResults.fileName, note);
             if (!saved) {
                 setIsSavingAs(false);
                 return
@@ -399,27 +353,20 @@ const NoteComp = ({ editedItem }: Props) => {
         setIsSavingAs(false);
     }
 
-    const handleDeleteItem = () => {
+    const handleDeleteItem = async () => {
         setAskDelete(false)
-        if (!isLocalStorageItem(editedItem)) {
+        if (!getProvider(editedItem).canDelete) {
             return
         }
 
         try {
-            let privThingLSFiles = retrieveLocalStorage('privthing.files') || {};
-            if (privThingLSFiles) {
-                delete privThingLSFiles[fileName]
-                if (!saveLocalStorage('privthing.files', privThingLSFiles)) {
-                    mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("somethingWentWrong") } as AlertData })
-                    return
-                }
-                mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
-                var currTab = tabs.find((tab) => {
-                    return tab.path === filePath && tab.isActive === true
-                })
-                if (currTab) {
-                    mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: { item: {}, tab: currTab, action: 'REMOVE_TAB' } });
-                }
+            await getProvider(editedItem).remove(editedItem);
+            mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
+            var currTab = tabs.find((tab) => {
+                return tab.path === filePath && tab.isActive === true
+            })
+            if (currTab) {
+                mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: { item: {}, tab: currTab, action: 'REMOVE_TAB' } });
             }
         } catch (e) {
             mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("somethingWentWrong") } as AlertData })
@@ -442,7 +389,7 @@ const NoteComp = ({ editedItem }: Props) => {
         if (saveResults.secret) {
             const encrypted = await encryptData(saveResults.secret);
             if (saveResults.saveAsType === "LOCAL_STORAGE") {
-                return saveToLocalStorage(saveResults.fileName, encrypted)
+                return await saveToLocalStorage(saveResults.fileName, encrypted)
             }
             saveToFile(saveResults.fileName, encrypted);
         }
@@ -453,18 +400,9 @@ const NoteComp = ({ editedItem }: Props) => {
         mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
     }
 
-    const saveToLocalStorage = (fileNameLoc: string, fileData: string): boolean => {
+    const saveToLocalStorage = async (fileNameLoc: string, fileData: string): Promise<boolean> => {
         try {
-            let privThingLSFiles = retrieveLocalStorage('privthing.files') || {};
-            privThingLSFiles[fileNameLoc] = {
-                size: fileData.length,
-                lastModified: new Date().getTime(),
-                data: fileData
-            }
-            if (!saveLocalStorage('privthing.files', privThingLSFiles)) {
-                showSaveFailed();
-                return false
-            }
+            await getProvider(localStorageItem(fileNameLoc)).write(localStorageItem(fileNameLoc), fileData);
             return true
         } catch (e) {
             showSaveFailed();
@@ -482,14 +420,6 @@ const NoteComp = ({ editedItem }: Props) => {
         setAskRefresh(true);
 
         link.click();
-    }
-
-    const isExternalFileItem = (item: Item): boolean => {
-        return (item.fetchData === true)
-    }
-
-    const isLocalStorageItem = (item: Item): boolean => {
-        return (item.folder === 'localStorage')
     }
 
     const canSaveFile = (item: SaveAsResults): boolean => {
@@ -513,12 +443,7 @@ const NoteComp = ({ editedItem }: Props) => {
             return false
         }
 
-        if (isLocalStorageItem(item)) {
-            return true
-        } else if (isExternalFileItem(item)) {
-            return true
-        }
-        return false
+        return getProvider(item).canWrite
     }
 
     const onMouseOver = () => {
@@ -552,50 +477,22 @@ const NoteComp = ({ editedItem }: Props) => {
 
         const fileData = isEncrypted ? await encryptData(secretLoc) : note;
 
-        if (isLocalStorageItem(editedItem)) {
-            if (!saveToLocalStorage(editedItem.name, fileData)) {
-                return
-            }
+        try {
+            await getProvider(editedItem).write(editedItem, fileData);
+        } catch (e) {
+            console.warn('Write operation error: ', e);
+            mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
+            return
+        }
 
-            mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
-            mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
+        mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
 
-            if (callback) {
-                callback();
-            } else {
-                isUpdating.current = true;
-                initializeEditedItem();
-            }
-        } else if (isExternalFileItem(editedItem)) {
-            axios.post('actions',
-                JSON.stringify({ type: 'updateFileFromPath', data: fileData, path: editedItem.path }),
-                {
-                    headers: {
-                        "Content-Type": 'application/json',
-                    },
-                }
-            )
-                .then(response => {
-                    let data = response.data;
-                    if (data?.status !== 0) {
-                        // console.warn("Actions response", data);
-                        mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("somethingWentWrong") } as AlertData })
-                        return
-                    }
-                    mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
-                    mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 5000, message: t('dataSaved') } as AlertData })
-
-                    if (callback) {
-                        callback();
-                    } else {
-                        isUpdating.current = true;
-                        initializeEditedItem();
-                    }
-                })
-                .catch(error => {
-                    console.warn('updateFileFromPath failed', error);
-                    mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
-                })
+        if (callback) {
+            callback();
+        } else {
+            isUpdating.current = true;
+            initializeEditedItem();
         }
     }
 
@@ -863,163 +760,13 @@ const NoteComp = ({ editedItem }: Props) => {
             noteRef.current.view.contentDOM.classList.add(blinkingCss);
         }
     }
-    const copyClickedValueRef = useRef(copyClickedValue);
-    copyClickedValueRef.current = copyClickedValue;
-
-    const buildContextMenuRef = useRef(buildContextMenu);
-    buildContextMenuRef.current = buildContextMenu;
-
-    const cdmrrorTheme: 'none' | Extension = useMemo(() => {
-        const themes: Record<string, Extension> = {
-            amy: amy,
-            ayuLight: ayuLight,
-            barf: barf,
-            bespin: bespin,
-            birdsOfParadise: birdsOfParadise,
-            boysAndGirls: boysAndGirls,
-            clouds: clouds,
-            cobalt: cobalt,
-            coolGlow: coolGlow,
-            dracula: dracula,
-            espresso: espresso,
-            noctisLilac: noctisLilac,
-            rosePineDawn: rosePineDawn,
-            smoothy: smoothy,
-            solarizedLight: solarizedLight,
-            tomorrow: tomorrow,
-        };
-        if (codeMirrorTheme === 'customTheme') {
-            return createCustomTheme(customThemeColors)
-        }
-        return (codeMirrorTheme && themes[codeMirrorTheme]) || 'none'
-    }, [codeMirrorTheme, customThemeColors]);
-
-    const cdmrrorExtensions = useMemo(() => {
-        class PassHiderWidget extends WidgetType {
-            constructor(readonly element: string, readonly view: EditorView, readonly position: number) { super() }
-
-            toDOM() {
-                const spanID = `${this.position}_${this.position + this.element.length + ('hide[[]]').length}`
-                let wrap = document.createElement("span")
-                wrap.setAttribute("aria-hidden", "true")
-                wrap.setAttribute("id", spanID)
-                wrap.onclick = (e) => {
-                    copyClickedValueRef.current((this.element || '').replaceAll('hide[[', '').replaceAll(']]', ''), 'copied');
-                    e.preventDefault();
-                }
-                wrap.oncontextmenu = (e) => {
-                    if (e && e.target) {
-                        // const {pageX, pageY} = e;
-                        buildContextMenuRef.current(e, { type: 'fromMarked', selectionStart: this.position, selectionEnd: this.position + this.element.length + ('hide[[]]').length });
-                    }
-                    e.preventDefault();
-                }
-                wrap.className = "cm-pass-hider";
-                wrap.innerHTML = this.element.replace(/./g, '*');
-
-                return wrap
-            }
-
-            ignoreEvent() { return false }
-        }
-        const placeholderMatcher = new MatchDecorator({
-            // regexp: /pass\[\[(\w+)\]\]/g,
-            regexp: hideRegex,
-            decoration: (match, view, position) => Decoration.replace({
-                widget: new PassHiderWidget(match[1], view, position)
-            })
-        })
-
-        const placeholders = ViewPlugin.fromClass(class {
-            placeholders: DecorationSet
-            constructor(view: EditorView) {
-                this.placeholders = placeholderMatcher.createDeco(view)
-            }
-            update(update: ViewUpdate) {
-                this.placeholders = placeholderMatcher.updateDeco(update, this.placeholders)
-            }
-        }, {
-            decorations: instance => instance.placeholders,
-            provide: plugin => EditorView.atomicRanges.of(view => {
-                return view.plugin(plugin)?.placeholders || Decoration.none
-            })
-        })
-        const extensions = [
-        javascript({ jsx: true }),
-        lineNumbers({
-            domEventHandlers: {
-                click(view: EditorView, line: BlockInfo, event: any) {
-                    let clickedNumber = event?.srcElement?.innerText;
-                    if (clickedNumber) {
-                        let rowNumber = parseInt(clickedNumber);
-                        if (!isNaN(rowNumber)) {
-                            copyClickedValueRef.current((view.state.doc.line(rowNumber).text || '').replaceAll('hide[[', '').replaceAll(']]', ''));
-
-                            view.dispatch({
-                                // Set selection to that entire line.
-                                // selection: { head: line.from, anchor: line.to },
-                                selection: { head: line.from, anchor: line.from },
-                                // Ensure the selection is shown in viewport
-                                scrollIntoView: true
-                            });
-                        }
-                    }
-                    return true
-                }
-            }
-        }),
-        placeholders,
-        EditorView.theme({
-            '.cm-gutter,.cm-content': { borderBottom: "nonde", minHeight: '1000px' },
-            '.cm-scroller': { overflow: 'auto' },
-        }),
-        // Prec.high(
-        //     EditorView.domEventHandlers({
-        //         keydown: (event, view) => {
-        //             console.log(`Key pressed: ${event.key}`);
-        //           // Return false to let CodeMirror handle the event as well
-        //           return false;
-        //         },
-        //     }),
-        // ),
-        // without Prec.high Enter and Backspace will not execute
-        Prec.high(
-            keymap.of([
-                {
-                    key: 'Enter',
-                    run: (view) => {
-                        const { state, dispatch } = view;
-                        const changes = state.changeByRange((range) => ({
-                            changes: { from: range.from, insert: '\n' },
-                            range: EditorSelection.range(range.to + 1, range.to + 1),
-                            // range: EditorView.range(range.from + 1),
-                        }));
-                        dispatch(state.update(changes, { scrollIntoView: true, userEvent: 'input' }));
-                        return true;
-                    },
-                },
-            ]),
-        ),
-        EditorView.theme({
-            // '&.cm-focused .cm-selectionLayer .cm-selectionBackground': {
-            '.cm-scroller .cm-selectionBackground': {
-                backgroundColor: '#99999940 !important', // Change the selection background color here
-            },
-        }, { dark: true })
-        // EditorView.theme({
-        //     '.cm-cursor': {
-        //       borderLeftColor: 'red', // Change the cursor color here
-        //     },
-        // }, { dark: true })
-        ];
-
-        if (wrapWords) {
-            extensions.push(EditorView.lineWrapping);
-        }
-
-        return extensions
-    }, [wrapWords]);
-
+    const { codeMirrorTheme: cdmrrorTheme, codeMirrorExtensions: cdmrrorExtensions } = useCodeMirrorSetup({
+        themeName: codeMirrorTheme,
+        customThemeColors: customThemeColors,
+        wrapWords: wrapWords,
+        copyClickedValue: copyClickedValue,
+        buildContextMenu: buildContextMenu
+    });
 
     const noteBody = (
         <div className='noteContainer'>
@@ -1036,7 +783,7 @@ const NoteComp = ({ editedItem }: Props) => {
                     <SecretComp cssClass={(editedItem.isActive ? 'notepadActive' : 'notepadInactive') + ' secretPane'} globalClick={handleActiveItemFocus} confirm={false} warning={needSecretMeta.warning} info={needSecretMeta.info || t("providePasswordToOpenDecryptedFile")} handleSubmit={handleSecretSubmit} />
                     <div style={{ display: "flex", marginTop: 3, height: '55px' }} className='formGroupContainer'>
                         {
-                            editedItem.isActive && isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={() => {
+                            editedItem.isActive && getProvider(editedItem).canDelete && <Button className="btn-lg" variant='danger' onClick={() => {
                                 setAskDelete(true);
                             }}
                                 title={t("delete")}>{t("delete")}</Button>
@@ -1126,7 +873,7 @@ const NoteComp = ({ editedItem }: Props) => {
                         }
                         &nbsp;
                         {
-                            editedItem.isActive && isLocalStorageItem(editedItem) && <Button className="btn-lg" variant='danger' onClick={() => {
+                            editedItem.isActive && getProvider(editedItem).canDelete && <Button className="btn-lg" variant='danger' onClick={() => {
                                 setAskDelete(true);
                             }}
                                 title={t("delete")}>{t("delete")}</Button>

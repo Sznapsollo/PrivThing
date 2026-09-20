@@ -1,6 +1,6 @@
 {
   "name": "privthing",
-  "version": "1.0.33",
+  "version": "1.0.35",
   "private": true,
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.1",
