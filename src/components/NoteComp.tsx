@@ -922,7 +922,7 @@ const NoteComp = ({ editedItem }: Props) => {
                 isLoading &&
                 <div style={{ width: "100%", height: "100%", display: "table" }}>
                     <div style={{ display: "table-cell", verticalAlign: "middle", textAlign: 'center' }}>
-                        <AiOutlineLoading className='h2 loading-icon' /> &nbsp;In progress ...
+                        <AiOutlineLoading className='h2 loading-icon' /> &nbsp;{t("inProgress")}
                     </div>
                 </div>
             }

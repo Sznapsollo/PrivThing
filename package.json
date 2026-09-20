@@ -1,6 +1,6 @@
 {
   "name": "privthing",
-  "version": "1.0.41",
+  "version": "1.0.42",
   "private": true,
   "dependencies": {
     "@codemirror/lang-css": "^6.3.1",

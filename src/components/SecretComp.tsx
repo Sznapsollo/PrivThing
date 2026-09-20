@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import CryptoJS from 'crypto-js';
+import { passwordStrength, PASSWORD_STRENGTH_LABELS } from '../utils/passwordStrength';
 
 interface Props {
     cssClass?: string,
@@ -25,6 +26,8 @@ const SecretComp = ({confirm, info, globalClick, handleSubmit, warning, cssClass
     useEffect(() => {
         checkValidity();
     }, [secret, secretConfirm]);
+
+    const strength = useMemo(() => passwordStrength(secret), [secret]);
 
     const submitSecret = (event: React.FormEvent<HTMLFormElement> | undefined) => {
         if(event) {
@@ -100,6 +103,15 @@ const SecretComp = ({confirm, info, globalClick, handleSubmit, warning, cssClass
                                 }}
                             ></Form.Control>
                         </Form.Group>
+                        {
+                            confirm && secret.length > 0 &&
+                            <div className={'passwordStrength passwordStrength-' + strength}>
+                                <div className='passwordStrengthTrack'>
+                                    <div className='passwordStrengthBar'></div>
+                                </div>
+                                <span className='passwordStrengthLabel'>{t('passwordStrength')}: {t(PASSWORD_STRENGTH_LABELS[strength])}</span>
+                            </div>
+                        }
                         {confirm && <div>&nbsp;</div>}
                         {confirm && <Form.Group className='formGroup'>
                             <label className='upperLabel'>{t("repeatPassword")}</label>

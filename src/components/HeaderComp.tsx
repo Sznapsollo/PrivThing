@@ -124,7 +124,7 @@ const HeaderComp = () => {
             return
         }
         var timeDiff = forgetSecretTimeThreshold.getTime() - new Date().getTime();
-        let msg = 'Password will expire in ' + durationClock(timeDiff, false) + '<br>' + t("forgetPassword");
+        let msg = t("passwordWillExpireIn") + ' ' + durationClock(timeDiff, false) + '<br>' + t("forgetPassword");
         setCenterLabelContent(msg);
     }
 
@@ -342,27 +342,25 @@ const HeaderComp = () => {
                     handleExternalClose={()=>setShowAbout(false)}
                 >
                     <div style={{padding: 20, fontSize: 14}}>
-                        PrivThing is a tool to manage notes. Provides some nice features listed below to better organize my work.
+                        {t("aboutIntro")}
                         <br/><br/>
                         <ul>
-                            <li>Tabs that can be reordered, and that are remembered</li>
-                            <li>Hotkeys: ctrl+f, ctrl+s, cmd+s</li>
-                            <li>Encrypt some more fragile notes with passwords (just dont forget it - passwords are not stored anywhere so no way to remind it)</li>
-                            <li>Very nice CodeMirror editor which comes with many perks like code marking, search, line numbers etc</li>
-                            <li>Slider between items and note body</li>
-                            <li>Search & sort features</li>
-                            <li>If you host it on some local server it provides quick access to files from different folders</li>
-                            <li>Export & Import of local storage items</li>
+                            <li>{t("aboutFeatureTabs")}</li>
+                            <li>{t("aboutFeatureHotkeys")}</li>
+                            <li>{t("aboutFeatureEncryption")}</li>
+                            <li>{t("aboutFeatureEditor")}</li>
+                            <li>{t("aboutFeatureSlider")}</li>
+                            <li>{t("aboutFeatureSearch")}</li>
+                            <li>{t("aboutFeatureServer")}</li>
+                            <li>{t("aboutFeatureExport")}</li>
                             <li>...</li>
                         </ul>
                         <br/><br/>
-                        It is Open Source. Check it on GitHub - <a href="https://github.com/Sznapsollo/PrivThing" target="_blank" rel="noopener noreferrer">https://github.com/Sznapsollo/PrivThing</a>
+                        {t("aboutOpenSource")} - <a href="https://github.com/Sznapsollo/PrivThing" target="_blank" rel="noopener noreferrer">https://github.com/Sznapsollo/PrivThing</a>
                         <br/><br/>
-                        I have always some list of things that I want to add here. I usually come up with them when I use this tool and something is missing. 
-                        On GitHub there is a todo file committed with such points.
-                        I am always open to suggestions and happy when some feature comes to mind that will speed things up.
+                        {t("aboutTodo")}
                         <br/><br/>
-                        I you have some ideas please share on Git or <a href="mailto: office@webproject.waw.pl">Email me</a>.
+                        {t("aboutContact")} <a href="mailto: office@webproject.waw.pl">{t("aboutEmailMe")}</a>.
                         <br/><br/>
                         Have nice day,
                         NJ

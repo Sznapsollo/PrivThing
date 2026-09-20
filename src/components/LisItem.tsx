@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Item } from '../model';
+import { isPinned, togglePinned } from '../utils/pinned';
 import { formatUtcDateTime } from '../utils/dates';
 import { AppState } from '../context/Context'
 import { GiPadlock } from 'react-icons/gi';
+import { TbPin, TbPinnedFilled } from 'react-icons/tb';
 import { FaFolderOpen } from "react-icons/fa";
 import { useTranslation } from 'react-i18next'
 import '../styles.css'
@@ -10,6 +12,7 @@ import { MAIN_ACTIONS } from '../context/Reducers';
 
 interface Props {
     item: Item,
+    onPinnedChange?: () => void,
     keyProp: number,
     editedItemPath?: string,
     onDragStart?: (item: HTMLSpanElement, position:number) => void,
@@ -17,7 +20,7 @@ interface Props {
     onDrop?: <T,>(e: T) => void
 }
 
-const LisItem = ({item, keyProp, editedItemPath, onDragStart, onDragEnter, onDrop}: Props) => {
+const LisItem = ({item, keyProp, editedItemPath, onPinnedChange, onDragStart, onDragEnter, onDrop}: Props) => {
 
     const { t } = useTranslation();
 
@@ -73,6 +76,20 @@ const LisItem = ({item, keyProp, editedItemPath, onDragStart, onDragEnter, onDro
             onDragEnd={onDrop}
             draggable={canDrag}
             >
+            <div
+                className={'listItemPin' + (isPinned(item.path) ? ' listItemPinned' : '')}
+                title={isPinned(item.path) ? t("unpinFromTop") : t("pinToTop")}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    togglePinned(item.path);
+                    if(onPinnedChange) {
+                        onPinnedChange();
+                    }
+                }}
+            >
+                {isPinned(item.path) ? <TbPinnedFilled /> : <TbPin />}
+            </div>
             <div className='listItemIcon'>
                 {item.name?.endsWith('.prvthng') && <GiPadlock style={{margin: "1px 5px 0 -5px"}} className='h4'/>}
                 {(item.folder !== 'localStorage') && <FaFolderOpen style={{margin: "1px 5px 0 -3px"}} />}

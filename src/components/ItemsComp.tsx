@@ -8,6 +8,7 @@ import { CiUndo } from 'react-icons/ci';
 import { BiDownArrow, BiRightArrow } from "react-icons/bi";
 import { BsFillArrowUpSquareFill } from 'react-icons/bs';
 import { AlertData, Item, NotificationData } from '../model';
+import { sortPinnedFirst } from '../utils/pinned';
 import { allNotes } from '../storage/notesStore';
 import { FiPlusCircle } from 'react-icons/fi';
 import { getNewItem, retrieveLocalStorage } from '../utils/utils';
@@ -23,6 +24,7 @@ const ItemsComp = () => {
     const [foldersLoaded, setFoldersLoaded] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [scrollTop, setScrollTop] = useState<number>(0);
+    const [pinnedChanged, setPinnedChanged] = useState<number>(0);
     const itemsContainerRef = useRef(null);
     const [serverMode, setServerMode] = useState('unknown');
 
@@ -61,7 +63,7 @@ const ItemsComp = () => {
         
             reader.readAsText(file);
         } catch(e) {
-            alert("Can't load this file!")
+            alert(t("cantLoadThisFile"))
         }
     }
 
@@ -228,8 +230,8 @@ const ItemsComp = () => {
             transformedItemsLocal = transformedItemsLocal.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
         }
 
-        return transformedItemsLocal;
-    }, [items, currentFolder, excludeFromAll, sort, searchQuery, searchState.searchContent])
+        return sortPinnedFirst(transformedItemsLocal);
+    }, [items, currentFolder, excludeFromAll, sort, searchQuery, searchState.searchContent, pinnedChanged])
     
     const handleScroll = (e: React.UIEvent<HTMLElement>) => {
         setScrollTop(e.currentTarget.scrollTop);
@@ -323,7 +325,7 @@ const ItemsComp = () => {
                 isLoading &&
                 <div style={{width: "100%", height: "100%", display: "table"}}>
                     <div style={{display: "table-cell", verticalAlign: "middle", textAlign: 'center'}}>
-                        <AiOutlineLoading className='h2 loading-icon'/> &nbsp;In progress ...
+                        <AiOutlineLoading className='h2 loading-icon'/> &nbsp;{t("inProgress")}
                     </div>
                 </div>
             } 
@@ -502,7 +504,7 @@ const ItemsComp = () => {
             }
             {
                 !isLoading && foldersLoaded === true && transformedItems.map((item, itemIndex) => {
-                    return <LisItem key={itemIndex} keyProp={itemIndex} item={item} editedItemPath={activeEditedItemPath}/>
+                    return <LisItem key={itemIndex} keyProp={itemIndex} item={item} editedItemPath={activeEditedItemPath} onPinnedChange={() => setPinnedChanged(pinnedChanged + 1)}/>
                 })
             }
             {

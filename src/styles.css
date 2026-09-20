@@ -819,3 +819,67 @@ label.upperLabel.upperLabelDirty {
     font-size: 11px;
     white-space: nowrap;
 }
+
+.listItemPin {
+    align-items: center;
+    color: #cccccc;
+    cursor: pointer;
+    display: flex;
+    flex: 0 0 auto;
+    padding: 0 7px 0 3px;
+}
+
+.listItemPin:hover {
+    color: #888888;
+}
+
+.listItemPinned {
+    color: #7aa7cc;
+}
+
+.listItemPinned:hover {
+    color: #a8c6de;
+}
+
+.passwordStrength {
+    padding: 6px 2px 0 2px;
+}
+
+.passwordStrengthTrack {
+    background-color: #eeeeee;
+    border-radius: 3px;
+    height: 6px;
+    overflow: hidden;
+}
+
+.passwordStrengthBar {
+    border-radius: 3px;
+    height: 100%;
+    transition: width 0.2s ease, background-color 0.2s ease;
+    width: 0;
+}
+
+.passwordStrength-weak .passwordStrengthBar {
+    background-color: #d9534f;
+    width: 25%;
+}
+
+.passwordStrength-fair .passwordStrengthBar {
+    background-color: #f0ad4e;
+    width: 50%;
+}
+
+.passwordStrength-good .passwordStrengthBar {
+    background-color: #5bc0de;
+    width: 75%;
+}
+
+.passwordStrength-strong .passwordStrengthBar {
+    background-color: #5cb85c;
+    width: 100%;
+}
+
+.passwordStrengthLabel {
+    color: #777777;
+    font-size: 11px;
+}
