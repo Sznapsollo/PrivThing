@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useReducer} from 'react'
 import { MainContextType, NavigationItem, SearchContextType, SettingsContextType, Tab, EditItem } from '../model';
-import { mainReducer, searchReducer, settingsReducer } from './Reducers'
+import { MainActions, mainReducer, SearchActions, searchReducer, SettingsActions, settingsReducer } from './Reducers'
 import { retrieveLocalStorage, cloneProps, makeId } from '../utils/utils'
 
 const appInitialState: MainContextType = {
@@ -63,11 +63,11 @@ var settingsInitialState = {...settingsInitialStateBaseline}
 
 export const AppContext = createContext<{
     mainState: MainContextType,
-    mainDispatch: React.Dispatch<any>,
+    mainDispatch: React.Dispatch<MainActions>,
     searchState: SearchContextType,
-    searchDispatch: React.Dispatch<any>,
+    searchDispatch: React.Dispatch<SearchActions>,
     settingsState: SettingsContextType,
-    settingsDispatch: React.Dispatch<any>
+    settingsDispatch: React.Dispatch<SettingsActions>
 }>({
     mainState: appInitialState,
     mainDispatch: () => null,
@@ -145,7 +145,12 @@ const bootstrapInitialStates = () => {
                     return false
                 })
                 if(!!pmeditedItemSpaces) {
-                    appInitialState.editedItemSpaces = pmeditedItemSpaces;
+                    appInitialState.editedItemSpaces = pmeditedItemSpaces.map((pmEditedItem: EditItem) => {
+                        if(!pmEditedItem.spaceId) {
+                            pmEditedItem.spaceId = makeId(10);
+                        }
+                        return pmEditedItem
+                    });
                     if(activeEditedItemPath) {
                         appInitialState.activeEditedItemPath = activeEditedItemPath;
                     }
@@ -170,7 +175,7 @@ const bootstrapInitialStates = () => {
             }
         }
         if(!appInitialState.editedItemSpaces || !appInitialState.editedItemSpaces.length) {
-            appInitialState.editedItemSpaces = [{isActive: true} as EditItem];
+            appInitialState.editedItemSpaces = [{spaceId: makeId(10), isActive: true} as EditItem];
         }
 
         // if(activeTab) {

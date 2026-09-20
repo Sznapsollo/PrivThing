@@ -79,15 +79,21 @@ const NoteSpacesComp = () => {
     }
 
     const handleContextMenuAction = (menuAction: GenericContextMenuAction) => {
+        const noteSpaceItem = noteSpaceContextMenu.noteSpaceItem;
         switch(menuAction.action) {
             case 'closeNoteSpace':
-                mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: noteSpaceContextMenu.noteSpaceItem});
+                if(noteSpaceItem) {
+                    mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: noteSpaceItem});
+                }
                 break;
             case 'closeNoteSpacesButThis':
-                if(noteSpaceContextMenu.noteSpaceItem?.isActive === true) {
-                    mainDispatch({type: MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES, payload: noteSpaceContextMenu.noteSpaceItem});
+                if(!noteSpaceItem) {
+                    break;
+                }
+                if(noteSpaceItem.isActive === true) {
+                    mainDispatch({type: MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES, payload: noteSpaceItem});
                 } else {
-                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: noteSpaceContextMenu.noteSpaceItem, tab: {...noteSpaceContextMenu.noteSpaceItem, isActive: false, isNew: true}, action: 'CLEAR_OTHER_NOTE_SPACES'}});
+                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: noteSpaceItem, tab: {...noteSpaceItem, isActive: false, isNew: true}, action: 'CLEAR_OTHER_NOTE_SPACES'}});
                 }
                 break;
             case 'close':

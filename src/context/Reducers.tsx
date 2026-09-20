@@ -54,7 +54,7 @@ type ToggleFavourites = {type: MAIN_ACTIONS.TOGGLE_FAVOURITES};
 type ToggleItemsBar = {type: MAIN_ACTIONS.TOGGLE_ITEMS_BAR};
 type ToggleRecents = {type: MAIN_ACTIONS.TOGGLE_RECENTS};
 type UpdateFavourites = {type: MAIN_ACTIONS.UPDATE_FAVOURITES, payload: EditItem[]};
-type UpdateItemsList = {type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: string};
+type UpdateItemsList = {type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload?: string};
 type UpdateRecents = {type: MAIN_ACTIONS.UPDATE_RECENTS, payload: EditItem[]};
 type UpdateTabs = {type: MAIN_ACTIONS.UPDATE_TABS, payload: Tab[]};
 type UpdateTabsSilent = {type: MAIN_ACTIONS.UPDATE_TABS_SILENT, payload: Tab[]};
@@ -87,6 +87,13 @@ export type MainActions = AddToFavourites |
     UpdateTabs |
     UpdateTabsSilent |
     UpdateSecret;
+
+export const isSameNoteSpace = (editedItemSpace: EditItem, other: EditItem): boolean => {
+    if(editedItemSpace.spaceId && other?.spaceId) {
+        return editedItemSpace.spaceId === other.spaceId
+    }
+    return editedItemSpace === other
+}
 
 export const mainReducer = (state: MainContextType, action: MainActions) => {
     // console.log('mainReducer', action.type)
@@ -140,9 +147,9 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             let editedItemSpaces = state.editedItemSpaces || [];
             if(action.payload.action === "NEW_NOTE_SPACE") {
                 editedItemSpaces = editedItemSpaces.map((editedItemSpace) => { editedItemSpace.isActive = false; return editedItemSpace });
-                editedItemSpaces = [...editedItemSpaces, {...itemPayload, isActive: true}];
+                editedItemSpaces = [...editedItemSpaces, {...itemPayload, spaceId: makeId(10), isActive: true}];
             } else if(action.payload.action === "CLEAR_OTHER_NOTE_SPACES") {
-                editedItemSpaces = [{...itemPayload, isActive: true}];
+                editedItemSpaces = [{...itemPayload, spaceId: makeId(10), isActive: true}];
             } else {
                 editedItemSpaces = manageEditItemSpaces(editedItemSpaces, itemPayload);
             }
@@ -171,7 +178,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 ...state,
                 activeEditedItemPath: action.payload.path,
                 editedItemSpaces: state.editedItemSpaces.map((editedItemSpace) => { 
-                    if(editedItemSpace === action.payload) {
+                    if(isSameNoteSpace(editedItemSpace, action.payload)) {
                         return {...editedItemSpace, isActive: true}
                     }
                     return {...editedItemSpace, isActive: false}
@@ -185,7 +192,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             }
 
             let foundActiveEditItemSpaceIndex =  state.editedItemSpaces.findIndex((editedItemSpace) => { 
-                return (editedItemSpace === action.payload)
+                return isSameNoteSpace(editedItemSpace, action.payload)
             })
 
             if(foundActiveEditItemSpaceIndex < 0) {
@@ -227,7 +234,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
 
             return { ...state, editedItemSpaces: manageEditItemSpaces(state.editedItemSpaces, clearedItem) };
         case MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES:
-            return { ...state, editedItemSpaces: [{...action.payload, isActive: true}] };
+            return { ...state, editedItemSpaces: [{...action.payload, spaceId: action.payload.spaceId || makeId(10), isActive: true}] };
         case MAIN_ACTIONS.CLEAR_SECRET:
             return { ...state, secret: '' };
         case MAIN_ACTIONS.SET_ITEMS:
@@ -269,7 +276,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
             return {
                 ...state,
                 editedItemSpaces: state.editedItemSpaces.map((editedItemSpace) => { 
-                    if(editedItemSpace === action.payload) {
+                    if(isSameNoteSpace(editedItemSpace, action.payload)) {
                         return {...editedItemSpace, flex: 2}
                     }
                     return {...editedItemSpace, flex: 1}

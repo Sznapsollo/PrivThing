@@ -7,7 +7,7 @@ import { AiOutlineLoading } from 'react-icons/ai';
 import { CiUndo } from 'react-icons/ci';
 import { BiDownArrow, BiRightArrow } from "react-icons/bi";
 import { BsFillArrowUpSquareFill } from 'react-icons/bs';
-import { AlertData, Item } from '../model';
+import { AlertData, Item, NotificationData } from '../model';
 import { allNotes } from '../storage/notesStore';
 import { FiPlusCircle } from 'react-icons/fi';
 import { getNewItem, retrieveLocalStorage } from '../utils/utils';
@@ -99,7 +99,7 @@ const ItemsComp = () => {
                 }
             } catch(e) {
                 console.warn('Problem retrieving stored notes', e);
-                mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong')} as AlertData})
+                mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong')} as NotificationData})
             }
         }
 

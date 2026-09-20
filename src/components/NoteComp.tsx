@@ -11,13 +11,13 @@ import { useTranslation } from 'react-i18next'
 import { AppState } from '../context/Context'
 import ConfirmationComp from './ConfirmationComp';
 import SecretComp from './SecretComp';
-import { AlertData, EditItem, Item, SaveAsResults, GenericContextMenu, GenericContextMenuItem, GenericContextMenuAction, NoteContextMenu } from '../model';
+import { AlertData, EditItem, Item, NotificationData, SaveAsResults, GenericContextMenu, GenericContextMenuItem, GenericContextMenuAction, NoteContextMenu } from '../model';
 
 import Dropdown from 'react-bootstrap/Dropdown';
 import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { openSearchPanel } from '@codemirror/search';
 import SaveAsComp from './SaveAsComp';
-import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
+import { getNewItem, retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
 import { CONFLICT, getProvider, localStorageItem, StorageError } from '../storage';
 import { createServerFile } from '../storage/serverProvider';
@@ -169,7 +169,7 @@ const NoteComp = ({ editedItem }: Props) => {
     }
 
     const reportMissingFile = () => {
-        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '') } as AlertData })
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '') } as NotificationData })
         let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
         mainDispatch({ type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs });
     }
@@ -198,7 +198,7 @@ const NoteComp = ({ editedItem }: Props) => {
             }
         } catch (e) {
             console.warn('Read operation error: ', e);
-            mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '') } as AlertData })
+            mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + (editedItem.path || '') } as NotificationData })
         }
 
         setIsLoading(false);
@@ -349,7 +349,7 @@ const NoteComp = ({ editedItem }: Props) => {
 
         markSaved();
         mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
-        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as NotificationData })
 
         if (pending.callback) {
             pending.callback();
@@ -387,13 +387,13 @@ const NoteComp = ({ editedItem }: Props) => {
             }
             markSaved();
             mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: "localStorage/" + saveResults.fileName });
-            mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
+            mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as NotificationData })
         } else if (saveResults.saveAsType === "SERVER_FOLDER" && saveResults.folder) {
             try {
                 const newPath = await createServerFile(saveResults.folder, saveResults.fileName, fileData);
                 markSaved();
                 mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: newPath });
-                mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
+                mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as NotificationData })
             } catch (e) {
                 mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
                 setIsSavingAs(false);
@@ -418,7 +418,7 @@ const NoteComp = ({ editedItem }: Props) => {
                 return tab.path === filePath && tab.isActive === true
             })
             if (currTab) {
-                mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: { item: {}, tab: currTab, action: 'REMOVE_TAB' } });
+                mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: { item: getNewItem(), tab: currTab, action: 'REMOVE_TAB' } });
             }
         } catch (e) {
             mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("somethingWentWrong") } as AlertData })
@@ -534,7 +534,7 @@ const NoteComp = ({ editedItem }: Props) => {
 
         markSaved();
         mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
-        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as NotificationData })
 
         if (callback) {
             callback();
@@ -793,7 +793,7 @@ const NoteComp = ({ editedItem }: Props) => {
         onTriggerBlinkingBorder();
         let markedText = (copiedText || '').toString();
         navigator.clipboard.writeText(markedText);
-        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 5000, message: t(copyMessage) } as AlertData })
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 5000, message: t(copyMessage) } as NotificationData })
     }
 
     const onTriggerBlinkingBorder = () => {

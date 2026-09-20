@@ -153,12 +153,15 @@ const TabsComp = () => {
     }
 
     const handleContextMenuAction = (menuAction: GenericContextMenuAction) => {
+        const contextTab = tabContextMenu.tab;
         switch(menuAction.action) {
             case 'openInNewNoteSpace':
-                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: tabContextMenu.tab, tab: tabContextMenu.tab, action: 'NEW_NOTE_SPACE'}});
+                if(contextTab) {
+                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: contextTab, tab: contextTab, action: 'NEW_NOTE_SPACE'}});
+                }
                 break;
             case 'closeTab':
-                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: {}, tab: tabContextMenu.tab, action: 'REMOVE_TAB'}});
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: getNewItem(), tab: contextTab, action: 'REMOVE_TAB'}});
                 break;
             case 'closeAllTabs':
                 mainDispatch({type: MAIN_ACTIONS.UPDATE_TABS, payload: []});
@@ -212,7 +215,7 @@ const TabsComp = () => {
                         </div>
                         <FiMinusCircle title={t("closeTab")} className='h2 itemTabIconRemove' onClick={(e) => {
                             e.preventDefault();
-                            mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: {}, tab: tabItem, action: 'REMOVE_TAB'}});
+                            mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: getNewItem(), tab: tabItem, action: 'REMOVE_TAB'}});
                         }}/>
                     </span>
                         

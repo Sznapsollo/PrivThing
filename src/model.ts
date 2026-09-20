@@ -86,7 +86,7 @@ export interface NavigationItem {
 export interface NotificationData {
     message?: string,
     show: boolean,
-    type: AlertColor,
+    type?: AlertColor,
     closeAfter?: number
 }
 
@@ -134,12 +134,13 @@ export interface Tab extends Item {
     isNew?: boolean,
     remove?: boolean,
     scrollTop?: number,
-    tabId: string
+    tabId?: string
 }
 
 export interface EditItem extends Item {
     isActive?: boolean,
-    flex?: number
+    flex?: number,
+    spaceId?: string
 }
 
 export interface TabContextMenu extends GenericContextMenu {

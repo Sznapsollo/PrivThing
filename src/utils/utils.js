@@ -97,13 +97,13 @@ export function getRandomHint() {
 export function manageEditItemSpaces(stateEditedItemSpace, editItemPayload) {
     let editedItemSpaces = stateEditedItemSpace || [];
     if(!editedItemSpaces.length) {
-        editedItemSpaces = [{...getNewItem(), isActive: true}]
+        editedItemSpaces = [{...getNewItem(), spaceId: makeId(10), isActive: true}]
     }
     let activeEditedSpaceIndex = editedItemSpaces.findIndex((editedItemSpace) => editedItemSpace.isActive);
     if(activeEditedSpaceIndex < 0) {activeEditedSpaceIndex = 0;}
     editedItemSpaces = editedItemSpaces.map((editedItemSpaceItem, editedItemSpaceItemIndex) => {
         if(editedItemSpaceItemIndex === activeEditedSpaceIndex) {
-            return {...editItemPayload, flex: editedItemSpaceItem.flex,isActive: true};
+            return {...editItemPayload, spaceId: editedItemSpaceItem.spaceId || makeId(10), flex: editedItemSpaceItem.flex,isActive: true};
         }
         return {...editedItemSpaceItem, isActive: false};
     })
@@ -125,7 +125,7 @@ export function manageHeaderTabs(tabs, itemPayload, tabPayLoad, mode) {
         activeTabIndex = tabs.length - 1;
     } else if(tabPayLoad) {
         if(tabPayLoad.isNew) {
-            if(tabPayLoad.path != null) {
+            if(tabPayLoad.path) {
                 activeTabIndex = tabs.findIndex((tab) => tab.path === tabPayLoad?.path);
             }
             if(activeTabIndex < 0) {

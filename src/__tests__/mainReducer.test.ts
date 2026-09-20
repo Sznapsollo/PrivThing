@@ -1,5 +1,5 @@
 import { MAIN_ACTIONS, mainReducer } from '../context/Reducers';
-import { MainContextType } from '../model';
+import { EditItem, MainContextType } from '../model';
 
 const baseState = (): MainContextType => ({
     editedItemSpaces: [{ name: '', path: '', isActive: true }],
@@ -64,5 +64,55 @@ describe('saving a new note under a name', () => {
             { name: 'new.txt', path: 'localStorage/new.txt', folder: 'localStorage' }
         ] } as any);
         expect(state.newItemToOpen).toBeUndefined();
+    });
+});
+
+describe('note spaces are identified by id, not by object identity', () => {
+    const withSpaces = (): MainContextType => ({
+        ...baseState(),
+        editedItemSpaces: [
+            { name: 'a.txt', path: '/a.txt', spaceId: 'space-a', isActive: true, flex: 1 },
+            { name: 'b.txt', path: '/b.txt', spaceId: 'space-b', isActive: false, flex: 1 }
+        ]
+    } as unknown as MainContextType);
+
+    it('activates the right space even when the payload is a copy', () => {
+        const state = withSpaces();
+        const copyOfB = { ...state.editedItemSpaces[1] };
+
+        const next = mainReducer(state, { type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: copyOfB } as any);
+
+        expect(next.editedItemSpaces.find((space: EditItem) => space.spaceId === 'space-b')?.isActive).toBe(true);
+        expect(next.editedItemSpaces.find((space: EditItem) => space.spaceId === 'space-a')?.isActive).toBe(false);
+    });
+
+    it('stretches the right space when the payload is a copy', () => {
+        const state = withSpaces();
+        const copyOfB = { ...state.editedItemSpaces[1] };
+
+        const next = mainReducer(state, { type: MAIN_ACTIONS.STRETCH_NOTE_SPACE, payload: copyOfB } as any);
+
+        expect(next.editedItemSpaces.find((space: EditItem) => space.spaceId === 'space-b')?.flex).toBe(2);
+        expect(next.editedItemSpaces.find((space: EditItem) => space.spaceId === 'space-a')?.flex).toBe(1);
+    });
+
+    it('closes the right space when the payload is a copy', () => {
+        const state = withSpaces();
+        const copyOfA = { ...state.editedItemSpaces[0] };
+
+        const next = mainReducer(state, { type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: copyOfA } as any);
+
+        expect(next.editedItemSpaces).toHaveLength(1);
+        expect(next.editedItemSpaces[0].spaceId).toBe('space-b');
+    });
+
+    it('gives every new space an id of its own', () => {
+        let state = baseState();
+        state = mainReducer(state, { type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: { item: { name: 'a.txt', path: '/a.txt' } } } as any);
+        state = mainReducer(state, { type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: { item: { name: 'b.txt', path: '/b.txt' }, action: 'NEW_NOTE_SPACE' } } as any);
+
+        const ids = state.editedItemSpaces.map((space: EditItem) => space.spaceId);
+        expect(ids.every((id) => !!id)).toBe(true);
+        expect(new Set(ids).size).toBe(ids.length);
     });
 });

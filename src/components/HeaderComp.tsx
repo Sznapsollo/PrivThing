@@ -7,7 +7,7 @@ import { AppState } from '../context/Context'
 import { LiaFilterSolid } from 'react-icons/lia';
 import { RxCross2 } from 'react-icons/rx';
 import { FiMenu } from 'react-icons/fi';
-import { AlertData, ProcessingResult } from '../model';
+import { AlertData, NotificationData, ProcessingResult } from '../model';
 import ConfirmationComp from './ConfirmationComp';
 import '../styles.css';
 import { saveLocalStorage } from '../utils/utils';
@@ -185,14 +185,14 @@ const HeaderComp = () => {
                     }
                 } catch(e) {
                     console.warn('localStorage handleImportLocalStorageItems operation error: ', e);
-                    mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as AlertData})
+                    mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as NotificationData})
                 }
             }
 
             input.click();
         } catch(e) {
             console.warn('localStorage handleImportLocalStorageItems operation error #2: ', e);
-            mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as AlertData})
+            mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as NotificationData})
         }
     }
 

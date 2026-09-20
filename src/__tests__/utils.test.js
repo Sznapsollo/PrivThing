@@ -111,3 +111,27 @@ describe('date helpers (moment replacements)', () => {
         expect(formatUtcDateTime(Date.UTC(2026, 8, 20, 13, 5, 7))).toBe('2026-09-20 13:05:07');
     });
 });
+
+describe('manageHeaderTabs with unsaved new notes', () => {
+    const { manageHeaderTabs: manageTabs } = require('../utils/utils');
+    const newNote = { name: '', path: '' };
+
+    it('gives each unsaved new note a tab of its own', () => {
+        let tabs = manageTabs([], newNote, null, 'CHANGE_ACTIVE');
+        tabs = manageTabs(tabs, newNote, { ...newNote, isNew: true }, 'CHANGE_ACTIVE');
+        tabs = manageTabs(tabs, newNote, { ...newNote, isNew: true }, 'CHANGE_ACTIVE');
+
+        expect(tabs).toHaveLength(3);
+        expect(new Set(tabs.map((tab) => tab.tabId)).size).toBe(3);
+        expect(tabs.filter((tab) => tab.isActive)).toHaveLength(1);
+    });
+
+    it('still reuses the tab of a file that is already open', () => {
+        let tabs = manageTabs([], { name: 'a.txt', path: '/a.txt' }, null, 'CHANGE_ACTIVE');
+        tabs = manageTabs(tabs, { name: 'b.txt', path: '/b.txt' }, { path: '/b.txt', isNew: true }, 'CHANGE_ACTIVE');
+        tabs = manageTabs(tabs, { name: 'a.txt', path: '/a.txt' }, { path: '/a.txt', isNew: true }, 'CHANGE_ACTIVE');
+
+        expect(tabs).toHaveLength(2);
+        expect(tabs.find((tab) => tab.path === '/a.txt').isActive).toBe(true);
+    });
+});
