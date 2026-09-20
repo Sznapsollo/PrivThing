@@ -86,8 +86,8 @@ const ItemsComp = () => {
                                 if(lcItem.name.toLowerCase().includes(searchState.searchQuery.toLowerCase())) {
                                     // its ok
                                 } else {
-                                    const regex = new RegExp(`${searchState.searchQuery}`, 'g');
-                                    if (!regex.test(localStorageFiles[localStorageFileName].data)) {
+                                    const noteContent = String(localStorageFiles[localStorageFileName].data).toLowerCase();
+                                    if (!noteContent.includes(searchState.searchQuery.toLowerCase())) {
                                         continue
                                     }
                                 }
