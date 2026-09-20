@@ -1,5 +1,6 @@
 import { Item } from '../model';
 import { getNote, removeNote, setNote } from './notesStore';
+import { trashNote } from './trashStore';
 import { ReadResult, StorageError, StorageProvider, WriteResult } from './types';
 
 export const LOCAL_STORAGE_FOLDER = 'localStorage';
@@ -33,6 +34,7 @@ export const localStorageProvider: StorageProvider = {
 
     remove: async (item: Item): Promise<void> => {
         try {
+            await trashNote(item.name);
             await removeNote(item.name);
         } catch (e) {
             throw new StorageError('Could not delete the note: ' + (e as Error)?.message)

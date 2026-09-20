@@ -3,6 +3,8 @@ import { AppState, settingsInitialStateBaseline } from '../context/Context'
 import { Modal, Button, Form, InputGroup } from 'react-bootstrap'
 import ConfirmationComp from './ConfirmationComp';
 import { legacyBackupSize, removeLegacyBackup } from '../storage/notesStore';
+import { deleteTrashedNote, emptyTrash, listTrash, restoreTrashedNote, TrashedNote } from '../storage/trashStore';
+import { formatUtcDateTime } from '../utils/dates';
 import { useTranslation } from 'react-i18next'
 import { removeLocalStorage, saveLocalStorage } from '../utils/utils'
 import { APP_VERSION } from '../utils/version'
@@ -19,6 +21,8 @@ const SettingsComp = () => {
     const [ clearSettings, setClearSettings ] = useState<boolean>(false);
     const [ clearOldNotesBackup, setClearOldNotesBackup ] = useState<boolean>(false);
     const [ oldNotesBackupSize, setOldNotesBackupSize ] = useState<number | null>(null);
+    const [ trashedNotes, setTrashedNotes ] = useState<TrashedNote[]>([]);
+    const [ confirmEmptyTrash, setConfirmEmptyTrash ] = useState<boolean>(false);
 
     useEffect(() => {
         setSettings(settingsState);
@@ -27,8 +31,26 @@ const SettingsComp = () => {
     useEffect(() => {
         if(mainState.showSettings) {
             setOldNotesBackupSize(legacyBackupSize());
+            listTrash().then(setTrashedNotes).catch((e) => console.warn('Could not read the trash', e));
         }
     }, [mainState.showSettings]);
+
+    const handleRestoreTrashedNote = async (name: string) => {
+        await restoreTrashedNote(name);
+        setTrashedNotes(await listTrash());
+        mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
+    }
+
+    const handleDeleteTrashedNote = async (name: string) => {
+        await deleteTrashedNote(name);
+        setTrashedNotes(await listTrash());
+    }
+
+    const handleEmptyTrash = async () => {
+        setConfirmEmptyTrash(false);
+        await emptyTrash();
+        setTrashedNotes([]);
+    }
 
     const handleRemoveOldNotesBackup = () => {
         setClearOldNotesBackup(false);
@@ -429,6 +451,29 @@ const SettingsComp = () => {
                 </div>
 
                 {
+                    trashedNotes.length > 0 &&
+                    <>
+                        <label className='sectionLabel'>{t("deletedNotes", {count: trashedNotes.length})}</label>
+                        <div className='formSection'>
+                            <div className='oldNotesBackupInfo'>{t("deletedNotesInfo")}</div>
+                            {
+                                trashedNotes.map((trashedNote) => (
+                                    <div key={trashedNote.name} className='trashedNote'>
+                                        <span className='trashedNoteName' title={trashedNote.name}>{trashedNote.name}</span>
+                                        <span className='trashedNoteWhen'>{formatUtcDateTime(trashedNote.deletedAt)}</span>
+                                        <Button variant="secondary" className={'btn-sm'} onClick={() => handleRestoreTrashedNote(trashedNote.name)}>{t("restore")}</Button>
+                                        <Button variant="danger" className={'btn-sm'} onClick={() => handleDeleteTrashedNote(trashedNote.name)}>{t("deleteForever")}</Button>
+                                    </div>
+                                ))
+                            }
+                            <div style={{textAlign: 'center', marginTop: 10}}>
+                                <Button variant="danger" className={'btn-sm'} onClick={() => setConfirmEmptyTrash(true)}>{t("emptyTrash")}</Button>
+                            </div>
+                        </div>
+                    </>
+                }
+
+                {
                     oldNotesBackupSize != null &&
                     <>
                         <label className='sectionLabel'>{t("oldNotesBackup")}</label>
@@ -459,6 +504,19 @@ const SettingsComp = () => {
                 handleExternalClose={() => {setClearSettings(false)}}
             >
                 {t("clearAllSettingsConfirm")}
+            </ConfirmationComp>
+            }
+
+            {
+            confirmEmptyTrash &&
+            <ConfirmationComp
+                externalHeading={t("pleaseConfirm")}
+                externalSaveLabel={t("yes")}
+                externalCloseLabel={t("no")}
+                handleExternalSave={handleEmptyTrash}
+                handleExternalClose={() => {setConfirmEmptyTrash(false)}}
+            >
+                {t("emptyTrashConfirm")}
             </ConfirmationComp>
             }
 

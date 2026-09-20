@@ -797,3 +797,25 @@ label.upperLabel.upperLabelDirty {
 .markdownPreview img {
     max-width: 100%;
 }
+
+.trashedNote {
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+.trashedNoteName {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.trashedNoteWhen {
+    color: #888888;
+    font-size: 11px;
+    white-space: nowrap;
+}
