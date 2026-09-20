@@ -208,7 +208,7 @@ const HeaderComp = () => {
                     <Navbar.Brand>
                         <Link to="/">
                             <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <div style={{paddingTop: 3}}><i><img src={process.env.PUBLIC_URL + "/images/privThingIco.png"} width="30" height="30" className="imageRotateHorizontal d-inline-block align-top" alt="" /></i></div>
+                                <div style={{paddingTop: 3}}><i><img src={"/images/privThingIco.png"} width="30" height="30" className="imageRotateHorizontal d-inline-block align-top" alt="" /></i></div>
                                 <div className='navbarTitle'>
                                     <div>{t("privThing")} <span className='navbarVersion'>v{APP_VERSION}</span></div>
                                     <div style={{fontSize: 10, color: '#ffffff80', margin: '-4px 0 0 0'}}>{t('privThingMemo')}</div>
@@ -289,17 +289,17 @@ const HeaderComp = () => {
                     <Nav>
                         <Dropdown>
                             <Dropdown.Toggle variant="dark">
-                            <img src={process.env.PUBLIC_URL + "/images/flags/" + currentLanguageFlag} className="" alt={currentLanguageFlag} />
+                            <img src={"/images/flags/" + currentLanguageFlag} className="" alt={currentLanguageFlag} />
                             </Dropdown.Toggle>
                             <Dropdown.Menu className='dropdown-menu-end'>
                                 <Dropdown.Item style={{textAlign: 'center'}} onClick={() => handleLanguageChange('pl')}>
-                                    <img src={process.env.PUBLIC_URL + "/images/flags/pl.png"} className="" alt="pl flag" />&nbsp;&nbsp;-&nbsp;&nbsp;pl
+                                    <img src={"/images/flags/pl.png"} className="" alt="pl flag" />&nbsp;&nbsp;-&nbsp;&nbsp;pl
                                 </Dropdown.Item>
                                 <Dropdown.Item style={{textAlign: 'center'}} onClick={() => handleLanguageChange('de')}>
-                                    <img src={process.env.PUBLIC_URL + "/images/flags/de.png"} className="" alt="de flag" />&nbsp;&nbsp;-&nbsp;&nbsp;de
+                                    <img src={"/images/flags/de.png"} className="" alt="de flag" />&nbsp;&nbsp;-&nbsp;&nbsp;de
                                 </Dropdown.Item>
                                 <Dropdown.Item style={{textAlign: 'center'}} onClick={() => handleLanguageChange('en')}>
-                                    <img src={process.env.PUBLIC_URL + "/images/flags/en.png"} className="" alt="en flag" />&nbsp;&nbsp;-&nbsp;&nbsp;en
+                                    <img src={"/images/flags/en.png"} className="" alt="en flag" />&nbsp;&nbsp;-&nbsp;&nbsp;en
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>

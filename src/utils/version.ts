@@ -1,1 +1,3 @@
-export const APP_VERSION = process.env.REACT_APP_VERSION || 'dev';
+declare const __APP_VERSION__: string;
+
+export const APP_VERSION = __APP_VERSION__;

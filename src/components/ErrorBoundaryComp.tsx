@@ -24,7 +24,7 @@ class ErrorBoundaryComp extends Component<ErrorBoundaryProps, ErrorBoundaryState
 
     componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         console.error('Unhandled error', error, errorInfo);
-        this.setState({ componentStack: errorInfo.componentStack });
+        this.setState({ componentStack: errorInfo.componentStack || null });
     }
 
     getDetails(): string {

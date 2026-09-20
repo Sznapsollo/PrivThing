@@ -789,7 +789,7 @@ const NoteComp = ({ editedItem }: Props) => {
         setNote(val);
     }, []);
 
-    const copyClickedValue = (copiedText: String, copyMessage: string = 'lineCopiedToClipboard') => {
+    const copyClickedValue = (copiedText: string, copyMessage: string = 'lineCopiedToClipboard') => {
         onTriggerBlinkingBorder();
         let markedText = (copiedText || '').toString();
         navigator.clipboard.writeText(markedText);

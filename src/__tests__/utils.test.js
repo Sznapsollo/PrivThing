@@ -1,4 +1,5 @@
 import { manageEditItemSpaces, manageHeaderTabs, toPersistable, saveLocalStorage, retrieveLocalStorage } from '../utils/utils';
+import { fileNameTimestamp, durationClock, formatUtcDateTime } from '../utils/dates';
 
 describe('toPersistable', () => {
     it('drops rawNote so a picked file body never reaches storage', () => {
@@ -22,7 +23,7 @@ describe('toPersistable', () => {
 
 describe('saveLocalStorage', () => {
     afterEach(() => {
-        jest.restoreAllMocks();
+        vi.restoreAllMocks();
         window.localStorage.clear();
     });
 
@@ -32,12 +33,12 @@ describe('saveLocalStorage', () => {
     });
 
     it('returns false when the quota is exceeded instead of reporting success', () => {
-        jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
             const error = new Error('quota');
             error.name = 'QuotaExceededError';
             throw error
         });
-        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
         expect(saveLocalStorage('privthing.files', { note: 'x' })).toBe(false);
     });
 });
@@ -89,7 +90,6 @@ describe('manageEditItemSpaces', () => {
 });
 
 describe('date helpers (moment replacements)', () => {
-    const { fileNameTimestamp, durationClock, formatUtcDateTime } = require('../utils/dates');
 
     it('builds the same filename shape moment produced', () => {
         expect(fileNameTimestamp(new Date(2026, 8, 20, 13, 5, 7))).toBe('September_20th_2026_1_05_07');
@@ -113,13 +113,12 @@ describe('date helpers (moment replacements)', () => {
 });
 
 describe('manageHeaderTabs with unsaved new notes', () => {
-    const { manageHeaderTabs: manageTabs } = require('../utils/utils');
     const newNote = { name: '', path: '' };
 
     it('gives each unsaved new note a tab of its own', () => {
-        let tabs = manageTabs([], newNote, null, 'CHANGE_ACTIVE');
-        tabs = manageTabs(tabs, newNote, { ...newNote, isNew: true }, 'CHANGE_ACTIVE');
-        tabs = manageTabs(tabs, newNote, { ...newNote, isNew: true }, 'CHANGE_ACTIVE');
+        let tabs = manageHeaderTabs([], newNote, null, 'CHANGE_ACTIVE');
+        tabs = manageHeaderTabs(tabs, newNote, { ...newNote, isNew: true }, 'CHANGE_ACTIVE');
+        tabs = manageHeaderTabs(tabs, newNote, { ...newNote, isNew: true }, 'CHANGE_ACTIVE');
 
         expect(tabs).toHaveLength(3);
         expect(new Set(tabs.map((tab) => tab.tabId)).size).toBe(3);
@@ -127,9 +126,9 @@ describe('manageHeaderTabs with unsaved new notes', () => {
     });
 
     it('still reuses the tab of a file that is already open', () => {
-        let tabs = manageTabs([], { name: 'a.txt', path: '/a.txt' }, null, 'CHANGE_ACTIVE');
-        tabs = manageTabs(tabs, { name: 'b.txt', path: '/b.txt' }, { path: '/b.txt', isNew: true }, 'CHANGE_ACTIVE');
-        tabs = manageTabs(tabs, { name: 'a.txt', path: '/a.txt' }, { path: '/a.txt', isNew: true }, 'CHANGE_ACTIVE');
+        let tabs = manageHeaderTabs([], { name: 'a.txt', path: '/a.txt' }, null, 'CHANGE_ACTIVE');
+        tabs = manageHeaderTabs(tabs, { name: 'b.txt', path: '/b.txt' }, { path: '/b.txt', isNew: true }, 'CHANGE_ACTIVE');
+        tabs = manageHeaderTabs(tabs, { name: 'a.txt', path: '/a.txt' }, { path: '/a.txt', isNew: true }, 'CHANGE_ACTIVE');
 
         expect(tabs).toHaveLength(2);
         expect(tabs.find((tab) => tab.path === '/a.txt').isActive).toBe(true);

@@ -109,7 +109,7 @@ const ItemsComp = () => {
                     if(!items?.length) {
                         setIsLoading(true);
                     }
-                    let searchRQBody:{type: String, searchPhrase?: string} = {type: 'getListOfFiles'};
+                    let searchRQBody:{type: string, searchPhrase?: string} = {type: 'getListOfFiles'};
                     if(searchState.searchContent === true && searchState.searchQuery && searchState.searchQuery.length >= 3) {
                         searchRQBody.searchPhrase = searchQuery;
                     }
@@ -158,7 +158,7 @@ const ItemsComp = () => {
                 await loadFilesFromLocalCache();
                 mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: itemsLoaded});
             } catch(e) {
-                let excError: String = '';
+                let excError: string = '';
                 if (typeof e === "string") {
                     excError = e;
                 } else if (e instanceof Error) {

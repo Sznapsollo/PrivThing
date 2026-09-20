@@ -32,7 +32,7 @@ import {
 import { createCustomTheme } from '../../utils/customTheme';
 import { hideRegex } from './hideRegex';
 
-type CopyClickedValue = (copiedText: String, copyMessage?: string) => void;
+type CopyClickedValue = (copiedText: string, copyMessage?: string) => void;
 type BuildContextMenu = (e: any, options?: { type: string; selectionStart?: number; selectionEnd?: number }) => void;
 
 interface Options {

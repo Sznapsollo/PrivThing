@@ -16,16 +16,16 @@ const toBase64 = (bytes: Uint8Array): string => {
     return btoa(binary)
 };
 
-const fromBase64 = (value: string): Uint8Array => {
+const fromBase64 = (value: string): Uint8Array<ArrayBuffer> => {
     const binary = atob(value);
-    const bytes = new Uint8Array(binary.length);
+    const bytes = new Uint8Array(new ArrayBuffer(binary.length));
     for (let index = 0; index < binary.length; index++) {
         bytes[index] = binary.charCodeAt(index);
     }
     return bytes
 };
 
-const deriveKey = async (secret: string, salt: Uint8Array): Promise<CryptoKey> => {
+const deriveKey = async (secret: string, salt: BufferSource): Promise<CryptoKey> => {
     const baseKey = await crypto.subtle.importKey('raw', textEncoder.encode(secret), 'PBKDF2', false, ['deriveKey']);
     return crypto.subtle.deriveKey(
         { name: 'PBKDF2', salt: salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' },
@@ -48,8 +48,8 @@ export function isLegacyEncryptedNote(rawData: string): boolean {
 }
 
 export async function encryptNote(note: string, secret: string): Promise<string> {
-    const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
-    const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
+    const salt = crypto.getRandomValues(new Uint8Array(new ArrayBuffer(SALT_BYTES)));
+    const iv = crypto.getRandomValues(new Uint8Array(new ArrayBuffer(IV_BYTES)));
     const key = await deriveKey(secret, salt);
 
     const ciphertext = new Uint8Array(await crypto.subtle.encrypt(
@@ -58,7 +58,7 @@ export async function encryptNote(note: string, secret: string): Promise<string>
         textEncoder.encode(JSON.stringify(note))
     ));
 
-    const payload = new Uint8Array(salt.length + iv.length + ciphertext.length);
+    const payload = new Uint8Array(new ArrayBuffer(salt.length + iv.length + ciphertext.length));
     payload.set(salt, 0);
     payload.set(iv, salt.length);
     payload.set(ciphertext, salt.length + iv.length);

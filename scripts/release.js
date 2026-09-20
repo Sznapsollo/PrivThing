@@ -1,9 +1,12 @@
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 
 const dryRun = process.argv.includes('--dry-run');
-const clientDir = path.resolve(__dirname, '..');
+const clientDir = path.resolve(scriptDir, '..');
 const serverDir = process.env.PRIVTHING_SERVER_DIR || path.resolve(clientDir, '..', 'PrivThingServer');
 
 const clientPackage = JSON.parse(fs.readFileSync(path.join(clientDir, 'package.json'), 'utf8'));
