@@ -152,7 +152,7 @@ const SaveAsComp = ({
                                 <option value="FILE">{t("file")}</option>
                                 {
                                     serverFolders.map((folder) => (
-                                        <option key={folder.name} value={FOLDER_PREFIX + folder.name}>{folder.name}</option>
+                                        <option key={folder.name} value={FOLDER_PREFIX + folder.name} title={folder.name}>{folder.label || folder.name}</option>
                                     ))
                                 }
                             </Form.Control>

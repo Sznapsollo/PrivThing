@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Item } from '../model';
 import { isPinned, togglePinned } from '../utils/pinned';
+import { displayItemPath } from '../utils/itemDisplay';
 import { formatUtcDateTime } from '../utils/dates';
 import { AppState } from '../context/Context'
 import { GiPadlock } from 'react-icons/gi';
@@ -96,7 +97,7 @@ const LisItem = ({item, keyProp, editedItemPath, onPinnedChange, onDragStart, on
             </div>
             <div className='listItemBody' title={item.name + ( item.path ? ('\n' + item.path) : '') + ( item.lastModified ? ('\n' + t('lastModified') + ': ' + formatUtcDateTime(item.lastModified)) : '') + ( item.size ? ('\n' + t('size') + ': ' + item.size + (item.folder !== 'localStorage' ? ' kB' : '')) : '')}>
                 <div className='name' data-content={item.name}></div>
-                <div className='path' data-content={item.path}></div>
+                <div className='path' data-content={displayItemPath(item)}></div>
             </div>
         </div>
     )

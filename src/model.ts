@@ -25,12 +25,14 @@ export interface GenericContextMenuAction {
 
 export interface Folder {
     name: string,
+    label?: string,
     itemsCount: number
 }
 
 export interface Item {
     fetchData?: boolean,
     folder?: string,
+    folderLabel?: string,
     lastModified?: number,
     name: string,
     path: string,

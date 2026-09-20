@@ -400,7 +400,7 @@ const ItemsComp = () => {
                         <option value="">{t("allFolders")}</option>
                         {
                             folders.map((folder, folderIndex) => {
-                                return <option key={folderIndex} value={folder.name}>{folder.name}&nbsp;({folder.itemsCount})</option>
+                                return <option key={folderIndex} value={folder.name} title={folder.name}>{folder.label || folder.name}&nbsp;({folder.itemsCount})</option>
                             })
                         }
                     </Form.Control>

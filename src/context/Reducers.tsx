@@ -254,6 +254,7 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 } else {
                     folders.push({
                         name: item.folder,
+                        label: item.folderLabel,
                         itemsCount: 1
                     } as Folder);
                 }

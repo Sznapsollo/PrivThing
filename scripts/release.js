@@ -64,5 +64,5 @@ step('Now commit, in this order');
 console.log('  cd ' + clientDir + ' && git add -A && git commit -m "release ' + version + '"');
 console.log('  cd ' + serverDir + ' && git add -A && git commit -m "client ' + version + '"');
 console.log('\nThe running service is a separate copy. To deploy it:');
-console.log('  cp -r models controllers routes client ' + (process.env.PRIVTHING_DEPLOY_DIR || '<deploy dir>'));
+console.log('  cp -r app.js package.json models controllers routes client ' + (process.env.PRIVTHING_DEPLOY_DIR || '<deploy dir>'));
 console.log('  sudo systemctl restart <your privthing service>');

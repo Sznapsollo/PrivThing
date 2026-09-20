@@ -156,3 +156,29 @@ describe('wrap rows, remembered per note space', () => {
         expect(persisted[0].spaceId).toBe('space-a');
     });
 });
+
+describe('folder labels from the server', () => {
+    it('keeps a folder label alongside the path', () => {
+        const state = mainReducer(baseState(), { type: MAIN_ACTIONS.SET_ITEMS, payload: [
+            { name: 'a.txt', path: '/notes/a.txt', folder: '/notes/', folderLabel: 'My notes' },
+            { name: 'b.txt', path: '/scripts/b.txt', folder: '/scripts/' }
+        ] } as any);
+
+        const labelled = state.folders.find((folder) => folder.name === '/notes/');
+        const plain = state.folders.find((folder) => folder.name === '/scripts/');
+
+        expect(labelled?.label).toBe('My notes');
+        expect(plain?.label).toBeUndefined();
+    });
+
+    it('still identifies folders by path, so filtering and saved tabs keep working', () => {
+        const state = mainReducer(baseState(), { type: MAIN_ACTIONS.SET_ITEMS, payload: [
+            { name: 'a.txt', path: '/notes/a.txt', folder: '/notes/', folderLabel: 'My notes' },
+            { name: 'c.txt', path: '/notes/c.txt', folder: '/notes/', folderLabel: 'My notes' }
+        ] } as any);
+
+        expect(state.folders).toHaveLength(1);
+        expect(state.folders[0].name).toBe('/notes/');
+        expect(state.folders[0].itemsCount).toBe(2);
+    });
+});
