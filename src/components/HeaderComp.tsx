@@ -16,6 +16,8 @@ import { durationClock, fileNameTimestamp } from '../utils/dates';
 import { APP_THEME_DARK, APP_THEME_LIGHT, isSystemAppTheme, nextAppTheme } from '../utils/appTheme';
 import { MdDarkMode, MdLightMode, MdBrightnessAuto } from 'react-icons/md';
 import { allNotes, NoteRecord, setNotes } from '../storage/notesStore';
+import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
+import SecretComp from './SecretComp';
 import ResultsComp from './ResultsComp';
 import { MAIN_ACTIONS, SEARCH_ACTIONS, SETTINGS_ACTIONS } from '../context/Reducers';
 
@@ -48,6 +50,9 @@ const HeaderComp = () => {
     const [ processingResult , setProcessingResult ] = useState<ProcessingResult[]>([])
     const [ showProcessingResult, setShowProcessingResult ] = useState(false);
     const [ showAbout, setShowAbout ] = useState(false);
+    const [ askExportSecret, setAskExportSecret ] = useState(false);
+    const [ encryptedImport, setEncryptedImport ] = useState<string | null>(null);
+    const [ importSecretWarning, setImportSecretWarning ] = useState('');
     const centerLabelref = useRef<HTMLDivElement>(null);
 
     const handleForgetSecret = () => {
@@ -137,15 +142,24 @@ const HeaderComp = () => {
         saveLocalStorage("privthing.pmSettings", updatedSettings);
     }
 
-    const handleExportLocalStorageItems = async () => {
-        let localStorageFilesData = await allNotes();
+    const handleExportLocalStorageItems = () => {
+        setAskExportSecret(true);
+    }
 
-        const blob = new Blob([JSON.stringify(localStorageFilesData)], { type: "text/plain" });
+    const exportNotes = async (secret?: string) => {
+        setAskExportSecret(false);
+
+        const localStorageFilesData = await allNotes();
+        const payload = JSON.stringify(localStorageFilesData);
+        const encrypted = !!secret;
+        const content = encrypted ? await encryptNote(payload, secret as string) : payload;
+
+        const blob = new Blob([content], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.download = fileNameTimestamp() + '_privthing_backup.txt';
+        link.download = fileNameTimestamp() + '_privthing_backup' + (encrypted ? '.prvthng' : '.txt');
         link.href = url;
-        
+
         link.click();
     }
 
@@ -160,48 +174,70 @@ const HeaderComp = () => {
                         var file = e.target.files[0]; 
                         var reader = new FileReader();
                         reader.onload = async function(event:any) {
-                            // The file's text will be printed here
-                            let currentLocalStorage = await allNotes();
-                            let importedLocalStorage = JSON.parse(event.target.result)
-                            let notesToImport: Record<string, NoteRecord> = {};
-                            for(let storageItem in importedLocalStorage) {
-                                if(currentLocalStorage[storageItem] != null) {
-                                    results.push({name: storageItem, result: t('itemAlreadyExists'), status: -1});
-                                } else {
-                                    results.push({name: storageItem, result: t('itemImported'), status: 0});
-                                    notesToImport[storageItem] = importedLocalStorage[storageItem];
-                                }
+                            if(isEncryptedNote(event.target.result)) {
+                                setImportSecretWarning('');
+                                setEncryptedImport(event.target.result);
+                                return
                             }
-                            let okResult = results.find((resultItem => resultItem.status === 0))
-                            if(okResult) {
-                                try {
-                                    await setNotes(notesToImport);
-                                    mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
-                                } catch (error) {
-                                    results.forEach((resultItem) => {
-                                        if(resultItem.status === 0) {
-                                            resultItem.result = t('dataNotSaved');
-                                            resultItem.status = -1;
-                                        }
-                                    });
-                                }
-                            }
-                            setProcessingResult(results);
-                            setShowProcessingResult(true);
+                            await applyImport(event.target.result);
                         };
-                    
+
                         reader.readAsText(file);
                     }
                 } catch(e) {
                     console.warn('localStorage handleImportLocalStorageItems operation error: ', e);
                     mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as NotificationData})
                 }
-            }
-
+            };
             input.click();
         } catch(e) {
-            console.warn('localStorage handleImportLocalStorageItems operation error #2: ', e);
-            mainDispatch({type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: {show: true, type: 'error', closeAfter: 10000, message: t('somethingWentWrong') + e} as NotificationData})
+            console.warn('localStorage handleImportLocalStorageItems operation error: ', e);
+        }
+    }
+
+    const applyImport = async (payload: string) => {
+        const results: ProcessingResult[] = [];
+        const currentLocalStorage = await allNotes();
+        const importedLocalStorage = JSON.parse(payload);
+        const notesToImport: Record<string, NoteRecord> = {};
+
+        for(let storageItem in importedLocalStorage) {
+            if(currentLocalStorage[storageItem] != null) {
+                results.push({name: storageItem, result: t('itemAlreadyExists'), status: -1});
+            } else {
+                results.push({name: storageItem, result: t('itemImported'), status: 0});
+                notesToImport[storageItem] = importedLocalStorage[storageItem];
+            }
+        }
+
+        if(results.find((resultItem) => resultItem.status === 0)) {
+            try {
+                await setNotes(notesToImport);
+                mainDispatch({type: MAIN_ACTIONS.UPDATE_ITEMS_LIST});
+            } catch (error) {
+                results.forEach((resultItem) => {
+                    if(resultItem.status === 0) {
+                        resultItem.result = t('dataNotSaved');
+                        resultItem.status = -1;
+                    }
+                });
+            }
+        }
+
+        setProcessingResult(results);
+        setShowProcessingResult(true);
+    }
+
+    const importWithSecret = async (secret: string) => {
+        if(!encryptedImport) {
+            return
+        }
+        try {
+            const payload = await decryptNote(encryptedImport, secret);
+            setEncryptedImport(null);
+            await applyImport(payload);
+        } catch (e) {
+            setImportSecretWarning(t('incorrectPassword'));
         }
     }
 
@@ -351,6 +387,35 @@ const HeaderComp = () => {
                     }}
                 />
             }
+            {
+                askExportSecret &&
+                <ConfirmationComp
+                    externalHeading={t("exportLocalStorageItems")}
+                    externalShowSaveButton={false}
+                    externalShowMiddleButton={true}
+                    externalMiddleLabel={t("exportWithoutPassword")}
+                    externalMiddleButtonVariant={'secondary'}
+                    externalCloseLabel={t("cancel")}
+                    handleExternalMiddle={() => exportNotes()}
+                    handleExternalClose={() => setAskExportSecret(false)}
+                >
+                    <div style={{padding: '0 0 10px 0'}}>{t("exportSecretInfo")}</div>
+                    <SecretComp confirm={true} info={t("providePasswordToEncryptExport")} handleSubmit={(secret: string) => exportNotes(secret)} />
+                </ConfirmationComp>
+            }
+
+            {
+                encryptedImport &&
+                <ConfirmationComp
+                    externalHeading={t("importLocalStorageItems")}
+                    externalShowSaveButton={false}
+                    externalCloseLabel={t("cancel")}
+                    handleExternalClose={() => setEncryptedImport(null)}
+                >
+                    <SecretComp confirm={false} warning={importSecretWarning} info={t("providePasswordToOpenDecryptedFile")} handleSubmit={importWithSecret} />
+                </ConfirmationComp>
+            }
+
             {
                 showAbout &&
                 <ConfirmationComp
