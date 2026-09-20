@@ -1,5 +1,6 @@
 import { MAIN_ACTIONS, mainReducer } from '../context/Reducers';
 import { EditItem, MainContextType } from '../model';
+import { toPersistable } from '../utils/utils';
 
 const baseState = (): MainContextType => ({
     editedItemSpaces: [{ name: '', path: '', isActive: true }],
@@ -114,5 +115,44 @@ describe('note spaces are identified by id, not by object identity', () => {
         const ids = state.editedItemSpaces.map((space: EditItem) => space.spaceId);
         expect(ids.every((id) => !!id)).toBe(true);
         expect(new Set(ids).size).toBe(ids.length);
+    });
+});
+
+describe('wrap rows, remembered per note space', () => {
+    const twoSpaces = (): MainContextType => ({
+        ...baseState(),
+        editedItemSpaces: [
+            { name: 'a.txt', path: '/a.txt', spaceId: 'space-a', isActive: true },
+            { name: 'b.txt', path: '/b.txt', spaceId: 'space-b', isActive: false }
+        ]
+    } as unknown as MainContextType);
+
+    it('turns wrapping off for one space without touching the other', () => {
+        const next = mainReducer(twoSpaces(), {
+            type: MAIN_ACTIONS.SET_NOTE_SPACE_WRAP,
+            payload: { spaceId: 'space-a', wrapWords: false }
+        } as any);
+
+        expect(next.editedItemSpaces.find((space: EditItem) => space.spaceId === 'space-a')?.wrapWords).toBe(false);
+        expect(next.editedItemSpaces.find((space: EditItem) => space.spaceId === 'space-b')?.wrapWords).toBeUndefined();
+    });
+
+    it('turns it back on again', () => {
+        let state = mainReducer(twoSpaces(), { type: MAIN_ACTIONS.SET_NOTE_SPACE_WRAP, payload: { spaceId: 'space-a', wrapWords: false } } as any);
+        state = mainReducer(state, { type: MAIN_ACTIONS.SET_NOTE_SPACE_WRAP, payload: { spaceId: 'space-a', wrapWords: true } } as any);
+
+        expect(state.editedItemSpaces.find((space: EditItem) => space.spaceId === 'space-a')?.wrapWords).toBe(true);
+    });
+
+    it('does nothing when the space is unknown', () => {
+        const next = mainReducer(twoSpaces(), { type: MAIN_ACTIONS.SET_NOTE_SPACE_WRAP, payload: { spaceId: 'nope', wrapWords: false } } as any);
+        expect(next.editedItemSpaces.every((space: EditItem) => space.wrapWords === undefined)).toBe(true);
+    });
+
+    it('is carried into what gets persisted', () => {
+        const next = mainReducer(twoSpaces(), { type: MAIN_ACTIONS.SET_NOTE_SPACE_WRAP, payload: { spaceId: 'space-a', wrapWords: false } } as any);
+        const persisted = next.editedItemSpaces.map(toPersistable);
+        expect(persisted[0].wrapWords).toBe(false);
+        expect(persisted[0].spaceId).toBe('space-a');
     });
 });

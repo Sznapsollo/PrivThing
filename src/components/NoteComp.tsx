@@ -73,7 +73,7 @@ const NoteComp = ({ editedItem }: Props) => {
     const [isSavingAs, setIsSavingAs] = useState<boolean>(false);
     const [noteContextMenu, setNoteContextMenu] = useState<NoteContextMenu>(initialContextMenu);
     const [showFullScreen, setShowFullScreen] = useState<boolean>(false);
-    const [wrapWords, setWrapWords] = useState<boolean>(true);
+    const wrapWords = editedItem.wrapWords !== false;
 
     const updateFileButtonRef = useRef<HTMLButtonElement>(null);
     const saveToFileButtonRef = useRef<HTMLButtonElement>(null);
@@ -370,7 +370,7 @@ const NoteComp = ({ editedItem }: Props) => {
     }
 
     const handleWrappToggle = () => {
-        setWrapWords(prev => !prev);
+        mainDispatch({ type: MAIN_ACTIONS.SET_NOTE_SPACE_WRAP, payload: { spaceId: editedItem.spaceId, wrapWords: !wrapWords } });
     }
 
     const handleUnsavedIgnore = () => {

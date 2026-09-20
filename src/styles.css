@@ -58,6 +58,7 @@ a:not(.dropdown-item) {
 
 .itemsResizeWrapper {
     display: flex;
+    flex-shrink: 0;
 }
 
 .nonTextSelectable {
@@ -318,6 +319,8 @@ a:not(.dropdown-item) {
 .homeContainer {
     /* display: flex; */
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
     /* padding: 20px; */
     flex-wrap: wrap;
     justify-content: space-around;
@@ -353,6 +356,11 @@ a:not(.dropdown-item) {
 
 .flexStretch {
     flex: 1;
+    min-width: 0;
+}
+
+.flexStretch .formGroup {
+    min-width: 0;
 }
 
 .flexStretch .formGroup,
@@ -364,11 +372,13 @@ a:not(.dropdown-item) {
     display: flex;
     flex-flow: row;
     height: 100%;
+    min-width: 0;
 } 
 
 .noteSpaceContainer {
     display: flex;
     flex-direction: column;
+    min-width: 0;
     width: 100%;
     transition: all .2s ease-in-out;
 }
@@ -377,6 +387,7 @@ a:not(.dropdown-item) {
     display: flex;
     flex-flow: column;
     height: 100%;
+    min-width: 0;
     width: 100%;
     padding: 20px 20px 0 20px;
 } 

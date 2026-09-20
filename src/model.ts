@@ -140,7 +140,8 @@ export interface Tab extends Item {
 export interface EditItem extends Item {
     isActive?: boolean,
     flex?: number,
-    spaceId?: string
+    spaceId?: string,
+    wrapWords?: boolean
 }
 
 export interface TabContextMenu extends GenericContextMenu {

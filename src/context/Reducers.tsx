@@ -15,6 +15,7 @@ export enum MAIN_ACTIONS {
     SET_EDITED_ITEM_CANDIDATE = 'SET_EDITED_ITEM_CANDIDATE',
     SET_EDITED_ITEM = 'SET_EDITED_ITEM',
     SET_NOTE_SPACE_ACTIVE = 'SET_NOTE_SPACE_ACTIVE',
+    SET_NOTE_SPACE_WRAP = 'SET_NOTE_SPACE_WRAP',
     SET_ITEMS = 'SET_ITEMS',
     SHOW_ALERT_MODAL = 'SHOW_ALERT_MODAL',
     SHOW_NOTIFICATION = 'SHOW_NOTIFICATION',
@@ -44,6 +45,7 @@ type RemoveFromFavourites = {type: MAIN_ACTIONS.REMOVE_FROM_FAVOURITES, payload:
 type SetEditedItemCandidate = {type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: NavigationItem};
 type SetEditedItem = {type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: NavigationItem};
 type SetEditedSpaceActive = {type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: EditItem};
+type SetNoteSpaceWrap = {type: MAIN_ACTIONS.SET_NOTE_SPACE_WRAP, payload: {spaceId?: string, wrapWords: boolean}};
 type SetItems = {type: MAIN_ACTIONS.SET_ITEMS, payload: Item[]};
 type ShowAlertModal = {type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: AlertData};
 type ShowNotification = {type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: NotificationData};
@@ -72,6 +74,7 @@ export type MainActions = AddToFavourites |
     SetEditedItemCandidate | 
     SetEditedItem | 
     SetEditedSpaceActive |
+    SetNoteSpaceWrap |
     SetItems | 
     ShowAlertModal | 
     ShowNotification |
@@ -270,6 +273,16 @@ export const mainReducer = (state: MainContextType, action: MainActions) => {
                 ...state,
                 editedItemSpaces: state.editedItemSpaces.map((editedItemSpace) => { 
                     return {...editedItemSpace, flex: 1}
+                })
+            }
+        case MAIN_ACTIONS.SET_NOTE_SPACE_WRAP:
+            return {
+                ...state,
+                editedItemSpaces: state.editedItemSpaces.map((editedItemSpace) => {
+                    if(editedItemSpace.spaceId && editedItemSpace.spaceId === action.payload.spaceId) {
+                        return {...editedItemSpace, wrapWords: action.payload.wrapWords}
+                    }
+                    return editedItemSpace
                 })
             }
         case MAIN_ACTIONS.STRETCH_NOTE_SPACE:

@@ -103,9 +103,8 @@ const NoteToolbar = ({
                         </div>
                     }
                     {
-                        showFullScreen &&
                         <Form.Check
-                            id="wrapWorkdsChbx"
+                            id={'wrapWordsChbx' + (showFullScreen ? 'FullScreen' : '')}
                             type="checkbox"
                             label={t("wrapRows")}
                             name="wrapWords"
