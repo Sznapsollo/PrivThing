@@ -1,7 +1,7 @@
 import { RefObject } from 'react';
 import { Button, Dropdown, Form } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
-import { FaMagnifyingGlass } from 'react-icons/fa6';
+import { FaEye, FaMagnifyingGlass } from 'react-icons/fa6';
 import { RiArrowUpCircleLine, RiMenuUnfoldFill } from 'react-icons/ri';
 
 interface Props {
@@ -25,6 +25,9 @@ interface Props {
     onChangeSecret: () => void,
     onShowFullScreen: () => void,
     onWrapToggle: () => void,
+    canPreview: boolean,
+    showPreview: boolean,
+    onPreviewToggle: () => void,
     onSaveAs: () => void,
     onRollback: () => void
 }
@@ -33,7 +36,9 @@ const NoteToolbar = ({
     isActive, filePath, canUpdateFile, canDelete, isDirty, isEncrypted, needSecret,
     noteLength, saveHotKey, showFullScreen, wrapWords,
     updateFileButtonRef, saveToFileButtonRef, scrollTopButtonRef,
-    onSave, onDelete, onScrollTop, onChangeSecret, onShowFullScreen, onWrapToggle, onSaveAs, onRollback
+    onSave, onDelete, onScrollTop, onChangeSecret, onShowFullScreen, onWrapToggle,
+    canPreview, showPreview, onPreviewToggle,
+    onSaveAs, onRollback
 }: Props) => {
 
     const { t } = useTranslation();
@@ -78,6 +83,15 @@ const NoteToolbar = ({
                             `${t('size')}: ${noteLength}`
                         }
                     </div>
+                    <div className='noteToolbarExtras'>
+                    {
+                        canPreview &&
+                        <button className='btn btn-sm' onClick={onPreviewToggle}>
+                            <FaEye className='h3' />
+                            &nbsp;
+                            {showPreview ? t('hidePreviewMD') : t('showPreviewMD')}
+                        </button>
+                    }
                     {
                         !showFullScreen &&
                         <div className='bigScreenItem' style={{ textAlign: 'center', alignItems: 'center', justifyContent: 'center', justifyItems: 'center', alignContent: 'center' }}>
@@ -100,6 +114,7 @@ const NoteToolbar = ({
                             onChange={onWrapToggle}
                         ></Form.Check>
                     }
+                    </div>
 
                 </div>
                 <div style={{ flex: 1 }}>&nbsp;</div>

@@ -144,6 +144,8 @@
     "shrink": "Shrink",
     "search": "Search",
     "searchContent": "Search in files content",
+    "showPreviewMD": "Preview .md",
+    "hidePreviewMD": "Hide preview .md",
     "showFullScreen": "Show full screen",
     "singleLineTabs": "Single line tabs",
     "size": "Size",

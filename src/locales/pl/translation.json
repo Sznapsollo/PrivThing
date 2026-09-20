@@ -143,6 +143,8 @@
     "saveToSelectedLocation": "Zapisz do wybranej lokacji",
     "search": "Szukaj",
     "searchContent": "Szukaj w zawartości plików",
+    "showPreviewMD": "Podgląd .md",
+    "hidePreviewMD": "Ukryj podgląd .md",
     "showFullScreen": "Pokaż na cały ekran",
     "singleLineTabs": "Jednolinijkowe zakładki",
     "size": "Rozmiar",

@@ -19,6 +19,8 @@ import { Draft, getDraft, removeDraft, saveDraft } from '../storage/draftsStore'
 import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { useCodeMirrorSetup } from './note/useCodeMirrorSetup';
+import MarkdownPreview from './note/MarkdownPreview';
+import { isMarkdownNote } from '../utils/markdown';
 import { hideRegex } from './note/hideRegex';
 import NoteModals from './note/NoteModals';
 import NoteToolbar from './note/NoteToolbar';
@@ -58,6 +60,7 @@ const NoteComp = ({ editedItem }: Props) => {
     const pendingSaveRef = useRef<{ fileData: string, callback?: () => void } | null>(null);
     const [askOverwrite, setAskOverwrite] = useState<boolean>(false);
     const [pendingDraft, setPendingDraft] = useState<Draft | null>(null);
+    const [showPreview, setShowPreview] = useState<boolean>(false);
     const draftHandle = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
     const [isIntroduced, setIsIntroduced] = useState<boolean>(isIntroducedGlb);
@@ -902,7 +905,10 @@ const NoteComp = ({ editedItem }: Props) => {
             noteRef.current.view.contentDOM.classList.add(blinkingCss);
         }
     }
+    const canPreview = isMarkdownNote(fileName);
+
     const { codeMirrorTheme: cdmrrorTheme, codeMirrorExtensions: cdmrrorExtensions } = useCodeMirrorSetup({
+        fileName: fileName,
         themeName: codeMirrorTheme,
         customThemeColors: customThemeColors,
         wrapWords: wrapWords,
@@ -977,7 +983,7 @@ const NoteComp = ({ editedItem }: Props) => {
                             </Form.Group>
                         </div>
                     </div>
-                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive') + (isDirty ? ' notepadDirty' : '')} >
+                    <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive') + (isDirty ? ' notepadDirty' : '') + (showPreview && canPreview ? ' noteWithPreview' : '')} >
                         <Form.Group ref={scrollableRef} className='formGroup' style={{ overflow: 'auto' }} onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} onScroll={() => { rememberScrollPosition() }}>
                             <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '') + (isDirty ? ' upperLabelDirty' : '')}>{t("note")}</label>
                             <div style={{ height: 100 }}>
@@ -995,6 +1001,7 @@ const NoteComp = ({ editedItem }: Props) => {
                                 />
                             </div>
                         </Form.Group>
+                        {showPreview && canPreview && <MarkdownPreview note={note} />}
                     </div>
                     {!isIntroduced && editedItem.isActive &&
                         <Alert className='privThingIntroduction' variant="info" dismissible onClose={handleAcceptIntroduction}>
@@ -1025,6 +1032,9 @@ const NoteComp = ({ editedItem }: Props) => {
                         onChangeSecret={() => { setUpdateSecret(true) }}
                         onShowFullScreen={() => { setShowFullScreen(true) }}
                         onWrapToggle={handleWrappToggle}
+                        canPreview={canPreview}
+                        showPreview={showPreview}
+                        onPreviewToggle={() => { setShowPreview(!showPreview) }}
                         onSaveAs={() => { setIsSavingAs(true) }}
                         onRollback={() => { setNote(orgNote.current) }}
                     />

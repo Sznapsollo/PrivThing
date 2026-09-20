@@ -144,6 +144,8 @@
     "shrink": "Schrumpfen",
     "search": "Suche",
     "searchContent": "Durchsuchen Sie den Inhalt von Dateien",
+    "showPreviewMD": "Vorschau .md",
+    "hidePreviewMD": "Vorschau ausblenden .md",
     "showFullScreen": "Vollbild anzeigen",
     "singleLineTabs": "einzeilige Tabulatoren",
     "size": "Größe",

@@ -1,4 +1,4 @@
-import { useMemo, useRef, MutableRefObject } from 'react';
+import { useEffect, useMemo, useRef, useState, MutableRefObject } from 'react';
 import { BlockInfo, lineNumbers, Extension, EditorSelection, Prec } from '@uiw/react-codemirror';
 import {
     Decoration,
@@ -10,7 +10,6 @@ import {
     ViewUpdate,
     keymap
 } from '@codemirror/view';
-import { javascript } from '@codemirror/lang-javascript';
 import {
     amy,
     ayuLight,
@@ -29,13 +28,16 @@ import {
     solarizedLight,
     tomorrow
 } from 'thememirror';
+import { LanguageSupport } from '@codemirror/language';
 import { createCustomTheme } from '../../utils/customTheme';
+import { loadNoteLanguage } from './noteLanguage';
 import { hideRegex } from './hideRegex';
 
 type CopyClickedValue = (copiedText: string, copyMessage?: string) => void;
 type BuildContextMenu = (e: any, options?: { type: string; selectionStart?: number; selectionEnd?: number }) => void;
 
 interface Options {
+    fileName?: string;
     themeName?: string;
     customThemeColors?: any;
     wrapWords: boolean;
@@ -44,6 +46,7 @@ interface Options {
 }
 
 export function useCodeMirrorSetup({
+    fileName,
     themeName,
     customThemeColors,
     wrapWords,
@@ -55,6 +58,18 @@ export function useCodeMirrorSetup({
 
     const buildContextMenuRef: MutableRefObject<BuildContextMenu> = useRef(buildContextMenu);
     buildContextMenuRef.current = buildContextMenu;
+
+    const [noteLanguage, setNoteLanguage] = useState<LanguageSupport | null>(null);
+
+    useEffect(() => {
+        let stillWanted = true;
+        loadNoteLanguage(fileName).then((support) => {
+            if (stillWanted) {
+                setNoteLanguage(support);
+            }
+        });
+        return () => { stillWanted = false }
+    }, [fileName]);
 
     const codeMirrorTheme: 'none' | Extension = useMemo(() => {
         const themes: Record<string, Extension> = {
@@ -152,7 +167,6 @@ export function useCodeMirrorSetup({
             }
         );
         const extensions = [
-            javascript({ jsx: true }),
             lineNumbers({
                 domEventHandlers: {
                     click(view: EditorView, line: BlockInfo, event: any) {
@@ -227,12 +241,16 @@ export function useCodeMirrorSetup({
             // }, { dark: true })
         ];
 
+        if (noteLanguage) {
+            extensions.unshift(noteLanguage);
+        }
+
         if (wrapWords) {
             extensions.push(EditorView.lineWrapping);
         }
 
         return extensions;
-    }, [wrapWords]);
+    }, [wrapWords, noteLanguage]);
 
     return { codeMirrorTheme, codeMirrorExtensions };
 }
