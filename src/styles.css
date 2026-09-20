@@ -297,7 +297,9 @@ a:not(.dropdown-item) {
 }
 
 .hintBar {
-    flex: 1;
+    /* a row of its own, but as a child of the column .homeContainer it must only take
+       the height it needs - flex: 1 made it split the space with the note pane */
+    flex: 0 0 auto;
     padding: 5px;
     background-color: #f5f5f5;
     display: flex;
@@ -314,6 +316,9 @@ a:not(.dropdown-item) {
 .home {
     display: flex;
     flex: 1;
+    /* without this the note pane (and with it the whole page) grows to the height of
+       the open document instead of the editor scrolling inside its own pane */
+    min-height: 0;
 }
 
 .homeContainer {
@@ -356,6 +361,7 @@ a:not(.dropdown-item) {
 
 .flexStretch {
     flex: 1;
+    min-height: 0;
     min-width: 0;
 }
 
@@ -371,7 +377,10 @@ a:not(.dropdown-item) {
 .notesSpacesContainer {
     display: flex;
     flex-flow: row;
-    height: 100%;
+    /* takes what is left under the tabs bar - height: 100% would be the full
+       container height and would push the note pane past the window bottom */
+    flex: 1;
+    min-height: 0;
     min-width: 0;
 } 
 
@@ -386,7 +395,12 @@ a:not(.dropdown-item) {
 .noteContainer {
     display: flex;
     flex-flow: column;
+    /* flex: 1 fills what is left next to the note space icons (height: 100% would be
+       the whole space height and would push the toolbar past the window bottom); the
+       height keeps the pane filled when it is not a flex item, as in the full screen modal */
+    flex: 1;
     height: 100%;
+    min-height: 0;
     min-width: 0;
     width: 100%;
     padding: 20px 20px 0 20px;
@@ -504,6 +518,22 @@ label.upperLabel.upperLabelDirty {
 
 .cm-focused {
     outline: none !important;
+}
+
+/* full screen note: the modal body has to hand its height to the note pane, otherwise
+   the editor grows to the whole document and the modal body scrolls instead of it */
+.fullScreenNote .modal-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* the wrapper div @uiw/react-codemirror renders around the editor: it has to pass the
+   pane height down, otherwise .cm-editor's height: 100% resolves against auto height
+   and the editor grows to the whole document again */
+.noteEditorHost {
+    height: 100%;
+    min-height: 0;
 }
 
 .recentsContainerHeader,

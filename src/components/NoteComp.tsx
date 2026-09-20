@@ -88,6 +88,9 @@ const NoteComp = ({ editedItem }: Props) => {
     const isUpdating = useRef(false);
     const srollTopBtn = useRef<HTMLDivElement>(null);
 
+    // the note scrolls inside CodeMirror's own scroller, not in the surrounding pane
+    const getNoteScroller = (): HTMLElement | null => noteRef.current?.view?.scrollDOM || null;
+
     const setRawNote = (rawNoteData: string): void => {
         rawNote.current = rawNoteData;
         if (rawNote.current?.length) {
@@ -298,7 +301,8 @@ const NoteComp = ({ editedItem }: Props) => {
 
     const manageTopButtonVisibility = () => {
         if (srollTopBtn.current) {
-            if (scrollableRef.current?.scrollTop != null && scrollableRef.current?.scrollTop > 100) {
+            const scroller = getNoteScroller();
+            if (scroller?.scrollTop != null && scroller.scrollTop > 100) {
                 srollTopBtn.current.style.display = 'flex';
             } else {
                 srollTopBtn.current.style.display = 'none';
@@ -316,7 +320,7 @@ const NoteComp = ({ editedItem }: Props) => {
                 // console.log('remember', scrollableRef.current?.scrollTop)
                 let currentTabs = tabs.map((tab) => {
                     if (tab.isActive === true) {
-                        return { ...tab, scrollTop: scrollableRef.current?.scrollTop }
+                        return { ...tab, scrollTop: getNoteScroller()?.scrollTop }
                     }
                     return { ...tab }
                 });
@@ -336,6 +340,11 @@ const NoteComp = ({ editedItem }: Props) => {
             }
         }, 200)
     }
+
+    // the scroll listener is attached once to CodeMirror's scroller, so it has to reach
+    // the current render's closure (tabs, editedItem) through a ref
+    const rememberScrollPositionRef = useRef<() => void>(rememberScrollPosition);
+    rememberScrollPositionRef.current = rememberScrollPosition;
 
     const giveMeSecret = (info?: string, warning?: string): void => {
         setNeedSecretMeta({ info: info, warning: warning });
@@ -691,7 +700,7 @@ const NoteComp = ({ editedItem }: Props) => {
                 // console.log('currentTab?.scrollTop', currentTab?.scrollTop)
                 if (currentTab?.scrollTop && currentTab.scrollTop >= 0) {
                     setTimeout(() => {
-                        scrollableRef.current?.scrollTo({ top: currentTab?.scrollTop });
+                        getNoteScroller()?.scrollTo({ top: currentTab?.scrollTop });
                         manageTopButtonVisibility();
                     }, 500);
                 }
@@ -963,7 +972,7 @@ const NoteComp = ({ editedItem }: Props) => {
                 </>
             }
             {
-                !isLoading && !needSecret && !updateSecret && !isSavingAs && <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                !isLoading && !needSecret && !updateSecret && !isSavingAs && <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
                     <div className='noteInputFields'>
                         <div className='formGroupContainer' style={{ flex: 1 }}>
                             <Form.Group className='formGroup'>
@@ -994,12 +1003,13 @@ const NoteComp = ({ editedItem }: Props) => {
                         </div>
                     </div>
                     <div className={'formGroupContainer flexStretch' + (editedItem.isActive ? ' notepadActive' : ' notepadInactive') + (isDirty ? ' notepadDirty' : '') + (showPreview && canPreview ? ' noteWithPreview' : '')} >
-                        <Form.Group ref={scrollableRef} className='formGroup' style={{ overflow: 'auto' }} onMouseOver={onMouseOver} onMouseLeave={onMouseLeave} onScroll={() => { rememberScrollPosition() }}>
+                        <Form.Group ref={scrollableRef} className='formGroup' style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }} onMouseOver={onMouseOver} onMouseLeave={onMouseLeave}>
                             <label className={'upperLabel' + (editedItem.isActive ? ' upperLabelActive' : '') + (isDirty ? ' upperLabelDirty' : '')}>
                                 {t("note")}{isDirty && <span className='unsavedMarker' title={t("unsavedChanges")}> {'\u2022'} {t("unsaved")}</span>}
                             </label>
-                            <div style={{ height: 100 }}>
+                            <div style={{ flex: 1, minHeight: 0 }}>
                                 <CodeMirror
+                                    className='noteEditorHost'
                                     value={note}
                                     spellCheck={false}
                                     ref={noteRef}
@@ -1010,6 +1020,9 @@ const NoteComp = ({ editedItem }: Props) => {
                                     extensions={cdmrrorExtensions}
                                     onChange={onCMChange}
                                     onClick={handleActiveItemFocus}
+                                    onCreateEditor={(view) => {
+                                        view.scrollDOM.addEventListener('scroll', () => { rememberScrollPositionRef.current() });
+                                    }}
                                 />
                             </div>
                         </Form.Group>
@@ -1038,7 +1051,7 @@ const NoteComp = ({ editedItem }: Props) => {
                         onSave={() => { updateFile() }}
                         onDelete={() => { setAskDelete(true) }}
                         onScrollTop={() => {
-                            scrollableRef.current?.scrollTo({ top: 0 });
+                            getNoteScroller()?.scrollTo({ top: 0 });
                             rememberScrollPosition();
                         }}
                         onChangeSecret={() => { setUpdateSecret(true) }}
@@ -1083,6 +1096,7 @@ const NoteComp = ({ editedItem }: Props) => {
     if (showFullScreen) {
         return (
             <Modal
+                className='fullScreenNote'
                 show={showFullScreen}
                 onHide={() => { setShowFullScreen(false) }}
                 backdrop="static"

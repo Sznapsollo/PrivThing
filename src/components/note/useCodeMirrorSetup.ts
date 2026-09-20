@@ -202,9 +202,14 @@ export function useCodeMirrorSetup({
                 }
             }),
             placeholders,
+            // the editor owns its scrolling: it fills the pane and .cm-scroller scrolls.
+            // Letting the editor grow to the full document height instead (and having an
+            // outer container scroll) breaks scrollIntoView, so search next/prev and the
+            // search panel's scroll margins never bring a match into view.
             EditorView.theme({
-                '.cm-gutter,.cm-content': { borderBottom: 'nonde', minHeight: '1000px' },
-                '.cm-scroller': { overflow: 'auto' }
+                '&': { height: '100%' },
+                '.cm-scroller': { overflow: 'auto' },
+                '.cm-content': { minHeight: '100%' }
             }),
             // Prec.high(
             //     EditorView.domEventHandlers({
