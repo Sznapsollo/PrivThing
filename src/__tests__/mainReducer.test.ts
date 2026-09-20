@@ -42,3 +42,27 @@ describe('mainReducer', () => {
         expect(mainReducer(state, { type: MAIN_ACTIONS.SET_EDITED_ITEM, payload: {} } as any).tabs).toEqual([]);
     });
 });
+
+describe('saving a new note under a name', () => {
+    it('remembers the path to open, and hands it back once the list reloads', () => {
+        let state = baseState();
+        state = mainReducer(state, { type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: 'localStorage/new.txt' } as any);
+        expect(state.newPathToOpenCandidate).toBe('localStorage/new.txt');
+
+        state = mainReducer(state, { type: MAIN_ACTIONS.SET_ITEMS, payload: [
+            { name: 'new.txt', path: 'localStorage/new.txt', folder: 'localStorage' }
+        ] } as any);
+        expect(state.newItemToOpen?.path).toBe('localStorage/new.txt');
+        expect(state.newPathToOpenCandidate).toBe('');
+    });
+
+    it('loses the pending open if any other list refresh lands first', () => {
+        let state = baseState();
+        state = mainReducer(state, { type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: 'localStorage/new.txt' } as any);
+        state = mainReducer(state, { type: MAIN_ACTIONS.SET_ITEMS, payload: [] } as any);
+        state = mainReducer(state, { type: MAIN_ACTIONS.SET_ITEMS, payload: [
+            { name: 'new.txt', path: 'localStorage/new.txt', folder: 'localStorage' }
+        ] } as any);
+        expect(state.newItemToOpen).toBeUndefined();
+    });
+});

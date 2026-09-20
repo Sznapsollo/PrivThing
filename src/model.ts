@@ -98,6 +98,7 @@ export interface ProcessingResult {
 
 export interface SaveAsResults {
     fileName: string,
+    folder?: string,
     saveAsType: string,
     encryptData: boolean
     secret?: string

@@ -13,6 +13,11 @@ const post = async (body: object) => {
     return data
 };
 
+export async function createServerFile(folder: string, name: string, content: string): Promise<string> {
+    const data = await post({ type: 'createFileInFolder', folder: folder, name: name, data: content });
+    return data?.data?.path || ''
+}
+
 export const serverProvider: StorageProvider = {
     kind: 'server',
     canWrite: true,

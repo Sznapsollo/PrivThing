@@ -20,6 +20,7 @@ import SaveAsComp from './SaveAsComp';
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils';
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
 import { getProvider, localStorageItem } from '../storage';
+import { createServerFile } from '../storage/serverProvider';
 import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { useCodeMirrorSetup } from './note/useCodeMirrorSetup';
@@ -319,10 +320,20 @@ const NoteComp = ({ editedItem }: Props) => {
         setWrapWords(prev => !prev);
     }
 
+    const markSaved = () => {
+        orgNote.current = note;
+        setIsDirty(false);
+    }
+
     const handleSaveAs = async (saveResults: SaveAsResults): Promise<void> => {
         if (!canSaveFile(saveResults)) {
             return
         }
+
+        const fileData = (saveResults.encryptData && saveResults.secret)
+            ? await encryptData(saveResults.secret)
+            : note;
+
         if (saveResults.saveAsType === "LOCAL_STORAGE") {
 
             // check if there is some with this name
@@ -334,21 +345,26 @@ const NoteComp = ({ editedItem }: Props) => {
                 return
             }
 
-            const saved = (saveResults.encryptData && saveResults.secret)
-                ? await saveEncrypted(saveResults)
-                : await saveToLocalStorage(saveResults.fileName, note);
-            if (!saved) {
+            if (!await saveToLocalStorage(saveResults.fileName, fileData)) {
                 setIsSavingAs(false);
                 return
             }
+            markSaved();
             mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: "localStorage/" + saveResults.fileName });
             mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
-        } else {
-            if (saveResults.encryptData && saveResults.secret) {
-                await saveEncrypted(saveResults);
-            } else {
-                saveToFile(saveResults.fileName, note);
+        } else if (saveResults.saveAsType === "SERVER_FOLDER" && saveResults.folder) {
+            try {
+                const newPath = await createServerFile(saveResults.folder, saveResults.fileName, fileData);
+                markSaved();
+                mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST, payload: newPath });
+                mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
+            } catch (e) {
+                mainDispatch({ type: MAIN_ACTIONS.SHOW_ALERT_MODAL, payload: { show: true, header: t("error"), message: t("dataNotSaved") } as AlertData })
+                setIsSavingAs(false);
+                return
             }
+        } else {
+            saveToFile(saveResults.fileName, fileData);
         }
         setIsSavingAs(false);
     }
@@ -383,17 +399,6 @@ const NoteComp = ({ editedItem }: Props) => {
             return
         }
         mainDispatch({ type: MAIN_ACTIONS.SET_NOTE_SPACE_ACTIVE, payload: editedItem })
-    }
-
-    const saveEncrypted = async (saveResults: SaveAsResults): Promise<boolean> => {
-        if (saveResults.secret) {
-            const encrypted = await encryptData(saveResults.secret);
-            if (saveResults.saveAsType === "LOCAL_STORAGE") {
-                return await saveToLocalStorage(saveResults.fileName, encrypted)
-            }
-            saveToFile(saveResults.fileName, encrypted);
-        }
-        return true
     }
 
     const showSaveFailed = () => {
@@ -485,6 +490,7 @@ const NoteComp = ({ editedItem }: Props) => {
             return
         }
 
+        markSaved();
         mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
         mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, closeAfter: 3000, message: t('dataSaved') } as AlertData })
 

@@ -1,4 +1,6 @@
 import { getProvider, localStorageItem, StorageError } from '../storage';
+import axios from 'axios';
+import { createServerFile } from '../storage/serverProvider';
 import * as notesStore from '../storage/notesStore';
 import { Item } from '../model';
 
@@ -86,8 +88,30 @@ describe('the picked-file backend', () => {
 });
 
 describe('the server backend', () => {
+    afterEach(() => jest.restoreAllMocks());
+
     it('refuses to delete, because the API has no delete action', async () => {
         await expect(getProvider(serverItem('/tmp/a.txt')).remove(serverItem('/tmp/a.txt'))).rejects.toThrow(StorageError);
+    });
+
+    it('turns a refusal into a StorageError carrying the server reason', async () => {
+        jest.spyOn(axios, 'post').mockResolvedValue({ data: { status: -1, data: 'Access to file denied.' } });
+
+        await expect(createServerFile('/notes/', 'new.txt', 'x')).rejects.toThrow('Access to file denied.');
+    });
+
+    it('creates a file in a folder and returns its new path', async () => {
+        const post = jest.spyOn(axios, 'post').mockResolvedValue({ data: { status: 0, data: { path: '/notes/new.txt' } } });
+
+        const created = await createServerFile('/notes/', 'new.txt', 'hello');
+
+        expect(created).toBe('/notes/new.txt');
+        expect(JSON.parse(post.mock.calls[0][1] as string)).toEqual({ type: 'createFileInFolder', folder: '/notes/', name: 'new.txt', data: 'hello' });
+    });
+
+    it('turns a refused create into a StorageError', async () => {
+        jest.spyOn(axios, 'post').mockResolvedValue({ data: { status: -1, data: 'File already exists.' } });
+        await expect(createServerFile('/notes/', 'new.txt', 'hello')).rejects.toThrow(StorageError);
     });
 });
 

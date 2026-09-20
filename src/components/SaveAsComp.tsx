@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next'
 import SecretComp from './SecretComp'
 import { SaveAsResults } from '../model'
 import { retrieveLocalStorage, saveLocalStorage } from '../utils/utils'
+import { AppState } from '../context/Context'
+
+const FOLDER_PREFIX = 'FOLDER:';
 
 interface Props {
     fileName: string,
@@ -25,6 +28,9 @@ const SaveAsComp = ({
     }
 
     const { t } = useTranslation();
+    const { mainState: { folders }, settingsState: { enableFileServer } } = AppState();
+
+    const serverFolders = (enableFileServer === true ? folders : []).filter((folder) => folder.name && folder.name !== 'localStorage');
     const [encryptData, setEncryptData] = useState<boolean>(false);
     const [saveAsType, setSaveAsType] = useState<string>(pmSaveAsType || "LOCAL_STORAGE");
     const [saveFileName, setSaveFileName] = useState<string>(fileName);
@@ -61,13 +67,20 @@ const SaveAsComp = ({
         return true
     }
 
+    const saveTarget = (): {saveAsType: string, folder?: string} => {
+        if(saveAsType.startsWith(FOLDER_PREFIX)) {
+            return { saveAsType: 'SERVER_FOLDER', folder: saveAsType.substring(FOLDER_PREFIX.length) }
+        }
+        return { saveAsType: saveAsType }
+    }
+
     const handleSave = () => {
         if(!validateForm()) {
             return
         }
         onSave({
             fileName: handleFileName(),
-            saveAsType: saveAsType,
+            ...saveTarget(),
             encryptData: false
         });
     };
@@ -78,7 +91,7 @@ const SaveAsComp = ({
         }
         onSave({
             fileName: handleFileName(),
-            saveAsType: saveAsType,
+            ...saveTarget(),
             encryptData: encryptData,
             secret: secret
         })
@@ -137,6 +150,11 @@ const SaveAsComp = ({
                             >
                                 <option value="LOCAL_STORAGE">{t("localStorage")}</option>
                                 <option value="FILE">{t("file")}</option>
+                                {
+                                    serverFolders.map((folder) => (
+                                        <option key={folder.name} value={FOLDER_PREFIX + folder.name}>{folder.name}</option>
+                                    ))
+                                }
                             </Form.Control>
                         </Form.Group>
                     </div>
