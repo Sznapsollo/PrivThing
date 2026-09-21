@@ -106,6 +106,10 @@ export function useCodeMirrorSetup({
                 super();
             }
 
+            eq(other: PassHiderWidget) {
+                return other.element === this.element && other.position === this.position;
+            }
+
             toDOM() {
                 const spanID = `${this.position}_${this.position + this.element.length + 'hide[[]]'.length}`;
                 let wrap = document.createElement('span');
@@ -119,12 +123,20 @@ export function useCodeMirrorSetup({
                     }
                 };
                 wrap.setAttribute('id', spanID);
-                wrap.onclick = (e) => {
+                // copy on mousedown rather than click: when the editor is not focused yet,
+                // the first press focuses it and the resulting view update can replace this
+                // widget's DOM node before mouseup, so no click event is ever delivered and
+                // the first click would only focus the row instead of copying.
+                wrap.onmousedown = (e) => {
+                    if (e.button !== 0) {
+                        return;
+                    }
+                    // no preventDefault here: the press should still focus the editor and
+                    // place the caret on this row, exactly as it did before.
                     copyClickedValueRef.current(
                         (this.element || '').replaceAll('hide[[', '').replaceAll(']]', ''),
                         'copied'
                     );
-                    e.preventDefault();
                 };
                 wrap.oncontextmenu = (e) => {
                     if (e && e.target) {
