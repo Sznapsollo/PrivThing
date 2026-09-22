@@ -9,6 +9,8 @@ import { PiArrowsOutLineHorizontalFill } from "react-icons/pi";
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { getNewItem, saveLocalStorage, toPersistable } from '../utils/utils';
 import { pruneDrafts } from '../storage/draftsStore';
+import { anyNoteDirty } from './note/noteTexts';
+import ConfirmationComp from './ConfirmationComp';
 import { keyActivate } from '../utils/a11y';
 import CompareComp from './note/CompareComp';
 import { VscDiff } from 'react-icons/vsc';
@@ -29,6 +31,32 @@ const NoteSpacesComp = () => {
     const { mainState: { editedItemSpaces, favourites, recents }, mainDispatch} = AppState();
     const [ noteSpaceContextMenu, setNoteSpaceContextMenu ] = useState<NoteSpaceContextMenu>(initialNoteSpaceContextMenu)
     const [ comparePair, setComparePair ] = useState<EditItem[] | null>(null)
+    const [ pendingClose, setPendingClose ] = useState<(() => void) | null>(null)
+
+    const closeSpace = (noteSpaceItem: EditItem) => {
+        const close = () => mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: noteSpaceItem});
+        if(anyNoteDirty([noteSpaceItem.spaceId])) {
+            setPendingClose(() => close);
+        } else {
+            close();
+        }
+    }
+
+    const closeOtherSpaces = (noteSpaceItem: EditItem) => {
+        const close = () => {
+            if(noteSpaceItem.isActive === true) {
+                mainDispatch({type: MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES, payload: noteSpaceItem});
+            } else {
+                mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: noteSpaceItem, tab: {...noteSpaceItem, isActive: false, isNew: true}, action: 'CLEAR_OTHER_NOTE_SPACES'}});
+            }
+        };
+        const others = editedItemSpaces.filter((editedItemSpace) => editedItemSpace.spaceId !== noteSpaceItem.spaceId).map((editedItemSpace) => editedItemSpace.spaceId);
+        if(anyNoteDirty(others)) {
+            setPendingClose(() => close);
+        } else {
+            close();
+        }
+    }
 
     useEffect(() => {
         if(!!editedItemSpaces) {
@@ -92,17 +120,12 @@ const NoteSpacesComp = () => {
         switch(menuAction.action) {
             case 'closeNoteSpace':
                 if(noteSpaceItem) {
-                    mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: noteSpaceItem});
+                    closeSpace(noteSpaceItem);
                 }
                 break;
             case 'closeNoteSpacesButThis':
-                if(!noteSpaceItem) {
-                    break;
-                }
-                if(noteSpaceItem.isActive === true) {
-                    mainDispatch({type: MAIN_ACTIONS.CLEAR_OTHER_NOTE_SPACES, payload: noteSpaceItem});
-                } else {
-                    mainDispatch({type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: {item: noteSpaceItem, tab: {...noteSpaceItem, isActive: false, isNew: true}, action: 'CLEAR_OTHER_NOTE_SPACES'}});
+                if(noteSpaceItem) {
+                    closeOtherSpaces(noteSpaceItem);
                 }
                 break;
             case 'close':
@@ -121,6 +144,16 @@ const NoteSpacesComp = () => {
         <div className='notesSpacesContainer'>
             {noteSpaceContextMenu.show === true && <GenericContextMenuComp x={noteSpaceContextMenu.x} y={noteSpaceContextMenu.y} menuActions={noteSpaceContextMenu.menuActions} contextMenuAction={handleContextMenuAction}/>}
             {comparePair && <CompareComp left={comparePair[0]} right={comparePair[1]} onClose={() => setComparePair(null)}/>}
+            {
+                pendingClose &&
+                <ConfirmationComp
+                    externalHeading={t("warning")}
+                    externalSaveLabel={t("yes")}
+                    externalCloseLabel={t("no")}
+                    handleExternalSave={() => { pendingClose(); setPendingClose(null); }}
+                    handleExternalClose={() => setPendingClose(null)}
+                >{t("unsavedChanges")}</ConfirmationComp>
+            }
             {
                 editedItemSpaces.map((editedItemSpace, index) => (
                     <Fragment key={editedItemSpace.spaceId || index}>
@@ -185,9 +218,9 @@ const NoteSpacesComp = () => {
                                 </div>
                             </div>
                             { 
-                                editedItemSpaces.length > 1 && <FiMinusCircle title={t("closeNoteSpace")} aria-label={t("closeNoteSpace")} role="button" tabIndex={0} onKeyDown={keyActivate(() => mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: editedItemSpace}))} color={editedItemSpace.isActive ? '#ffffff' : '#000000'} className='h2 itemTabIconRemove' onClick={(e) => {
+                                editedItemSpaces.length > 1 && <FiMinusCircle title={t("closeNoteSpace")} aria-label={t("closeNoteSpace")} role="button" tabIndex={0} onKeyDown={keyActivate(() => closeSpace(editedItemSpace))} color={editedItemSpace.isActive ? '#ffffff' : '#000000'} className='h2 itemTabIconRemove' onClick={(e) => {
                                     e.preventDefault();
-                                    mainDispatch({type: MAIN_ACTIONS.REMOVE_NOTE_SPACE, payload: editedItemSpace});
+                                    closeSpace(editedItemSpace);
                                 }}/>
                             }
                             {

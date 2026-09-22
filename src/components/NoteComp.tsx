@@ -15,10 +15,10 @@ import { getNewItem, retrieveLocalStorage, saveLocalStorage } from '../utils/uti
 import { decryptNote, encryptNote, isEncryptedNote } from '../utils/crypto';
 import { CONFLICT, getProvider, localStorageItem, StorageError } from '../storage';
 import { createServerFile } from '../storage/serverProvider';
-import { Draft, getDraft, removeDraft, saveDraft } from '../storage/draftsStore';
 import { fileNameTimestamp } from '../utils/dates';
 import { MAIN_ACTIONS } from '../context/Reducers';
 import { useCodeMirrorSetup } from './note/useCodeMirrorSetup';
+import { useNoteDraft } from './note/useNoteDraft';
 import MarkdownPreview from './note/MarkdownPreview';
 import { registerNoteText, unregisterNoteText } from './note/noteTexts';
 import { isMarkdownNote } from '../utils/markdown';
@@ -60,9 +60,7 @@ const NoteComp = ({ editedItem }: Props) => {
     const lastModifiedRef = useRef<number | undefined>(undefined);
     const pendingSaveRef = useRef<{ fileData: string, callback?: () => void } | null>(null);
     const [askOverwrite, setAskOverwrite] = useState<boolean>(false);
-    const [pendingDraft, setPendingDraft] = useState<Draft | null>(null);
     const [showPreview, setShowPreview] = useState<boolean>(false);
-    const draftHandle = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isEncrypted, setIsEncrypted] = useState<boolean>(false);
     const [isIntroduced, setIsIntroduced] = useState<boolean>(isIntroducedGlb);
     const [showUnsaved, setShowUnsaved] = useState<boolean>(false);
@@ -84,6 +82,17 @@ const NoteComp = ({ editedItem }: Props) => {
 
     const orgNote = useRef<string>('');
     const rawNote = useRef<string>('');
+
+    const draft = useNoteDraft({
+        spaceId: editedItem.spaceId,
+        path: editedItem.path,
+        name: editedItem.name,
+        note: note,
+        orgNote: orgNote,
+        isEncrypted: isEncrypted,
+        isLoading: isLoading,
+        onRestore: (draftedNote) => setNote(draftedNote)
+    });
     const isMouseOver = useRef(false);
     const isUpdating = useRef(false);
     const srollTopBtn = useRef<HTMLDivElement>(null);
@@ -105,10 +114,9 @@ const NoteComp = ({ editedItem }: Props) => {
     const isMac = window.navigator.userAgent.indexOf('Mac') >= 0;
 
     useEffect(() => {
-        if (!newItemToOpen?.path) {
+        if (!newItemToOpen?.path || !editedItem.isActive) {
             return
         }
-        setIsDirty(false);
         mainDispatch({ type: MAIN_ACTIONS.SET_EDITED_ITEM_CANDIDATE, payload: { item: newItemToOpen } });
     }, [newItemToOpen?.path]);
 
@@ -157,41 +165,14 @@ const NoteComp = ({ editedItem }: Props) => {
 
     const noteRefForCompare = useRef(note);
     noteRefForCompare.current = note;
+    const isDirtyRef = useRef(isDirty);
+    isDirtyRef.current = isDirty;
 
     useEffect(() => {
         const spaceId = editedItem.spaceId;
-        registerNoteText(spaceId, () => noteRefForCompare.current);
+        registerNoteText(spaceId, () => noteRefForCompare.current, () => isDirtyRef.current);
         return () => unregisterNoteText(spaceId)
     }, [editedItem.spaceId]);
-
-    useEffect(() => {
-        if (!editedItem.spaceId || isEncrypted || isLoading) {
-            return
-        }
-        if (draftHandle.current != null) {
-            clearTimeout(draftHandle.current);
-        }
-        if (note === orgNote.current) {
-            removeDraft(editedItem.spaceId);
-            return
-        }
-        const spaceId = editedItem.spaceId;
-        const draftedNote = note;
-        draftHandle.current = setTimeout(() => {
-            saveDraft({
-                spaceId: spaceId,
-                path: editedItem.path || '',
-                name: editedItem.name || '',
-                note: draftedNote,
-                savedAt: new Date().getTime()
-            }).catch((e) => console.warn('Could not store the draft', e));
-        }, 1500)
-        return () => {
-            if (draftHandle.current != null) {
-                clearTimeout(draftHandle.current);
-            }
-        }
-    }, [note, isEncrypted, isLoading, editedItem.spaceId, editedItem.path, editedItem.name]);
 
     useEffect(() => {
         if (!isDirty) {
@@ -224,7 +205,10 @@ const NoteComp = ({ editedItem }: Props) => {
     }
 
     const reportMissingFile = () => {
-        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: t('fileNotFound') + (filePath || '') } as NotificationData })
+        const message = getProvider(editedItem).kind === 'pickedFile'
+            ? t('pickedFileNotRestored', { name: editedItem.name })
+            : t('fileNotFound') + (editedItem.path || '');
+        mainDispatch({ type: MAIN_ACTIONS.SHOW_NOTIFICATION, payload: { show: true, type: 'error', closeAfter: 10000, message: message } as NotificationData })
         let currentTabs = tabs.filter((tab) => tab.path !== editedItem.path);
         mainDispatch({ type: MAIN_ACTIONS.UPDATE_TABS, payload: currentTabs });
     }
@@ -243,10 +227,12 @@ const NoteComp = ({ editedItem }: Props) => {
             setIsLoading(true);
         }
 
+        let encrypted = false;
         try {
             const result = await getProvider(editedItem).read(editedItem);
             lastModifiedRef.current = result.lastModified;
             if (result.found && result.data != null) {
+                encrypted = isEncryptedNote(result.data, editedItem.name);
                 setRawNote(result.data);
             } else if (!!editedItem.path) {
                 reportMissingFile();
@@ -258,13 +244,7 @@ const NoteComp = ({ editedItem }: Props) => {
 
         setIsLoading(false);
         initializeCompleted();
-
-        if (editedItem.spaceId && !isEncrypted) {
-            const draft = await getDraft(editedItem.spaceId);
-            if (draft && draft.note !== orgNote.current) {
-                setPendingDraft(draft);
-            }
-        }
+        draft.check(encrypted);
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -372,6 +352,7 @@ const NoteComp = ({ editedItem }: Props) => {
         setRawNote('');
         setShowUnsaved(false);
         setUpdateSecret(false);
+        draft.reset();
     }
 
     const handleSecretSubmit = (secret: string) => {
@@ -419,6 +400,7 @@ const NoteComp = ({ editedItem }: Props) => {
 
     const handleRefreshConfirm = () => {
         setAskRefresh(false);
+        draft.clear();
         mainDispatch({ type: MAIN_ACTIONS.UPDATE_ITEMS_LIST });
         initializeEditedItem();
     }
@@ -427,6 +409,7 @@ const NoteComp = ({ editedItem }: Props) => {
         setAskOverwrite(false);
         pendingSaveRef.current = null;
         isUpdating.current = false;
+        draft.clear();
         initializeEditedItem();
     }
 
@@ -458,23 +441,7 @@ const NoteComp = ({ editedItem }: Props) => {
     const markSaved = () => {
         orgNote.current = note;
         setIsDirty(false);
-        if (editedItem.spaceId) {
-            removeDraft(editedItem.spaceId);
-        }
-    }
-
-    const handleRestoreDraft = () => {
-        if (pendingDraft) {
-            setNote(pendingDraft.note);
-        }
-        setPendingDraft(null);
-    }
-
-    const handleDiscardDraft = () => {
-        if (editedItem.spaceId) {
-            removeDraft(editedItem.spaceId);
-        }
-        setPendingDraft(null);
+        draft.clear();
     }
 
     const handleSaveAs = async (saveResults: SaveAsResults): Promise<void> => {
@@ -485,6 +452,9 @@ const NoteComp = ({ editedItem }: Props) => {
         const fileData = (saveResults.encryptData && saveResults.secret)
             ? await encryptData(saveResults.secret)
             : note;
+        if (saveResults.encryptData && saveResults.secret) {
+            mainDispatch({ type: MAIN_ACTIONS.UPDATE_SECRET, payload: saveResults.secret });
+        }
 
         if (saveResults.saveAsType === "LOCAL_STORAGE") {
 
@@ -850,7 +820,7 @@ const NoteComp = ({ editedItem }: Props) => {
             case 'unveilHiddenText':
                 if (noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart && noteContextMenu.clickEvent != null && noteContextMenu.clickEvent.target != null) {
                     const evC = noteContextMenu.clickEvent
-                    const orgValue = (evC.target as HTMLSpanElement).innerHTML;
+                    const orgValue = (evC.target as HTMLSpanElement).textContent || '';
                     const markedNodeId = `${noteContextMenu.selectionStart}_${noteContextMenu.selectionEnd}`;
                     const markedNode = document.getElementById(markedNodeId);
 
@@ -859,13 +829,13 @@ const NoteComp = ({ editedItem }: Props) => {
                         setTimeout(() => {
                             const markedNode = document.getElementById(markedNodeId);
                             if (markedNode) {
-                                markedNode.innerHTML = hiddenText.replaceAll('hide[[', '').replaceAll(']]', '');
+                                markedNode.textContent = hiddenText.replaceAll('hide[[', '').replaceAll(']]', '');
                             }
 
                             setTimeout(() => {
                                 const markedNode = document.getElementById(markedNodeId);
                                 if (markedNode) {
-                                    markedNode.innerHTML = orgValue;
+                                    markedNode.textContent = orgValue;
                                 }
                             }, 5000)
                         }, 200)
@@ -1086,9 +1056,9 @@ const NoteComp = ({ editedItem }: Props) => {
                 onOverwriteClose={() => { setAskOverwrite(false); pendingSaveRef.current = null; }}
                 noteContextMenu={noteContextMenu}
                 onContextMenuAction={handleContextMenuAction}
-                pendingDraft={pendingDraft}
-                onRestoreDraft={handleRestoreDraft}
-                onDiscardDraft={handleDiscardDraft}
+                pendingDraft={draft.pendingDraft}
+                onRestoreDraft={draft.restore}
+                onDiscardDraft={draft.discard}
             />
         </div>
     )

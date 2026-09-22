@@ -107,6 +107,7 @@
     "file": "Datei",
     "fileName": "Dateiname",
     "fileChangedOnDisk": "Diese Datei wurde nach dem Öffnen auf der Festplatte geändert - etwas anderes hat hineingeschrieben. Überschreiben ersetzt diese Änderungen durch Ihre Version. Neu laden verwirft, was Sie hier getippt haben, und zeigt die Datei so, wie sie jetzt ist. Abbrechen behält Ihren Text im Editor, damit Sie ihn vorher kopieren können.",
+    "pickedFileNotRestored": "Eine manuell ausgewählte Datei kann nach einem Neuladen nicht wieder geöffnet werden. Wählen Sie {{name}} erneut aus, um weiterzuarbeiten.",
     "fileNotFound": "Datei nicht gefunden",
     "filesLoaded": "Dateien geladen",
     "filePath": "Dateipfad",

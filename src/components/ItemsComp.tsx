@@ -159,7 +159,6 @@ const ItemsComp = () => {
 
                 // always load all
                 await loadFilesFromLocalCache();
-                mainDispatch({type: MAIN_ACTIONS.SET_ITEMS, payload: itemsLoaded});
             } catch(e) {
                 let excError: string = '';
                 if (typeof e === "string") {

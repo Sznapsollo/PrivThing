@@ -164,13 +164,48 @@ You need Node 20 or newer.
 npm install
 npm start          # development server on http://localhost:3000
 npm run build      # production build into build/
-npm test           # run the test suite
+npm test           # unit tests (vitest, no browser needed)
+npm run test:e2e   # browser tests, see below
 npm run lint       # lint
 npm run typecheck  # TypeScript check
 ```
 
 `npm start` proxies `/actions` to `http://localhost:8180`, so you can develop against a local
 PrivThingServer.
+
+### Browser tests
+
+`npm test` runs the unit tests in `src/__tests__`. The files in `e2e/` are tests too, but of a
+different kind: they build the app, start it in a real Chrome and click through it — opening
+notes, typing, saving, reloading — the way a person would. They exist because some bugs (the
+draft prompt appearing at the wrong moment, Save As not reopening the saved note) can only be
+seen with the whole app running.
+
+```
+npm run test:e2e
+```
+
+What it needs:
+
+- **Chrome** installed. Playwright drives the browser you already have; nothing is
+  downloaded. Set `PRIVTHING_E2E_CHANNEL` (for example `chromium` or `msedge`) to use
+  another one.
+- **The PrivThingServer checkout** next to this one (`../PrivThingServer`, with its
+  `npm install` done), or point `PRIVTHING_SERVER_DIR` at it. The tests run the server's real
+  `/actions` code against a throwaway folder in the system temp directory, so your own
+  `config.json` and the folders in it are never touched.
+
+The run takes about a minute. Each file in `e2e/` gets its own fresh server and browser:
+
+| file | what it checks |
+|---|---|
+| `e2e/drafts.e2e.ts` | a draft is offered after a reload and gone after a save, never for another file |
+| `e2e/saveAs.e2e.ts` | Save As to local storage reopens the note, plain and encrypted |
+| `e2e/noteSpaces.e2e.ts` | closing a note space with unsaved text asks first |
+
+To add one, copy a file in `e2e/` and use the helpers in `e2e/support/app.ts` (`openApp`,
+`openRow`, `typeAtEnd`, `storedDrafts`, …). `startSandbox({ 'a.txt': '…' })` decides which
+files the temporary server folder starts with.
 
 ### Releasing alongside the server
 

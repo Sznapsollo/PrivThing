@@ -87,6 +87,11 @@ describe('the picked-file backend', () => {
         expect(await getProvider(pickedItem('from disk')).read(pickedItem('from disk'))).toEqual({ data: 'from disk', found: true });
     });
 
+    it('reports the file as missing once its content is gone, which is what a reload does to it', async () => {
+        const restored: Item = { name: 'picked.txt', path: 'C:\\fakepath\\picked.txt' };
+        expect(await getProvider(restored).read(restored)).toEqual({ data: null, found: false });
+    });
+
     it('refuses to write or delete, so Save as stays the only route', async () => {
         await expect(getProvider(pickedItem('x')).write(pickedItem('x'), 'y')).rejects.toThrow(StorageError);
         await expect(getProvider(pickedItem('x')).remove(pickedItem('x'))).rejects.toThrow(StorageError);

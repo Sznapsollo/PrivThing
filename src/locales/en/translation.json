@@ -107,6 +107,7 @@
     "file": "File",
     "fileName": "File Name",
     "fileChangedOnDisk": "This file changed on disk after you opened it - something else wrote to it. Overwrite replaces those changes with your version. Reload from disk throws away what you typed here and shows the file as it is now. Cancel keeps your text in the editor so you can copy it out first.",
+    "pickedFileNotRestored": "A manually picked file cannot be reopened after a reload. Pick {{name}} again to keep working on it.",
     "fileNotFound": "File not found",
     "filesLoaded": "Files loaded",
     "filePath": "File Path",

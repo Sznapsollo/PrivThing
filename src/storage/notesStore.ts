@@ -50,7 +50,10 @@ const migrate = async (): Promise<void> => {
 
 const ensureReady = (): Promise<void> => {
     if (!ready) {
-        ready = migrate();
+        ready = migrate().catch((e) => {
+            ready = null;
+            throw e
+        });
     }
     return ready
 };

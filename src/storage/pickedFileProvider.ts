@@ -7,7 +7,10 @@ export const pickedFileProvider: StorageProvider = {
     canDelete: false,
 
     read: async (item: Item): Promise<ReadResult> => {
-        return { data: item.rawNote || '', found: true }
+        if (item.rawNote == null) {
+            return { data: null, found: false }
+        }
+        return { data: item.rawNote, found: true }
     },
 
     write: async (): Promise<WriteResult> => {

@@ -107,6 +107,7 @@
     "file": "Plik",
     "fileName": "Nazwa pliku",
     "fileChangedOnDisk": "Ten plik zmienił się na dysku po jego otwarciu - coś innego do niego zapisało. Nadpisanie zastąpi tamte zmiany Twoją wersją. Wczytanie ponowne odrzuci to, co tu wpisałeś, i pokaże plik w obecnej postaci. Anuluj zostawia Twój tekst w edytorze, żebyś mógł go najpierw skopiować.",
+    "pickedFileNotRestored": "Ręcznie wybranego pliku nie da się ponownie otworzyć po przeładowaniu strony. Wybierz {{name}} jeszcze raz, aby dalej nad nim pracować.",
     "fileNotFound": "Nie znaleziono pliku",
     "filesLoaded": "Załadowano pliki",
     "filePath": "Ścieżka pliku",
