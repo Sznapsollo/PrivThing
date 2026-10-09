@@ -100,18 +100,17 @@ export function useCodeMirrorSetup({
         class PassHiderWidget extends WidgetType {
             constructor(
                 readonly element: string,
-                readonly view: EditorView,
-                readonly position: number
+                readonly view: EditorView
             ) {
                 super();
             }
 
             eq(other: PassHiderWidget) {
-                return other.element === this.element && other.position === this.position;
+                return other.element === this.element;
             }
 
             toDOM() {
-                const spanID = `${this.position}_${this.position + this.element.length + 'hide[[]]'.length}`;
+                const hiddenValue = () => (this.element || '').replaceAll('hide[[', '').replaceAll(']]', '');
                 let wrap = document.createElement('span');
                 wrap.setAttribute('role', 'button');
                 wrap.setAttribute('tabindex', '0');
@@ -119,35 +118,32 @@ export function useCodeMirrorSetup({
                 wrap.onkeydown = (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        copyClickedValueRef.current((this.element || '').replaceAll('hide[[', '').replaceAll(']]', ''), 'copied');
+                        copyClickedValueRef.current(hiddenValue(), 'copied');
                     }
                 };
-                wrap.setAttribute('id', spanID);
-                // copy on mousedown rather than click: when the editor is not focused yet,
-                // the first press focuses it and the resulting view update can replace this
-                // widget's DOM node before mouseup, so no click event is ever delivered and
-                // the first click would only focus the row instead of copying.
+                // kept away from the editor and the pane so copying neither moves the caret nor activates the pane
                 wrap.onmousedown = (e) => {
-                    if (e.button !== 0) {
-                        return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (e.button === 0) {
+                        copyClickedValueRef.current(hiddenValue(), 'copied');
                     }
-                    // no preventDefault here: the press should still focus the editor and
-                    // place the caret on this row, exactly as it did before.
-                    copyClickedValueRef.current(
-                        (this.element || '').replaceAll('hide[[', '').replaceAll(']]', ''),
-                        'copied'
-                    );
+                };
+                wrap.onclick = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                 };
                 wrap.oncontextmenu = (e) => {
-                    if (e && e.target) {
-                        // const {pageX, pageY} = e;
-                        buildContextMenuRef.current(e, {
-                            type: 'fromMarked',
-                            selectionStart: this.position,
-                            selectionEnd: this.position + this.element.length + 'hide[[]]'.length
-                        });
-                    }
                     e.preventDefault();
+                    e.stopPropagation();
+                    const from = this.view.posAtDOM(wrap);
+                    const to = from + this.element.length + 'hide[[]]'.length;
+                    wrap.setAttribute('id', `${from}_${to}`);
+                    buildContextMenuRef.current(e, {
+                        type: 'fromMarked',
+                        selectionStart: from,
+                        selectionEnd: to
+                    });
                 };
                 wrap.className = 'cm-pass-hider';
                 wrap.innerHTML = this.element.replace(/./g, '*');
@@ -156,15 +152,15 @@ export function useCodeMirrorSetup({
             }
 
             ignoreEvent() {
-                return false;
+                return true;
             }
         }
         const placeholderMatcher = new MatchDecorator({
             // regexp: /pass\[\[(\w+)\]\]/g,
             regexp: hideRegex,
-            decoration: (match, view, position) =>
+            decoration: (match, view) =>
                 Decoration.replace({
-                    widget: new PassHiderWidget(match[1], view, position)
+                    widget: new PassHiderWidget(match[1], view)
                 })
         });
 
