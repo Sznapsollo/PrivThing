@@ -773,6 +773,13 @@ const NoteComp = ({ editedItem }: Props) => {
         setNoteContextMenu(noteContextMenuObj);
     }
 
+    const noteSlice = (from: number, to: number): string => noteRef.current?.view?.state.sliceDoc(from, to) || '';
+
+    // a targeted change keeps scroll and caret; replacing the whole value makes the editor jump
+    const replaceInNote = (from: number, to: number, insert: string) => {
+        noteRef.current?.view?.dispatch({ changes: { from: from, to: to, insert: insert }, userEvent: 'input' });
+    }
+
     const handleContextMenuAction = (menuAction: GenericContextMenuAction) => {
         switch (menuAction.action) {
             case 'copy':
@@ -787,33 +794,21 @@ const NoteComp = ({ editedItem }: Props) => {
                 break;
             case 'delete':
                 if (noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
-                    let selectedText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
-                    if (selectedText && selectedText.length) {
-                        setNote(note.substring(0, noteContextMenu.selectionStart) + note.substring(noteContextMenu.selectionEnd))
-                    }
+                    replaceInNote(noteContextMenu.selectionStart, noteContextMenu.selectionEnd, '');
                 }
                 break;
             case 'deleteLine':
                 if (noteContextMenu.clickedLine != null && noteRef.current?.view != null) {
-                    let line = noteRef.current.view.state.doc.line(noteContextMenu.clickedLine); // Convert 1-based line number to 0-based index
-                    let charStart = line.from;
-                    let chartEnd = line.to;
-
-                    let firstPart = note.substring(0, charStart);
-                    if (firstPart.endsWith('\r\n')) {
-                        firstPart = firstPart.substring(0, firstPart.length - 2);
-                    } else if (firstPart.endsWith('\n')) {
-                        firstPart = firstPart.substring(0, firstPart.length - 1);
-                    }
-                    setNote(firstPart + note.substring(chartEnd));
+                    const line = noteRef.current.view.state.doc.line(noteContextMenu.clickedLine);
+                    replaceInNote(line.number > 1 ? line.from - 1 : line.from, line.to, '');
                 }
                 break;
             case 'hideSelectedText':
                 if (noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
-                    let selectedText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
+                    const selectedText = noteSlice(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
                     // we do not want it to contain any other decorators
                     if (selectedText && selectedText.length && !selectedText.match(hideRegex) && !selectedText.includes('\n')) {
-                        setNote(note.substring(0, noteContextMenu.selectionStart) + `hide[[${selectedText}]]` + note.substring(noteContextMenu.selectionEnd))
+                        replaceInNote(noteContextMenu.selectionStart, noteContextMenu.selectionEnd, `hide[[${selectedText}]]`);
                     }
                 }
                 break;
@@ -844,10 +839,10 @@ const NoteComp = ({ editedItem }: Props) => {
                 break;
             case 'unhideHiddenText':
                 if (noteContextMenu.selectionStart != null && noteContextMenu.selectionEnd != null && noteContextMenu.selectionEnd > noteContextMenu.selectionStart) {
-                    let hiddenText = note.substring(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
+                    const hiddenText = noteSlice(noteContextMenu.selectionStart, noteContextMenu.selectionEnd);
                     // we do not want it to contain any other decorators
                     if (hiddenText && hiddenText.length && hiddenText.match(hideRegex) && !hiddenText.includes('\n')) {
-                        setNote(note.substring(0, noteContextMenu.selectionStart) + `${hiddenText.replaceAll('hide[[', '').replaceAll(']]', '')}` + note.substring(noteContextMenu.selectionEnd))
+                        replaceInNote(noteContextMenu.selectionStart, noteContextMenu.selectionEnd, hiddenText.replaceAll('hide[[', '').replaceAll(']]', ''));
                     }
                 }
                 break;

@@ -12,7 +12,7 @@ const hidden = (page: Page, index: number) => panes(page).nth(index).locator('.c
 const paneText = (page: Page, index: number) => panes(page).nth(index).locator('.cm-content').innerText();
 
 beforeAll(async () => {
-    sandbox = await startSandbox({ 'a.txt': 'alpha\n', 'b.txt': 'login: bob\npass: hide[[s3cret]]\n' });
+    sandbox = await startSandbox({ 'a.txt': 'alpha\n', 'b.txt': 'login: bob\npass: hide[[s3cret]]\n', 'long.txt': Array.from({ length: 200 }, (_, i) => `line ${i} word`).join('\n') });
     app = await openApp(sandbox.url);
     await app.page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: sandbox.url });
     await app.page.evaluate(() => localStorage.setItem('privthing.pmSettings', btoa(encodeURIComponent(JSON.stringify({ stretchNoteSpaceOnActive: true })))));
@@ -91,5 +91,53 @@ describe('hidden text', () => {
         expect(await paneText(page, 1)).toContain('pass: s3cret');
         expect(await paneText(page, 1)).toContain('user login: bob');
         expect(await panes(page).nth(1).locator('.cm-pass-hider').count()).toBe(0);
+    });
+
+    it('hiding and unhiding text keeps the scroll position', async () => {
+        const { page } = app;
+        await panes(page).nth(1).locator('.cm-content').click();
+        await page.keyboard.press('Control+s');
+        await sleep(600);
+        await openRow(page, 'long.txt');
+        expect(await paneText(page, 1)).toContain('line 0 word');
+        const scroller = panes(page).nth(1).locator('.cm-scroller');
+        const scrollTop = () => scroller.evaluate((el) => Math.round(el.scrollTop));
+        const word = panes(page).nth(1).locator('.cm-line', { hasText: 'line 70 word' }).first();
+        await scroller.evaluate((el) => el.scrollTo({ top: 1500 }));
+        await sleep(400);
+        await word.scrollIntoViewIfNeeded();
+        await sleep(400);
+        const before = await scrollTop();
+        expect(before).toBeGreaterThan(500);
+
+        await word.dblclick({ position: { x: 5, y: 5 } });
+        await word.click({ button: 'right', position: { x: 5, y: 5 } });
+        await sleep(300);
+        await page.getByRole('menuitem', { name: 'Hide selected text' }).click();
+        await sleep(500);
+        expect(await panes(page).nth(1).locator('.cm-pass-hider').count()).toBeGreaterThan(0);
+        expect(await scrollTop()).toBe(before);
+
+        await panes(page).nth(1).locator('.cm-pass-hider').first().click({ button: 'right' });
+        await sleep(300);
+        await page.getByRole('menuitem', { name: 'Unhide hidden text' }).click();
+        await sleep(500);
+        expect(await panes(page).nth(1).locator('.cm-pass-hider').count()).toBe(0);
+        expect(await scrollTop()).toBe(before);
+    });
+
+    it('deleting a line removes just that line and keeps the scroll position', async () => {
+        const { page } = app;
+        const scroller = panes(page).nth(1).locator('.cm-scroller');
+        const before = await scroller.evaluate((el) => Math.round(el.scrollTop));
+        const line = panes(page).nth(1).locator('.cm-line', { hasText: 'line 72 word' }).first();
+        await line.click({ position: { x: 5, y: 5 } });
+        await line.click({ button: 'right', position: { x: 5, y: 5 } });
+        await sleep(300);
+        await page.getByRole('menuitem', { name: /^Delete line/ }).click();
+        await sleep(500);
+        const text = await panes(page).nth(1).evaluate(() => (document.querySelectorAll('.noteSpaceContainer')[1].querySelector('.cm-content') as HTMLElement).innerText);
+        expect(text).toContain('line 71 word\nline 73 word');
+        expect(await scroller.evaluate((el) => Math.round(el.scrollTop))).toBe(before);
     });
 });
