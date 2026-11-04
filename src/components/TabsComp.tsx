@@ -181,7 +181,7 @@ const TabsComp = () => {
     }
 
     return (
-        <div className={tabsDisplayMode === 'SINGLELINE' ? 'singleLineTabs': ''}>
+        <div className={'tabsBar' + (tabsDisplayMode === 'SINGLELINE' ? ' singleLineTabs': '')}>
             <span>
                 {
                     (tabsDisplayMode !== 'SINGLELINE') &&

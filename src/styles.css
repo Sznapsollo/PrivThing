@@ -198,6 +198,12 @@ a:not(.dropdown-item) {
     cursor: pointer;
 }
 
+.tabsBar {
+    flex-shrink: 0;
+    max-height: 30vh;
+    overflow-y: auto;
+}
+
 .singleLineTabs {
     height: 40px;
     overflow: auto;
@@ -328,7 +334,7 @@ a:not(.dropdown-item) {
     overflow: hidden;
     /* padding: 20px; */
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: flex-start;
     display: flex;
     flex-flow: column;
     background-color: #f5f5f5;
